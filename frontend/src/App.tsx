@@ -1,10 +1,9 @@
+import {RouterProvider} from "react-router-dom";
+import router from "./routes/router.tsx";
+
 function App() {
 	return (
-		<>
-			<div className="text-4xl">
-				abc<h1>abc</h1>
-			</div>
-		</>
+		<RouterProvider router={router} />
 	);
 }
 
