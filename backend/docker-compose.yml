@@ -5,7 +5,7 @@ networks:
 
 services:
   redis:
-    image: redis:7.4.1-alpine
+    image: redis:8-alpine
     hostname: redis
     container_name: redis
     restart: always
@@ -30,6 +30,36 @@ services:
       - online-auction
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+#  pgadmin:
+#    image: dpage/pgadmin4:latest
+#    hostname: pgadmin
+#    container_name: pgadmin
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+#      PGADMIN_DEFAULT_PASSWORD: admin
+#      PGADMIN_CONFIG_SERVER_MODE: 'False'
+#    ports:
+#      - "5050:80"
+#    volumes:
+#      - pgadmin_data:/var/lib/pgadmin
+#    networks:
+#      - online-auction
+#    restart: unless-stopped
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    hostname: mailhog
+    container_name: mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    restart: unless-stopped
+    networks:
+      - online-auction
 
 volumes:
   postgres_data:

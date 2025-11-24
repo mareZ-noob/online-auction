@@ -21,7 +21,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .servers(List.of(
                         new Server()
-                                .url("http://localhost:8080")
+                                .url("http://localhost:8088")
                                 .description("Development Server"),
                         new Server()
                                 .url("https://api.auction.com")
