@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/login-form.tsx";
+import { SigninForm } from "@/components/signin-form.tsx";
 import { GalleryVerticalEnd } from "lucide-react";
 
 function SignInPage() {
@@ -15,7 +15,7 @@ function SignInPage() {
 				</div>
 				<div className="flex flex-1 items-center justify-center">
 					<div className="w-full max-w-xs">
-						<LoginForm />
+						<SigninForm />
 					</div>
 				</div>
 			</div>

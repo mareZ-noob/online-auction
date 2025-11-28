@@ -9,6 +9,9 @@ const SignUpPage = lazy(() => import("@/components/auth-page/SignUpPage.tsx"));
 const DashboardPage = lazy(
 	() => import("@/components/dashboard-page/DashboardPage.tsx"),
 );
+const ForgotPassword = lazy(() => import('@/components/auth-page/ForgotPassword.tsx'))
+const ResetPassword = lazy(() => import('@/components/auth-page/ResetPassword'))
+const OTPPage = lazy(() => import('@/components/auth-page/OTPPage.tsx'))
 
 const LayoutWithHeader = lazy(() => import("@/layouts/LayoutWithHeader.tsx"));
 
@@ -53,6 +56,18 @@ const router = createBrowserRouter([
 					</Suspense>
 				),
 			},
+			{
+				path: 'forgot-password',
+				element: <ForgotPassword />
+			},
+			{
+				path: 'reset-password',
+				element: <ResetPassword />
+			},
+			{
+				path: 'otp',
+				element: <OTPPage />
+			}
 		],
 	},
 ]);
