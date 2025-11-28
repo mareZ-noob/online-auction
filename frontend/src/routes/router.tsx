@@ -2,16 +2,20 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import ErrorPage from "@/layouts/ErrorPage.tsx";
 import { lazy, Suspense } from "react";
 import LoadingPage from "@/layouts/LoadingPage.tsx";
-import {ProtectedRoute} from "@/routes/protected-route.ts";
+import { ProtectedRoute } from "@/routes/protected-route.ts";
 
 const SignInPage = lazy(() => import("@/components/auth-page/SignInPage"));
 const SignUpPage = lazy(() => import("@/components/auth-page/SignUpPage.tsx"));
 const DashboardPage = lazy(
 	() => import("@/components/dashboard-page/DashboardPage.tsx"),
 );
-const ForgotPassword = lazy(() => import('@/components/auth-page/ForgotPassword.tsx'))
-const ResetPassword = lazy(() => import('@/components/auth-page/ResetPassword'))
-const OTPPage = lazy(() => import('@/components/auth-page/OTPPage.tsx'))
+const ForgotPassword = lazy(
+	() => import("@/components/auth-page/ForgotPassword.tsx"),
+);
+const ResetPassword = lazy(
+	() => import("@/components/auth-page/ResetPassword"),
+);
+const OTPPage = lazy(() => import("@/components/auth-page/OTPPage.tsx"));
 
 const LayoutWithHeader = lazy(() => import("@/layouts/LayoutWithHeader.tsx"));
 
@@ -30,7 +34,7 @@ const router = createBrowserRouter([
 				element: <DashboardPage />,
 			},
 		],
-		loader: ProtectedRoute
+		loader: ProtectedRoute,
 	},
 	{
 		path: "/auth",
@@ -57,17 +61,17 @@ const router = createBrowserRouter([
 				),
 			},
 			{
-				path: 'forgot-password',
-				element: <ForgotPassword />
+				path: "forgot-password",
+				element: <ForgotPassword />,
 			},
 			{
-				path: 'reset-password',
-				element: <ResetPassword />
+				path: "reset-password",
+				element: <ResetPassword />,
 			},
 			{
-				path: 'otp',
-				element: <OTPPage />
-			}
+				path: "otp",
+				element: <OTPPage />,
+			},
 		],
 	},
 ]);

@@ -8,16 +8,18 @@ import {
 	FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {Link, useNavigate} from "react-router-dom";
-import {z} from "zod";
-import {useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useLogin} from "@/hooks/auth-hooks.ts";
+import { Link, useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLogin } from "@/hooks/auth-hooks.ts";
 
 const signin_schema = z.object({
-	email: z.email({ message: 'Invalid email address' }),
-	password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
-})
+	email: z.email({ message: "Invalid email address" }),
+	password: z
+		.string()
+		.min(8, { message: "Password must be at least 8 characters" }),
+});
 
 type SignInFormData = z.infer<typeof signin_schema>;
 
@@ -26,27 +28,31 @@ export function SigninForm({
 	...props
 }: React.ComponentProps<"form">) {
 	const navigate = useNavigate();
-	
+
 	const {
 		register,
 		handleSubmit,
-		formState: {errors},
+		formState: { errors },
 	} = useForm<SignInFormData>({
-		resolver: zodResolver(signin_schema)
-	})
+		resolver: zodResolver(signin_schema),
+	});
 
 	const { mutate, isPending, isError, error } = useLogin();
-	
+
 	const onSubmit = (data: SignInFormData) => {
 		mutate(data, {
 			onSuccess: () => {
-				navigate('/me')
-			}
-		})
-	}
-	
+				navigate("/me");
+			},
+		});
+	};
+
 	return (
-		<form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit(onSubmit)}>
+		<form
+			className={cn("flex flex-col gap-6", className)}
+			{...props}
+			onSubmit={handleSubmit(onSubmit)}
+		>
 			<FieldGroup>
 				<div className="flex flex-col items-center gap-1 text-center">
 					<h1 className="text-2xl font-bold">Login to your account</h1>
@@ -56,11 +62,15 @@ export function SigninForm({
 				</div>
 				<Field>
 					<FieldLabel htmlFor="email">Email</FieldLabel>
-					<Input id="email" type="email" placeholder="m@example.com" required {...register('email')} />
+					<Input
+						id="email"
+						type="email"
+						placeholder="m@example.com"
+						required
+						{...register("email")}
+					/>
 					{errors.email && (
-						<p className="text-destructive text-xs">
-							{errors.email.message}
-						</p>
+						<p className="text-destructive text-xs">{errors.email.message}</p>
 					)}
 				</Field>
 				<Field>
@@ -73,7 +83,12 @@ export function SigninForm({
 							Forgot your password?
 						</Link>
 					</div>
-					<Input id="password" type="password" required {...register('password')} />
+					<Input
+						id="password"
+						type="password"
+						required
+						{...register("password")}
+					/>
 					{errors.password && (
 						<p className="text-destructive text-xs">
 							{errors.password.message}
@@ -81,7 +96,11 @@ export function SigninForm({
 					)}
 				</Field>
 				<Field>
-					{isPending ? <Button disabled>Logging in...</Button> : <Button type="submit">Login</Button>}
+					{isPending ? (
+						<Button disabled>Logging in...</Button>
+					) : (
+						<Button type="submit">Login</Button>
+					)}
 				</Field>
 				<FieldSeparator>Or continue with</FieldSeparator>
 				<Field>
@@ -104,7 +123,7 @@ export function SigninForm({
 				<Field>
 					{isError && (
 						<div className="text-destructive text-sm text-center">
-							{error?.message || 'Sign up failed. Please try again.'}
+							{error?.message || "Sign up failed. Please try again."}
 						</div>
 					)}
 				</Field>

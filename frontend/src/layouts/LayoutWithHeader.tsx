@@ -1,4 +1,4 @@
-import {useState} from "react";
+import { useState } from "react";
 import { GalleryVerticalEnd, SearchIcon, ChevronUp } from "lucide-react";
 import {
 	InputGroup,
@@ -6,12 +6,24 @@ import {
 	InputGroupInput,
 } from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button.tsx";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/auth-store.ts";
-import {cn} from "@/lib/utils.ts";
+import { cn } from "@/lib/utils.ts";
+import { useSignOut } from "@/hooks/auth-hooks.ts";
 
 function Header() {
+	const navigate = useNavigate();
 	const isTokenExpired = useAuthStore((state) => state.isTokenExpired);
+
+	const { mutate, isPending } = useSignOut();
+
+	const handleSignOut = () => {
+		mutate(undefined, {
+			onSuccess: () => {
+				navigate("/auth/sign-in");
+			},
+		});
+	};
 
 	return (
 		<div className="flex items-center justify-between w-full py-4 px-16 border-b-1 border-[#ddd]">
@@ -32,13 +44,17 @@ function Header() {
 				</InputGroup>
 			</div>
 			<div>
-				{isTokenExpired() && (
+				{isTokenExpired() ? (
 					<div className="flex items-center justify-center">
 						<Button variant="outline" className="mr-4">
 							Login
 						</Button>
 						<Button>Signup</Button>
 					</div>
+				) : isPending ? (
+					<Button disabled>Logging out...</Button>
+				) : (
+					<Button onClick={handleSignOut}>Logout</Button>
 				)}
 			</div>
 		</div>
@@ -46,85 +62,98 @@ function Header() {
 }
 
 const categories = [
-    {
-        id: "electronics",
-        label: "Electronics",
-        subCategories: [
-            { id: "phones", title: "Smartphones" },
-            { id: "laptops", title: "Laptops" },
-        ],
-    },
-    {
-        id: "fashion",
-        label: "Fashion",
-        subCategories: [
-            { id: "men", title: "Men's Wear" },
-            { id: "women", title: "Women's Wear" },
-        ],
-    },
-    {
-        id: "home",
-        label: "Home & Garden",
-        subCategories: [
-            { id: "kitchen", title: "Kitchen" },
-            { id: "furniture", title: "Furniture" },
-        ],
-    },
+	{
+		id: "electronics",
+		label: "Electronics",
+		subCategories: [
+			{ id: "phones", title: "Smartphones" },
+			{ id: "laptops", title: "Laptops" },
+		],
+	},
+	{
+		id: "fashion",
+		label: "Fashion",
+		subCategories: [
+			{ id: "men", title: "Men's Wear" },
+			{ id: "women", title: "Women's Wear" },
+		],
+	},
+	{
+		id: "home",
+		label: "Home & Garden",
+		subCategories: [
+			{ id: "kitchen", title: "Kitchen" },
+			{ id: "furniture", title: "Furniture" },
+		],
+	},
 ];
 
 function Category() {
-    const [activeCategory, setActiveCategory] = useState<string | null>(null);
+	const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-    const handleCategoryClick = (id: string) => {
-        setActiveCategory(prev => (prev === id ? null : id));
-    };
+	const handleCategoryClick = (id: string) => {
+		setActiveCategory((prev) => (prev === id ? null : id));
+	};
 
-    const handleResetCategory = () => {
-        setActiveCategory(null);
-    }
+	const handleResetCategory = () => {
+		setActiveCategory(null);
+	};
 
-    const activeData = categories.find((c) => c.id === activeCategory);
+	const activeData = categories.find((c) => c.id === activeCategory);
 
-    return (
-        <div className="w-full flex flex-col">
-            <div className="flex items-center justify-between w-full border-b border-[#ddd] px-16">
-                <div>
-                    {categories.map((cat) => (
-                        <button
-                            key={cat.id}
-                            onClick={() => handleCategoryClick(cat.id)}
-                            className={cn(
-                                "text-sm font-medium transition-colors hover:text-primary hover:cursor-pointer",
-                                activeCategory === cat.id
-                                    ? "border-b-2 border-black text-black"
-                                    : "text-muted-foreground"
-                            )}
-                        >
-                            <p className="py-4 pr-16">{cat.label}</p>
-                        </button>
-                    ))}
-                </div>
-                <Button variant="outline" onClick={handleResetCategory} disabled={!activeCategory}><ChevronUp /></Button>
-            </div>
+	return (
+		<div className="w-full flex flex-col">
+			<div className="flex items-center justify-between w-full border-b border-[#ddd] px-16">
+				<div>
+					{categories.map((cat) => (
+						<button
+							key={cat.id}
+							onClick={() => handleCategoryClick(cat.id)}
+							className={cn(
+								"text-sm font-medium transition-colors hover:text-primary hover:cursor-pointer",
+								activeCategory === cat.id
+									? "border-b-2 border-black text-black"
+									: "text-muted-foreground",
+							)}
+						>
+							<p className="py-4 pr-16">{cat.label}</p>
+						</button>
+					))}
+				</div>
+				<Button
+					variant="outline"
+					onClick={handleResetCategory}
+					disabled={!activeCategory}
+				>
+					<ChevronUp />
+				</Button>
+			</div>
 
-            <div>
-                {activeCategory && activeData ? (
-                    <div className="px-16 py-4 border-b-1  border-[#ddd] flex gap-10">
-                        {activeData.subCategories.map(subCategory => <p key={subCategory.id} className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer">{subCategory.title}</p>)}
-                    </div>
-                ) : null}
-            </div>
-        </div>
-    );
+			<div>
+				{activeCategory && activeData ? (
+					<div className="px-16 py-4 border-b-1  border-[#ddd] flex gap-10">
+						{activeData.subCategories.map((subCategory) => (
+							<p
+								key={subCategory.id}
+								className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer"
+							>
+								{subCategory.title}
+							</p>
+						))}
+					</div>
+				) : null}
+			</div>
+		</div>
+	);
 }
 
 function LayoutWithHeader() {
 	return (
 		<div>
 			<div>
-                <Header />
-                <Category />
-            </div>
+				<Header />
+				<Category />
+			</div>
 			<main className="px-16">
 				<Outlet />
 			</main>
