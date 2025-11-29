@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import wnc.auction.backend.model.enumeration.AuthProvider;
 import wnc.auction.backend.model.enumeration.UserRole;
 
 import java.time.LocalDateTime;
@@ -44,6 +45,11 @@ public class User {
 
     @Column(nullable = false)
     private Boolean emailVerified = false;
+
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider = AuthProvider.LOCAL;
+
+    private String providerId;
 
     @Column(nullable = false)
     private Boolean isActive = true;

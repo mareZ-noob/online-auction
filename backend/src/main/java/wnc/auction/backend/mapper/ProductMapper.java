@@ -1,5 +1,6 @@
 package wnc.auction.backend.mapper;
 
+import lombok.experimental.UtilityClass;
 import wnc.auction.backend.dto.model.ProductDto;
 import wnc.auction.backend.dto.model.ProductListDto;
 import wnc.auction.backend.model.Product;
@@ -7,6 +8,7 @@ import wnc.auction.backend.model.Product;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@UtilityClass
 public class ProductMapper {
 
     public static ProductDto toDto(Product product, Long currentUserId) {

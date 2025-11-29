@@ -19,6 +19,7 @@ public class UserDto {
     private String address;
     private LocalDateTime dateOfBirth;
     private String role;
+    private String provider;
     private Boolean emailVerified;
     private Integer positiveRatings;
     private Integer negativeRatings;

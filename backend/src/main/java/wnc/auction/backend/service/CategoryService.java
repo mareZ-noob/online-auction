@@ -53,14 +53,14 @@ public class CategoryService {
         List<Category> categories = categoryRepository.findAll();
         return categories.stream()
                 .map(CategoryMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<CategoryDto> getRootCategories() {
         List<Category> categories = categoryRepository.findByParentIsNull();
         return categories.stream()
                 .map(CategoryMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<CategoryDto> getSubCategories(Long parentId) {
@@ -70,7 +70,7 @@ public class CategoryService {
         List<Category> categories = categoryRepository.findByParent(parent);
         return categories.stream()
                 .map(CategoryMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public CategoryDto updateCategory(Long id, CategoryRequest request) {

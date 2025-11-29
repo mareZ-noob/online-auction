@@ -4,6 +4,29 @@ networks:
     name: online-auction
 
 services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: keycloak
+    hostname: keycloak
+    command: >
+      start-dev
+      --http-enabled=true
+      --http-port=8080
+      --hostname=localhost
+      --hostname-strict=false
+      --import-realm
+    ports:
+      - "8180:8080"
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KC_PROXY_HEADERS=xforwarded
+      - KC_HTTP_RELATIVE_PATH=/
+    volumes:
+      - ./keycloak/realm-dev.json:/opt/keycloak/data/import/realm-dev.json:ro
+    networks:
+      - online-auction
+
   redis:
     image: redis:8-alpine
     hostname: redis

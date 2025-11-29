@@ -38,14 +38,22 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Search by category and keyword
     @Query("SELECT p FROM Product p WHERE " +
-            "p.category.id = :categoryId AND " +
+            "p.category.id IN :categoryIds AND " +
+            "p.status = 'ACTIVE' AND p.endTime > :now")
+    Page<Product> findByCategoryIdsAndActive(@Param("categoryIds") List<Long> categoryIds,
+                                             @Param("now") LocalDateTime now,
+                                             Pageable pageable);
+
+    // Search by category IDs and keyword
+    @Query("SELECT p FROM Product p WHERE " +
+            "p.category.id IN :categoryIds AND " +
             "p.status = 'ACTIVE' AND p.endTime > :now AND " +
             "(LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%')))")
-    Page<Product> searchProductsByCategory(@Param("categoryId") Long categoryId,
-                                           @Param("keyword") String keyword,
-                                           @Param("now") LocalDateTime now,
-                                           Pageable pageable);
+    Page<Product> searchProductsByCategoryIds(@Param("categoryIds") List<Long> categoryIds,
+                                              @Param("keyword") String keyword,
+                                              @Param("now") LocalDateTime now,
+                                              Pageable pageable);
 
     // Top 5 ending soon
     @Query("SELECT p FROM Product p WHERE " +

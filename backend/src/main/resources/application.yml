@@ -48,6 +48,21 @@ spring:
       properties:
         spring.json.add.type.headers: false
 
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: auction-backend
+            client-secret: auction-client-secret
+            scope: openid, profile, email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/auction-realm}
+            user-name-attribute: preferred_username
+
 server:
   port: 8088
 
@@ -71,6 +86,8 @@ app:
   audit:
     topic: auction-audit-logs
     enabled: true
+  frontend:
+    url: http://localhost:5173
 
 springdoc:
   api-docs:

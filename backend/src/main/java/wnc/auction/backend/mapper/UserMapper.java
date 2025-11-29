@@ -3,6 +3,7 @@ package wnc.auction.backend.mapper;
 import lombok.experimental.UtilityClass;
 import wnc.auction.backend.dto.model.UserDto;
 import wnc.auction.backend.model.User;
+import wnc.auction.backend.model.enumeration.AuthProvider;
 
 @UtilityClass
 public class UserMapper {
@@ -15,6 +16,7 @@ public class UserMapper {
                 .address(user.getAddress())
                 .dateOfBirth(user.getDateOfBirth())
                 .role(user.getRole().name())
+                .provider(user.getProvider() != null ? user.getProvider().name() : AuthProvider.LOCAL.name())
                 .emailVerified(user.getEmailVerified())
                 .positiveRatings(user.getPositiveRatings())
                 .negativeRatings(user.getNegativeRatings())

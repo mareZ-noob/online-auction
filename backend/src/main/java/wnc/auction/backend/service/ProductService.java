@@ -168,6 +168,7 @@ public class ProductService {
     }
 
     public PageResponse<ProductListDto> searchProducts(SearchRequest request) {
+        // Setup Sorting
         Sort sort = switch (request.getSortBy()) {
             case "price" -> Sort.by(request.getSortDirection().equalsIgnoreCase("desc") ?
                     Sort.Direction.DESC : Sort.Direction.ASC, "currentPrice");
@@ -178,30 +179,50 @@ public class ProductService {
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
         Page<Product> productPage;
 
-        if (request.getCategoryId() != null && request.getKeyword() != null) {
-            productPage = productRepository.searchProductsByCategory(
-                    request.getCategoryId(),
-                    request.getKeyword(),
-                    LocalDateTime.now(),
-                    pageable
-            );
-        } else if (request.getCategoryId() != null) {
-            productPage = productRepository.findByCategoryAndActive(
-                    request.getCategoryId(),
-                    LocalDateTime.now(),
-                    pageable
-            );
-        } else if (request.getKeyword() != null) {
-            productPage = productRepository.searchProducts(
-                    request.getKeyword(),
-                    LocalDateTime.now(),
-                    pageable
-            );
+        // Search Logic
+        if (request.getCategoryId() != null) {
+            // Search within a specific Category (and its children)
+            List<Long> categoryIds = new ArrayList<>();
+            categoryIds.add(request.getCategoryId());
+
+            // Recursive: Add sub-categories IDs
+            List<Category> children = categoryRepository.findByParentId(request.getCategoryId());
+            for (Category child : children) {
+                categoryIds.add(child.getId());
+            }
+
+            if (request.getKeyword() != null && !request.getKeyword().trim().isEmpty()) {
+                // Search by Keyword within Category List
+                productPage = productRepository.searchProductsByCategoryIds(
+                        categoryIds,
+                        request.getKeyword(),
+                        LocalDateTime.now(),
+                        pageable
+                );
+            } else {
+                // Filter by Category List only
+                productPage = productRepository.findByCategoryIdsAndActive(
+                        categoryIds,
+                        LocalDateTime.now(),
+                        pageable
+                );
+            }
         } else {
-            productPage = productRepository.findActiveProducts(
-                    LocalDateTime.now(),
-                    pageable
-            );
+            // Global Search (No Category selected)
+            if (request.getKeyword() != null && !request.getKeyword().trim().isEmpty()) {
+                // Search globally by Keyword
+                productPage = productRepository.searchProducts(
+                        request.getKeyword(),
+                        LocalDateTime.now(),
+                        pageable
+                );
+            } else {
+                // No filters applied -> Get all active products
+                productPage = productRepository.findActiveProducts(
+                        LocalDateTime.now(),
+                        pageable
+                );
+            }
         }
 
         return mapToPageResponse(productPage);
@@ -215,7 +236,7 @@ public class ProductService {
 
         return products.stream()
                 .map(ProductMapper::toListDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ProductListDto> getTop5MostBids() {
@@ -226,7 +247,7 @@ public class ProductService {
 
         return products.stream()
                 .map(ProductMapper::toListDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ProductListDto> getTop5HighestPrice() {
@@ -237,7 +258,7 @@ public class ProductService {
 
         return products.stream()
                 .map(ProductMapper::toListDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ProductListDto> getRelatedProducts(Long productId) {
@@ -254,7 +275,7 @@ public class ProductService {
 
         return products.stream()
                 .map(ProductMapper::toListDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public PageResponse<ProductListDto> getMyProducts(int page, int size) {
@@ -300,7 +321,7 @@ public class ProductService {
     private PageResponse<ProductListDto> mapToPageResponse(Page<Product> productPage) {
         List<ProductListDto> content = productPage.getContent().stream()
                 .map(ProductMapper::toListDto)
-                .collect(Collectors.toList());
+                .toList();
 
         return PageResponse.<ProductListDto>builder()
                 .content(content)
