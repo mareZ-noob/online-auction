@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GalleryVerticalEnd, SearchIcon, ChevronUp } from "lucide-react";
+import { GalleryVerticalEnd, SearchIcon } from "lucide-react";
 import {
 	InputGroup,
 	InputGroupAddon,
@@ -102,13 +102,14 @@ function Category() {
 	const activeData = categories.find((c) => c.id === activeCategory);
 
 	return (
-		<div className="w-full flex flex-col">
+		<div className="w-full flex flex-col relative">
 			<div className="flex items-center justify-between w-full border-b border-[#ddd] px-16">
 				<div>
 					{categories.map((cat) => (
 						<button
 							key={cat.id}
 							onClick={() => handleCategoryClick(cat.id)}
+							onBlur={handleResetCategory}
 							className={cn(
 								"text-sm font-medium transition-colors hover:text-primary hover:cursor-pointer",
 								activeCategory === cat.id
@@ -120,31 +121,23 @@ function Category() {
 						</button>
 					))}
 				</div>
-				<Button
-					variant="outline"
-					onClick={handleResetCategory}
-					disabled={!activeCategory}
-				>
-					<ChevronUp />
-				</Button>
 			</div>
 
-			<div>
-				{activeCategory && activeData ? (
-					<div className="px-16 py-4 border-b-1  border-[#ddd] flex gap-10">
-						{activeData.subCategories.map((subCategory) => (
-							<p
-								key={subCategory.id}
-								className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer"
-							>
-								{subCategory.title}
-							</p>
-						))}
-					</div>
-				) : null}
-			</div>
+			{activeCategory && activeData && (
+				<div className="absolute left-0 top-full w-full bg-white px-16 py-4 border-b border-[#ddd] flex gap-10 z-50">
+					{activeData.subCategories.map((subCategory) => (
+						<p
+							key={subCategory.id}
+							className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer"
+						>
+							{subCategory.title}
+						</p>
+					))}
+				</div>
+			)}
 		</div>
 	);
+
 }
 
 function LayoutWithHeader() {
