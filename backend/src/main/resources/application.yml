@@ -40,6 +40,14 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
 server:
   port: 8088
 
@@ -56,8 +64,13 @@ app:
     auto-extend-threshold-minutes: 5
     auto-extend-duration-minutes: 10
     new-product-highlight-minutes: 60
+  mail:
+    from-address: ${MAIL_USERNAME:noreply@online-auction.com}
   otp:
     expiration-minutes: 5
+  audit:
+    topic: auction-audit-logs
+    enabled: true
 
 springdoc:
   api-docs:

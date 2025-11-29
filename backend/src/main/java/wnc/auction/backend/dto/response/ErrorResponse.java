@@ -1,4 +1,4 @@
-package wnc.auction.backend.exception;
+package wnc.auction.backend.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

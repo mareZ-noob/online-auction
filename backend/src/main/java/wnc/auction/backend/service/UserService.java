@@ -1,5 +1,6 @@
 package wnc.auction.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import wnc.auction.backend.repository.UserRepository;
 import wnc.auction.backend.security.CurrentUser;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 @Transactional
 public class UserService {
@@ -25,12 +27,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final RatingRepository ratingRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserService(UserRepository userRepository, RatingRepository ratingRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.ratingRepository = ratingRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public UserDto getCurrentUser() {
         Long userId = CurrentUser.getUserId();

@@ -1,5 +1,6 @@
 package wnc.auction.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -7,22 +8,19 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
-    private String fromEmail;
-
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
+    @Value("${app.mail.from-address}")
+    private String fromAddress;
 
     public void sendOtpEmail(String to, String code, String purpose) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress);
             message.setTo(to);
             message.setSubject("Your OTP Code - " + purpose);
             message.setText(String.format(
@@ -43,7 +41,7 @@ public class EmailService {
     public void sendBidNotification(String to, String productName, String bidderName, String amount) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress);
             message.setTo(to);
             message.setSubject("New Bid on Your Product - " + productName);
             message.setText(String.format(
@@ -63,7 +61,7 @@ public class EmailService {
     public void sendOutbidNotification(String to, String productName, String amount) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress);
             message.setTo(to);
             message.setSubject("You've Been Outbid - " + productName);
             message.setText(String.format(
@@ -83,7 +81,7 @@ public class EmailService {
                                              boolean isWinner, String finalAmount) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress);
             message.setTo(to);
 
             if (isWinner) {
@@ -114,7 +112,7 @@ public class EmailService {
                                          String question, String askerName) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress);
             message.setTo(to);
             message.setSubject("New Question on Your Product - " + productName);
             message.setText(String.format(
