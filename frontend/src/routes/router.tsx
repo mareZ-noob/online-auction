@@ -17,13 +17,13 @@ const ResetPassword = lazy(
 );
 const OTPPage = lazy(() => import("@/components/auth-page/OTPPage.tsx"));
 
-const LayoutWithHeader = lazy(() => import("@/layouts/LayoutWithHeader.tsx"));
+const CommonLayout = lazy(() => import("@/layouts/CommonLayout"));
 
 const router = createBrowserRouter([
 	{
 		path: "/",
 		errorElement: <ErrorPage />,
-		element: <LayoutWithHeader />,
+		element: <CommonLayout />,
 		children: [
 			{
 				index: true,

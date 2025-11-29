@@ -12,7 +12,7 @@ import {
     CarouselPrevious,
 } from "@/components/ui/carousel"
 import CarouselCardItem from "@/components/dashboard-page/CarouselCardItem.tsx";
-import type {CarouselCardItemInformation} from "@/types/CarouselCardItem";
+import type {CardItemInformation} from "@/types/CardItem";
 
 export function CarouselPlugin() {
     const plugin = React.useRef(
@@ -29,7 +29,7 @@ export function CarouselPlugin() {
         publishedDate: "November 29th, 2025 | 7:00 AM",
         remainingTime:  "1 hour",
         bidTurns: 10,
-    } as CarouselCardItemInformation;
+    } as CardItemInformation;
 
     return (
         <Carousel

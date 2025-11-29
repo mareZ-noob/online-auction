@@ -1,8 +1,9 @@
 import {CarouselPlugin} from "@/components/dashboard-page/CarouselPlugin.tsx";
+import Products from "@/components/dashboard-page/Products.tsx";
 
 function DashboardPage() {
 	return <div className="mt-28">
-		<section className="flex flex-col items-center justify-center text-center px-6">
+		<section className="flex flex-col items-center justify-center text-center">
 			<h1 className="text-4xl md:text-6xl font-bold leading-tight">
 				Bid with Confidence. Own with Style.
 			</h1>
@@ -15,8 +16,14 @@ function DashboardPage() {
 
 			<CarouselPlugin />
 		</section>
-		<section>
+		<section className="mt-24">
+			<p className="mb-12 text-4xl uppercase">Top 5 Most Bidded Products</p>
+			<Products />
+		</section>
 
+		<section className="mt-24">
+			<p className="mb-12 text-4xl uppercase">Top 5 Highest-Priced Products</p>
+			<Products />
 		</section>
 	</div>;
 }

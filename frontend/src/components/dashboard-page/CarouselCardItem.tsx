@@ -1,7 +1,7 @@
 import {Button} from "@/components/ui/button.tsx";
-import type {CarouselCardItemInformation} from "@/types/CarouselCardItem";
+import type {CardItemInformation} from "@/types/CardItem";
 
-function CarouselCardItem({ data }: { data: CarouselCardItemInformation }) {
+function CarouselCardItem({ data }: { data: CardItemInformation }) {
     return (
         <div className="w-full h-full flex items-center justify-center bg-white">
             <div className="grid w-full min-h-full grid-cols-2">
@@ -17,9 +17,12 @@ function CarouselCardItem({ data }: { data: CarouselCardItemInformation }) {
                     </div>
                     <p className="mb-4">Published Date: {data.publishedDate}</p>
                     <p className="mb-4">Remaining Time: {data.remainingTime}</p>
-                    <p>Turns: {data.bidTurns}</p>
+                    <p>Current Bid Count: {data.bidTurns}</p>
 
-                    <Button variant="default" className=" mt-4 size-12 px-12">Bid</Button>
+                    <div className="ml-auto">
+                        <Button variant="default" className=" mt-4 size-12 px-12 mr-4">View details</Button>
+                        <Button variant="default" className=" mt-4 size-12 px-12">Bid</Button>
+                    </div>
                 </div>
                 <div className="bg-muted relative block">
                     <img

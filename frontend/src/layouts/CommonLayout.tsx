@@ -137,10 +137,23 @@ function Category() {
 			)}
 		</div>
 	);
-
 }
 
-function LayoutWithHeader() {
+function Footer() {
+	return (
+		<div className="bg-[#173127] flex flex-col items-center justify-center text-white mt-32 py-16">
+			<div className="max-w-lg">
+				<p>© 2025 - Online Auction - Advanced Web Development - 22KTPM1</p>
+				<div className="flex justify-center gap-8">
+					<p>22127286 - Nguyễn Thanh Nam</p>
+					<p>22127441 - Thái Huyễn Tùng</p>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+function CommonLayout() {
 	return (
 		<div>
 			<div>
@@ -150,8 +163,9 @@ function LayoutWithHeader() {
 			<main className="px-16">
 				<Outlet />
 			</main>
+			<Footer />
 		</div>
 	);
 }
 
-export default LayoutWithHeader;
+export default CommonLayout;

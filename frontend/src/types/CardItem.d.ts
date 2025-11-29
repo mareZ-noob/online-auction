@@ -1,4 +1,4 @@
-export type CarouselCardItemInformation = {
+export type CardItemInformation = {
     productName: string;
     productPrice:  number;
     productPriceyBuyNow: number;
