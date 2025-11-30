@@ -1,7 +1,22 @@
 import { CarouselPlugin } from "@/components/dashboard-page/CarouselPlugin.tsx";
 import Products from "@/components/dashboard-page/Products.tsx";
+import CarouselCardItem from "@/components/dashboard-page/CarouselCardItem.tsx";
+import type {CardItemInformation} from "@/types/CardItem";
 
 function DashboardPage() {
+	const fakeData = {
+		productName: "Iphone 17 of Elon Musk",
+		currentPrice: 1000,
+		buyNowPrice: 9999,
+		productImage:
+			"https://www.macobserver.com/wp-content/uploads/2025/09/iphone-17-wallpapers.png",
+		bidderName: "Donald Trump",
+		bidderPrice: 2000,
+		publishedDate: "November 29th, 2025 | 7:00 AM",
+		remainingTime: "1 hour",
+		bidTurns: 10,
+	} as CardItemInformation;
+
 	return (
 		<div className="mt-28">
 			<section className="flex flex-col items-center justify-center text-center">
@@ -16,7 +31,13 @@ function DashboardPage() {
 					collectors.
 				</p>
 
-				<CarouselPlugin />
+				<CarouselPlugin>
+					<CarouselCardItem data={fakeData} />
+					<CarouselCardItem data={fakeData} />
+					<CarouselCardItem data={fakeData} />
+					<CarouselCardItem data={fakeData} />
+					<CarouselCardItem data={fakeData} />
+				</CarouselPlugin>
 			</section>
 			<section className="mt-24">
 				<p className="mb-12 text-4xl uppercase">Top 5 Most Bidded Products</p>

@@ -29,7 +29,7 @@ function Header() {
 		<div className="flex items-center justify-between w-full py-4 px-16 border-b-1 border-[#ddd]">
 			<div className="flex items-center w-[50%]">
 				<div className="flex justify-center gap-2 md:justify-start">
-					<a href="#" className="flex items-center gap-2 font-medium">
+					<a href="/me" className="flex items-center gap-2 font-medium">
 						<div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
 							<GalleryVerticalEnd className="size-4" />
 						</div>

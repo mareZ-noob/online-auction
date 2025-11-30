@@ -1,14 +1,14 @@
 import type { CardItemInformation } from "@/types/CardItem";
 import { Button } from "@/components/ui/button.tsx";
 
-function ProductItemCard({ data }: { data: CardItemInformation }) {
+function ProductItemCard({ data, height = 400 }: { data: CardItemInformation, height?: number }) {
 	return (
 		<div className="flex flex-col">
-			<div className="bg-muted min-h-[400px] relative block">
+			<div className={`bg-muted min-h-[${height}px] relative block`}>
 				<img
 					src={data.productImage}
 					alt="Image"
-					className="absolute inset-0 h-[400px] w-full object-cover dark:brightness-[0.2] dark:grayscale"
+					className={`absolute inset-0 h-[${height}px] w-full object-cover dark:brightness-[0.2] dark:grayscale`}
 				/>
 			</div>
 
@@ -27,7 +27,7 @@ function ProductItemCard({ data }: { data: CardItemInformation }) {
 				<p>Current Bid Count: {data.bidTurns}</p>
 
 				<div className="ml-auto">
-					<Button variant="default" className=" mt-4 size-12 px-12 mr-4">
+					<Button variant="outline" className=" mt-4 size-12 px-12 mr-4">
 						View details
 					</Button>
 					<Button variant="default" className=" mt-4 size-12 px-12">

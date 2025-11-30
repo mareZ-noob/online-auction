@@ -1,5 +1,9 @@
 import ProductGallery from "@/components/product-page/ProductGallery.tsx";
 import ProductInfo from "@/components/product-page/ProductInformation.tsx";
+import type {CardItemInformation} from "@/types/CardItem";
+import {CarouselPlugin} from "@/components/dashboard-page/CarouselPlugin.tsx";
+import RelatedProductItemCard from "@/components/product-page/RelatedProductItemCard.tsx";
+import ProductComments from "@/components/product-page/ProductComments.tsx";
 
 function ProductDetailPage() {
   const data = {
@@ -55,6 +59,19 @@ function ProductDetailPage() {
     `,
   };
 
+  const fakeData = {
+    productName: "Iphone 17 of Elon Musk",
+    currentPrice: 1000,
+    buyNowPrice: 9999,
+    productImage:
+        "https://www.macobserver.com/wp-content/uploads/2025/09/iphone-17-wallpapers.png",
+    bidderName: "Donald Trump",
+    bidderPrice: 2000,
+    publishedDate: "November 29th, 2025 | 7:00 AM",
+    remainingTime: "1 hour",
+    bidTurns: 10,
+  } as CardItemInformation;
+
   return (
     <div>
       <section className="grid grid-cols-3 mt-18">
@@ -63,8 +80,24 @@ function ProductDetailPage() {
       </section>
       <div className="my-8 border-b" />
       <section>
-        <p className="text-lg mb-4">Additional Details</p>
+        <p className="text-xl mb-4">Additional Details</p>
         <p className="font-light text-gray-500">{data.description}</p>
+      </section>
+      <div className="my-8 border-b" />
+      <section>
+        <p className="text-xl mb-4">Comments</p>
+        <ProductComments />
+      </section>
+      <div className="my-8 border-b" />
+      <section>
+        <p className="text-xl mb-4">You May Also Like</p>
+        <CarouselPlugin>
+          <RelatedProductItemCard data={fakeData} />
+          <RelatedProductItemCard data={fakeData} />
+          <RelatedProductItemCard data={fakeData} />
+          <RelatedProductItemCard data={fakeData} />
+          <RelatedProductItemCard data={fakeData} />
+        </CarouselPlugin>
       </section>
     </div>
   );
