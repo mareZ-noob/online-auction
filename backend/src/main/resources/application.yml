@@ -40,6 +40,29 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: auction-backend
+            client-secret: auction-client-secret
+            scope: openid, profile, email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/auction-realm}
+            user-name-attribute: preferred_username
+
 server:
   port: 8088
 
@@ -56,8 +79,15 @@ app:
     auto-extend-threshold-minutes: 5
     auto-extend-duration-minutes: 10
     new-product-highlight-minutes: 60
+  mail:
+    from-address: ${MAIL_USERNAME:noreply@online-auction.com}
   otp:
     expiration-minutes: 5
+  audit:
+    topic: auction-audit-logs
+    enabled: true
+  frontend:
+    url: http://localhost:5173
 
 springdoc:
   api-docs:

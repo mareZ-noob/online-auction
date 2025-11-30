@@ -4,29 +4,6 @@ networks:
     name: online-auction
 
 services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.0
-    container_name: keycloak
-    hostname: keycloak
-    command: >
-      start-dev
-      --http-enabled=true
-      --http-port=8080
-      --hostname=localhost
-      --hostname-strict=false
-      --import-realm
-    ports:
-      - "8180:8080"
-    environment:
-      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
-      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
-      - KC_PROXY_HEADERS=xforwarded
-      - KC_HTTP_RELATIVE_PATH=/
-    volumes:
-      - ./keycloak/realm-dev.json:/opt/keycloak/data/import/realm-dev.json:ro
-    networks:
-      - online-auction
-
   redis:
     image: redis:8-alpine
     hostname: redis
@@ -51,19 +28,13 @@ services:
       - "5432:5432"
     networks:
       - online-auction
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  mailhog:
-    image: mailhog/mailhog:latest
-    hostname: mailhog
-    container_name: mailhog
-    ports:
-      - "1025:1025"
-      - "8025:8025"
-    restart: unless-stopped
-    networks:
-      - online-auction
 
   kafka:
     image: apache/kafka:4.1.0
@@ -79,19 +50,19 @@ services:
       KAFKA_LISTENERS: CONTROLLER://:9093,INTERNAL://:9091,EXTERNAL://:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       CLUSTER_ID: bgwoWzvSSlKmk2ysynPDNg
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
       KAFKA_MIN_INSYNC_REPLICAS: 1
       KAFKA_NUM_PARTITIONS: 10
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_COORDINATOR_REBALANCE_PROTOCOLS: "classic,consumer,share"
-      KAFKA_UNSTABLE_API_VERSIONS_ENABLE: "true"
+      KAFKA_GROUP_COORDINATOR_REBALANCE_PROTOCOLS: classic,consumer,share
+      KAFKA_UNSTABLE_API_VERSIONS_ENABLE: true
       KAFKA_GROUP_SHARE_PARTITION_MAX_RECORD_LOCKS: 100
       TZ: "Asia/Ho_Chi_Minh"
     networks:

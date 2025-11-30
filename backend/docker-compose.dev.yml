@@ -51,8 +51,32 @@ services:
       - "5432:5432"
     networks:
       - online-auction
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    hostname: pgadmin
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - online-auction
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   mailhog:
     image: mailhog/mailhog:latest
@@ -105,7 +129,45 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    hostname: kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9091
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      DYNAMIC_CONFIG_ENABLED: true
+    networks:
+      - online-auction
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.9.5
+    container_name: control-center
+    hostname: control-center
+    depends_on:
+      - kafka
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9091
+      CONTROL_CENTER_MODE_ENABLE: management
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      PORT: 9021
+      TZ: "Asia/Ho_Chi_Minh"
+    networks:
+      - online-auction
+
 volumes:
   postgres_data:
   redis_data:
+  pgadmin_data:
   kafka_data:

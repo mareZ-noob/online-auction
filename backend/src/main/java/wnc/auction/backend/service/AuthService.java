@@ -1,5 +1,6 @@
 package wnc.auction.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +20,9 @@ import wnc.auction.backend.exception.UnauthorizedException;
 import wnc.auction.backend.mapper.UserMapper;
 import wnc.auction.backend.model.Otp;
 import wnc.auction.backend.model.RefreshToken;
+import wnc.auction.backend.model.SocialAccount;
 import wnc.auction.backend.model.User;
+import wnc.auction.backend.model.enumeration.AuthProvider;
 import wnc.auction.backend.model.enumeration.OtpType;
 import wnc.auction.backend.model.enumeration.UserRole;
 import wnc.auction.backend.repository.OtpRepository;
@@ -32,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.Random;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 @Transactional
 public class AuthService {
@@ -43,16 +47,6 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
     private final EmailService emailService;
-
-    public AuthService(UserRepository userRepository, RefreshTokenRepository refreshTokenRepository, OtpRepository otpRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider, EmailService emailService) {
-        this.userRepository = userRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.otpRepository = otpRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
-        this.tokenProvider = tokenProvider;
-        this.emailService = emailService;
-    }
 
     @Value("${app.otp.expiration-minutes}")
     private int otpExpirationMinutes;
@@ -75,6 +69,16 @@ public class AuthService {
                 .positiveRatings(0)
                 .negativeRatings(0)
                 .build();
+
+        SocialAccount sellerLocal = SocialAccount.builder()
+                .provider(AuthProvider.LOCAL)
+                .providerId(user.getEmail())
+                .email(user.getEmail())
+                .name(user.getFullName())
+                .user(user)
+                .build();
+
+        user.getSocialAccounts().add(sellerLocal);
 
         user = userRepository.save(user);
 

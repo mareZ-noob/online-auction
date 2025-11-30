@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import wnc.auction.backend.model.enumeration.AuthProvider;
 import wnc.auction.backend.model.enumeration.UserRole;
 
 import java.time.LocalDateTime;
@@ -44,6 +45,10 @@ public class User {
 
     @Column(nullable = false)
     private Boolean emailVerified = false;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @Column(nullable = false)
     private Boolean isActive = true;
