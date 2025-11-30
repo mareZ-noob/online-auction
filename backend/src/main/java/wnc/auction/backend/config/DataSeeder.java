@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import wnc.auction.backend.model.Category;
 import wnc.auction.backend.model.Product;
+import wnc.auction.backend.model.SocialAccount;
 import wnc.auction.backend.model.User;
+import wnc.auction.backend.model.enumeration.AuthProvider;
 import wnc.auction.backend.model.enumeration.ProductStatus;
 import wnc.auction.backend.model.enumeration.UserRole;
 import wnc.auction.backend.repository.CategoryRepository;
@@ -47,41 +49,74 @@ public class DataSeeder implements CommandLineRunner {
         // Admin
         User admin = User.builder()
                 .email("admin@auction.com")
-                .password(passwordEncoder.encode("password123"))
+                .password(passwordEncoder.encode("1"))
                 .fullName("System Administrator")
                 .address("123 Admin St")
                 .role(UserRole.ADMIN)
+                .socialAccounts(new ArrayList<>())
                 .emailVerified(true)
                 .isActive(true)
                 .positiveRatings(0)
                 .negativeRatings(0)
                 .build();
 
+        SocialAccount adminLocal = SocialAccount.builder()
+                .provider(AuthProvider.LOCAL)
+                .providerId("admin@auction.com")
+                .email("admin@auction.com")
+                .name("System Administrator")
+                .user(admin)
+                .build();
+
+        admin.getSocialAccounts().add(adminLocal);
+
         // Seller
         User seller = User.builder()
                 .email("seller@auction.com")
-                .password(passwordEncoder.encode("password123"))
+                .password(passwordEncoder.encode("1"))
                 .fullName("John Seller")
                 .address("456 Market St")
                 .role(UserRole.SELLER)
+                .socialAccounts(new ArrayList<>())
                 .emailVerified(true)
                 .isActive(true)
                 .positiveRatings(10)
                 .negativeRatings(0)
                 .build();
 
+        SocialAccount sellerLocal = SocialAccount.builder()
+                .provider(AuthProvider.LOCAL)
+                .providerId("seller@auction.com")
+                .email("seller@auction.com")
+                .name("John Seller")
+                .user(seller)
+                .build();
+
+        seller.getSocialAccounts().add(sellerLocal);
+
         // Bidder
         User bidder = User.builder()
                 .email("bidder@auction.com")
-                .password(passwordEncoder.encode("password123"))
+                .password(passwordEncoder.encode("1"))
                 .fullName("Alice Bidder")
                 .address("789 Auction Rd")
                 .role(UserRole.BIDDER)
+                .socialAccounts(new ArrayList<>())
                 .emailVerified(true)
                 .isActive(true)
                 .positiveRatings(5)
                 .negativeRatings(0)
                 .build();
+
+        SocialAccount bidderLocal = SocialAccount.builder()
+                .provider(AuthProvider.LOCAL)
+                .providerId("bidder@auction.com")
+                .email("bidder@auction.com")
+                .name("Alice Bidder")
+                .user(bidder)
+                .build();
+
+        bidder.getSocialAccounts().add(bidderLocal);
 
         userRepository.saveAll(Arrays.asList(admin, seller, bidder));
 

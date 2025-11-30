@@ -5,10 +5,21 @@ import wnc.auction.backend.dto.model.UserDto;
 import wnc.auction.backend.model.User;
 import wnc.auction.backend.model.enumeration.AuthProvider;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @UtilityClass
 public class UserMapper {
 
     public static UserDto toDto(User user) {
+        List<String> providers = new ArrayList<>(user.getSocialAccounts().stream()
+                .map(acc -> acc.getProvider().name())
+                .toList());
+
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            providers.add("LOCAL");
+        }
+
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
@@ -16,7 +27,7 @@ public class UserMapper {
                 .address(user.getAddress())
                 .dateOfBirth(user.getDateOfBirth())
                 .role(user.getRole().name())
-                .provider(user.getProvider() != null ? user.getProvider().name() : AuthProvider.LOCAL.name())
+                .linkedProviders(providers)
                 .emailVerified(user.getEmailVerified())
                 .positiveRatings(user.getPositiveRatings())
                 .negativeRatings(user.getNegativeRatings())

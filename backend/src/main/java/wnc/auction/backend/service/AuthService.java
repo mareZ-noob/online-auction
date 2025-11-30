@@ -20,7 +20,9 @@ import wnc.auction.backend.exception.UnauthorizedException;
 import wnc.auction.backend.mapper.UserMapper;
 import wnc.auction.backend.model.Otp;
 import wnc.auction.backend.model.RefreshToken;
+import wnc.auction.backend.model.SocialAccount;
 import wnc.auction.backend.model.User;
+import wnc.auction.backend.model.enumeration.AuthProvider;
 import wnc.auction.backend.model.enumeration.OtpType;
 import wnc.auction.backend.model.enumeration.UserRole;
 import wnc.auction.backend.repository.OtpRepository;
@@ -67,6 +69,16 @@ public class AuthService {
                 .positiveRatings(0)
                 .negativeRatings(0)
                 .build();
+
+        SocialAccount sellerLocal = SocialAccount.builder()
+                .provider(AuthProvider.LOCAL)
+                .providerId(user.getEmail())
+                .email(user.getEmail())
+                .name(user.getFullName())
+                .user(user)
+                .build();
+
+        user.getSocialAccounts().add(sellerLocal);
 
         user = userRepository.save(user);
 

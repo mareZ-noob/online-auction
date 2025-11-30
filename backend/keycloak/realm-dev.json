@@ -2,16 +2,67 @@
   "realm": "auction-realm",
   "enabled": true,
   "registrationAllowed": true,
+  "verifyEmail": true,
+  "resetPasswordAllowed": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyInitialCounter": 0,
+  "otpPolicyDigits": 6,
+  "otpPolicyLookAheadWindow": 1,
+  "otpPolicyPeriod": 30,
+  "otpSupportedApplications": [
+    "FreeOTP",
+    "Google Authenticator"
+  ],
   "sslRequired": "external",
+  "requiredActions": [
+    {
+      "alias": "VERIFY_EMAIL",
+      "name": "Verify Email",
+      "providerId": "VERIFY_EMAIL",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 50,
+      "config": {}
+    },
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 10,
+      "config": {}
+    },
+    {
+      "alias": "TERMS_AND_CONDITIONS",
+      "name": "Terms and Conditions",
+      "providerId": "TERMS_AND_CONDITIONS",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 10,
+      "config": {}
+    }
+  ],
+  "smtpServer": {
+    "host": "mailhog",
+    "port": "1025",
+    "from": "noreply@online-auction.com",
+    "auth": "false",
+    "starttls": "false",
+    "user": "",
+    "password": ""
+  },
   "users": [
     {
-      "username": "user1",
-      "email": "user1@example.com",
+      "username": "user",
+      "email": "user@auction.com",
       "enabled": true,
       "firstName": "Demo",
       "lastName": "User",
+      "emailVerified": true,
       "credentials": [
         {
           "type": "password",
@@ -34,9 +85,9 @@
       "serviceAccountsEnabled": true,
       "authorizationServicesEnabled": true,
       "redirectUris": [
-        "http://localhost:8088/login/oauth2/code/keycloak",
-        "http://localhost:5173",
-        "http://localhost:5173/*"
+        "http://localhost:8088/login/oauth2/code/*",
+        "http://localhost:5173/*",
+        "http://localhost:5173/oauth2/redirect"
       ],
       "webOrigins": [
         "http://localhost:5173",

@@ -31,8 +31,9 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService userDetailsService;
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomOidcUserService customOidcUserService;
+    private final wnc.auction.backend.security.oauth2.CustomOidcUserService customOidcUserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
@@ -48,6 +49,7 @@ public class SecurityConfig {
                                 "/api/health/**",
                                 "/api/auth/**",
                                 "/api/public/**",
+                                "/login/**",
                                 "/login/oauth2/**",
                                 "/oauth2/**",
                                 "/api/products/search",
@@ -84,6 +86,7 @@ public class SecurityConfig {
                                 .oidcUserService(customOidcUserService) // For Keycloak/OIDC
                         )
                         .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception

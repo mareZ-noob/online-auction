@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,7 +20,7 @@ public class UserDto {
     private String address;
     private LocalDateTime dateOfBirth;
     private String role;
-    private String provider;
+    private List<String> linkedProviders;
     private Boolean emailVerified;
     private Integer positiveRatings;
     private Integer negativeRatings;

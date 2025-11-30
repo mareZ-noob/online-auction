@@ -46,10 +46,9 @@ public class User {
     @Column(nullable = false)
     private Boolean emailVerified = false;
 
-    @Enumerated(EnumType.STRING)
-    private AuthProvider provider = AuthProvider.LOCAL;
-
-    private String providerId;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @Column(nullable = false)
     private Boolean isActive = true;
