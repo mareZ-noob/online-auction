@@ -16,7 +16,9 @@ const ResetPassword = lazy(
 	() => import("@/components/auth-page/ResetPassword"),
 );
 const OTPPage = lazy(() => import("@/components/auth-page/OTPPage.tsx"));
-
+const ProductDetailPage = lazy(
+	() => import("@/components/product-page/ProductDetailPage.tsx"),
+);
 const CommonLayout = lazy(() => import("@/layouts/CommonLayout"));
 
 const router = createBrowserRouter([
@@ -34,7 +36,7 @@ const router = createBrowserRouter([
 				element: <DashboardPage />,
 			},
 		],
-		loader: ProtectedRoute,
+		// loader: ProtectedRoute,
 	},
 	{
 		path: "/auth",
@@ -71,6 +73,21 @@ const router = createBrowserRouter([
 			{
 				path: "otp",
 				element: <OTPPage />,
+			},
+		],
+	},
+	{
+		path: "/products",
+		errorElement: <ErrorPage />,
+		element: <CommonLayout />,
+		children: [
+			{
+				path: ":id",
+				element: (
+					<Suspense fallback={<LoadingPage />}>
+						<ProductDetailPage />
+					</Suspense>
+				),
 			},
 		],
 	},

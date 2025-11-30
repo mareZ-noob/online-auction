@@ -150,7 +150,7 @@ function Footer() {
 				</div>
 			</div>
 		</div>
-	)
+	);
 }
 
 function CommonLayout() {
