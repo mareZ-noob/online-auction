@@ -21,6 +21,7 @@ public class Constants {
         public static final String INVALID_CURRENT_PASSWORD = "INVALID_CURRENT_PASSWORD";
         public static final String FILE_UPLOAD_ERROR = "FILE_UPLOAD_ERROR";
         public static final String INVALID_FILE_TYPE = "INVALID_FILE_TYPE";
+        public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
     }
 
     @UtilityClass

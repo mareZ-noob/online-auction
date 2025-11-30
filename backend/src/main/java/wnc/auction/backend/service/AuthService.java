@@ -33,6 +33,7 @@ import wnc.auction.backend.security.UserPrincipal;
 import wnc.auction.backend.utils.Constants;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Random;
 
 @Service
@@ -65,13 +66,14 @@ public class AuthService {
                 .fullName(request.getFullName())
                 .address(request.getAddress())
                 .role(UserRole.BIDDER)
+                .socialAccounts(new ArrayList<>())
                 .emailVerified(false)
                 .isActive(true)
                 .positiveRatings(0)
                 .negativeRatings(0)
                 .build();
 
-        SocialAccount sellerLocal = SocialAccount.builder()
+        SocialAccount socialAccount = SocialAccount.builder()
                 .provider(AuthProvider.LOCAL)
                 .providerId(user.getEmail())
                 .email(user.getEmail())
@@ -79,7 +81,7 @@ public class AuthService {
                 .user(user)
                 .build();
 
-        user.getSocialAccounts().add(sellerLocal);
+        user.getSocialAccounts().add(socialAccount);
 
         user = userRepository.save(user);
 

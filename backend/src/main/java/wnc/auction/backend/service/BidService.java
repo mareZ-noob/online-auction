@@ -1,4 +1,279 @@
 package wnc.auction.backend.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import wnc.auction.backend.dto.model.BidDto;
+import wnc.auction.backend.dto.model.BidHistoryDto;
+import wnc.auction.backend.dto.request.PlaceBidRequest;
+import wnc.auction.backend.dto.response.PageResponse;
+import wnc.auction.backend.exception.BadRequestException;
+import wnc.auction.backend.exception.ForbiddenException;
+import wnc.auction.backend.exception.NotFoundException;
+import wnc.auction.backend.mapper.BidMapper;
+import wnc.auction.backend.model.Bid;
+import wnc.auction.backend.model.BlockedBidder;
+import wnc.auction.backend.model.Product;
+import wnc.auction.backend.model.User;
+import wnc.auction.backend.model.enumeration.ProductStatus;
+import wnc.auction.backend.repository.BidRepository;
+import wnc.auction.backend.repository.BlockedBidderRepository;
+import wnc.auction.backend.repository.ProductRepository;
+import wnc.auction.backend.repository.UserRepository;
+import wnc.auction.backend.security.CurrentUser;
+import wnc.auction.backend.utils.Constants;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+@Transactional
 public class BidService {
+
+    private final BidRepository bidRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final BlockedBidderRepository blockedBidderRepository;
+    private final EmailService emailService;
+    private final NotificationService notificationService;
+
+    public BidDto placeBid(PlaceBidRequest request) {
+        Long bidderId = CurrentUser.getUserId();
+        User bidder = userRepository.findById(bidderId)
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
+
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND));
+
+        // Validation
+        validateBid(bidder, product, request.getAmount());
+
+        // Check for auto-bid
+        boolean isAutoBid = request.getMaxAutoBidAmount() != null;
+        BigDecimal bidAmount = request.getAmount();
+
+        if (isAutoBid) {
+            // Process auto-bid logic
+            bidAmount = processAutoBid(product, bidder, request.getAmount(),
+                    request.getMaxAutoBidAmount());
+        } else {
+            // Regular bid
+            BigDecimal minBid = product.getCurrentPrice().add(product.getStepPrice());
+            if (bidAmount.compareTo(minBid) < 0) {
+                throw new BadRequestException("Bid must be at least: " + minBid);
+            }
+        }
+
+        // Get previous highest bidder
+        User previousBidder = product.getCurrentBidder();
+
+        // Create bid
+        Bid bid = Bid.builder()
+                .product(product)
+                .user(bidder)
+                .amount(bidAmount)
+                .maxAutoBidAmount(request.getMaxAutoBidAmount())
+                .isAutoBid(isAutoBid)
+                .build();
+
+        bid = bidRepository.save(bid);
+
+        // Update product
+        product.setCurrentPrice(bidAmount);
+        product.setCurrentBidder(bidder);
+        product.setBidCount(product.getBidCount() + 1);
+        productRepository.save(product);
+
+        // Send notifications
+        sendBidNotifications(product, bidder, previousBidder, bidAmount);
+
+        // Emit real-time event
+        notificationService.sendBidUpdate(product.getId(), bidAmount, bidder.getFullName());
+
+        log.info("Bid placed: {} on product: {} by user: {}",
+                bidAmount, product.getId(), bidderId);
+
+        return BidMapper.toDto(bid);
+    }
+
+    private void validateBid(User bidder, Product product, BigDecimal amount) {
+        // Check if product is active
+        if (product.getStatus() != ProductStatus.ACTIVE) {
+            throw new BadRequestException("Product is not active");
+        }
+
+        if (LocalDateTime.now().isAfter(product.getEndTime())) {
+            throw new BadRequestException("Auction has ended");
+        }
+
+        // Check if bidder is seller
+        if (product.getSeller().getId().equals(bidder.getId())) {
+            throw new BadRequestException("Seller cannot bid on own product");
+        }
+
+        // Check if bidder is blocked
+        if (blockedBidderRepository.existsByProductIdAndBidderId(
+                product.getId(), bidder.getId())) {
+            throw new ForbiddenException("You are blocked from bidding on this product");
+        }
+
+        // Check if bidder can bid (rating requirement)
+        if (!product.getAllowUnratedBidders() && !bidder.canBid()) {
+            throw new ForbiddenException(
+                    "You need at least 80% positive rating to bid on this product");
+        }
+
+        // Check if bidder is current highest bidder
+        if (product.getCurrentBidder() != null &&
+                product.getCurrentBidder().getId().equals(bidder.getId())) {
+            throw new BadRequestException("You are already the highest bidder");
+        }
+    }
+
+    private BigDecimal processAutoBid(Product product, User bidder,
+                                      BigDecimal amount, BigDecimal maxAmount) {
+        // Get current highest bid
+        Pageable pageable = PageRequest.of(0, 2);
+        List<Bid> topBids = bidRepository.findTop2BidsForProduct(
+                product.getId(), pageable
+        );
+
+        if (topBids.isEmpty()) {
+            // First bid
+            return amount;
+        }
+
+        Bid highestBid = topBids.get(0);
+
+        // Check if current highest bid has auto-bid
+        if (highestBid.getIsAutoBid() && highestBid.getMaxAutoBidAmount() != null) {
+            BigDecimal theirMax = highestBid.getMaxAutoBidAmount();
+            BigDecimal ourMax = maxAmount;
+
+            if (ourMax.compareTo(theirMax) > 0) {
+                // We can outbid them
+                return theirMax.add(product.getStepPrice());
+            } else if (ourMax.compareTo(theirMax) < 0) {
+                // They will outbid us
+                throw new BadRequestException(
+                        "Your max bid is lower than current highest bidder's max bid");
+            } else {
+                // Same max bid - first bidder wins
+                if (highestBid.getCreatedAt().isBefore(LocalDateTime.now())) {
+                    throw new BadRequestException(
+                            "Current bidder has same max bid and bid earlier");
+                }
+            }
+        }
+
+        // Calculate bid amount (just enough to win)
+        return product.getCurrentPrice().add(product.getStepPrice());
+    }
+
+    private void sendBidNotifications(Product product, User newBidder,
+                                      User previousBidder, BigDecimal amount) {
+        // Notify seller
+        emailService.sendBidNotification(
+                product.getSeller().getEmail(),
+                product.getName(),
+                newBidder.getFullName(),
+                amount.toString()
+        );
+
+        // Notify previous highest bidder (they were outbid)
+        if (previousBidder != null) {
+            emailService.sendOutbidNotification(
+                    previousBidder.getEmail(),
+                    product.getName(),
+                    amount.toString()
+            );
+        }
+    }
+
+    public List<BidHistoryDto> getBidHistory(Long productId) {
+        Pageable pageable = PageRequest.of(0, 100);
+        Page<Bid> bids = bidRepository.findByProductOrderByCreatedAtDesc(
+                productId, pageable
+        );
+
+        return bids.getContent().stream()
+                .map(BidMapper::toHistoryDto)
+                .toList();
+    }
+
+    public PageResponse<BidDto> getMyBids(int page, int size) {
+        Long userId = CurrentUser.getUserId();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Bid> bidPage = bidRepository.findByUserOrderByCreatedAtDesc(userId, pageable);
+
+        List<BidDto> content = bidPage.getContent().stream()
+                .map(BidMapper::toDto)
+                .toList();
+
+        return PageResponse.<BidDto>builder()
+                .content(content)
+                .page(bidPage.getNumber())
+                .size(bidPage.getSize())
+                .totalElements(bidPage.getTotalElements())
+                .totalPages(bidPage.getTotalPages())
+                .last(bidPage.isLast())
+                .build();
+    }
+
+    public void blockBidder(Long productId, Long bidderId) {
+        Long sellerId = CurrentUser.getUserId();
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        if (!product.getSeller().getId().equals(sellerId)) {
+            throw new ForbiddenException("You can only block bidders from your own products");
+        }
+
+        User bidder = userRepository.findById(bidderId)
+                .orElseThrow(() -> new NotFoundException("Bidder not found"));
+
+        if (blockedBidderRepository.existsByProductIdAndBidderId(productId, bidderId)) {
+            throw new BadRequestException("Bidder is already blocked");
+        }
+
+        BlockedBidder blockedBidder = BlockedBidder.builder()
+                .product(product)
+                .bidder(bidder)
+                .build();
+
+        blockedBidderRepository.save(blockedBidder);
+
+        // If blocked bidder is current highest, reassign to second highest
+        if (product.getCurrentBidder() != null &&
+                product.getCurrentBidder().getId().equals(bidderId)) {
+            reassignHighestBidder(product);
+        }
+
+        log.info("Bidder {} blocked from product {}", bidderId, productId);
+    }
+
+    private void reassignHighestBidder(Product product) {
+        Pageable pageable = PageRequest.of(0, 2);
+        List<Bid> topBids = bidRepository.findTop2BidsForProduct(
+                product.getId(), pageable
+        );
+
+        if (topBids.size() > 1) {
+            Bid secondHighest = topBids.get(1);
+            product.setCurrentBidder(secondHighest.getUser());
+            product.setCurrentPrice(secondHighest.getAmount());
+            productRepository.save(product);
+        } else {
+            product.setCurrentBidder(null);
+            product.setCurrentPrice(product.getStartingPrice());
+            productRepository.save(product);
+        }
+    }
 }
