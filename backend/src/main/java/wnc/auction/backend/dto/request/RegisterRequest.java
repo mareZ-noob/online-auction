@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import wnc.auction.backend.validation.StrongPassword;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +18,7 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @StrongPassword(message = "Password must be strong: at least 8 chars, 1 upper, 1 lower, 1 digit, 1 special char")
     private String password;
 
     @NotBlank(message = "Full name is required")

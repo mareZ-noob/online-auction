@@ -30,6 +30,7 @@ import wnc.auction.backend.repository.RefreshTokenRepository;
 import wnc.auction.backend.repository.UserRepository;
 import wnc.auction.backend.security.JwtTokenProvider;
 import wnc.auction.backend.security.UserPrincipal;
+import wnc.auction.backend.utils.Constants;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -132,7 +133,7 @@ public class AuthService {
 
     public void sendEmailVerificationOtp(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         if (Boolean.TRUE.equals(user.getEmailVerified())) {
             throw new BadRequestException("Email already verified");
@@ -167,7 +168,7 @@ public class AuthService {
                 .orElseThrow(() -> new BadRequestException("Invalid or expired OTP"));
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         user.setEmailVerified(true);
         userRepository.save(user);
@@ -178,7 +179,7 @@ public class AuthService {
 
     public void sendPasswordResetOtp(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         // Delete existing OTPs
         otpRepository.deleteByEmailAndType(email, OtpType.PASSWORD_RESET);
@@ -209,7 +210,7 @@ public class AuthService {
                 .orElseThrow(() -> new BadRequestException("Invalid or expired OTP"));
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -232,7 +233,7 @@ public class AuthService {
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         User user = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         // Save refresh token
         RefreshToken token = RefreshToken.builder()

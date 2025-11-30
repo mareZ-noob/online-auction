@@ -17,6 +17,7 @@ import wnc.auction.backend.model.User;
 import wnc.auction.backend.repository.RatingRepository;
 import wnc.auction.backend.repository.UserRepository;
 import wnc.auction.backend.security.CurrentUser;
+import wnc.auction.backend.utils.Constants;
 
 @Service
 @RequiredArgsConstructor
@@ -31,20 +32,20 @@ public class UserService {
     public UserDto getCurrentUser() {
         Long userId = CurrentUser.getUserId();
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
         return UserMapper.toDto(user);
     }
 
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
         return UserMapper.toDto(user);
     }
 
     public UserDto updateProfile(UpdateProfileRequest request) {
         Long userId = CurrentUser.getUserId();
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         user.setFullName(request.getFullName());
         user.setAddress(request.getAddress());
@@ -57,7 +58,7 @@ public class UserService {
     public void changePassword(ChangePasswordRequest request) {
         Long userId = CurrentUser.getUserId();
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new BadRequestException("Old password is incorrect");

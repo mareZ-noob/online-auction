@@ -3,6 +3,7 @@ package wnc.auction.backend.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,14 +24,14 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping(value = "/stream/user", produces = "text/event-stream")
+    @GetMapping(value = "/stream/user", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "Subscribe to user notifications (SSE)")
     public SseEmitter subscribeToUserNotifications() {
         Long userId = CurrentUser.getUserId();
         return notificationService.createUserConnection(userId);
     }
 
-    @GetMapping(value = "/stream/product/{productId}", produces = "text/event-stream")
+    @GetMapping(value = "/stream/product/{productId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "Subscribe to product bid updates (SSE)")
     public SseEmitter subscribeToProductUpdates(
             @PathVariable Long productId) {

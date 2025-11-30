@@ -55,6 +55,7 @@ public class ProductMapper {
         return ProductListDto.builder()
                 .id(product.getId())
                 .name(product.getName())
+                .description(product.getDescription())
                 .currentPrice(product.getCurrentPrice())
                 .buyNowPrice(product.getBuyNowPrice())
                 .thumbnailImage(product.getImages().isEmpty() ? null : product.getImages().get(0))

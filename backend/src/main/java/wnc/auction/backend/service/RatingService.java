@@ -22,6 +22,7 @@ import wnc.auction.backend.repository.RatingRepository;
 import wnc.auction.backend.repository.TransactionRepository;
 import wnc.auction.backend.repository.UserRepository;
 import wnc.auction.backend.security.CurrentUser;
+import wnc.auction.backend.utils.Constants;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,10 +42,10 @@ public class RatingService {
     public RatingDto rateUser(RateUserRequest request) {
         Long raterId = CurrentUser.getUserId();
         User rater = userRepository.findById(raterId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new NotFoundException("Product not found"));

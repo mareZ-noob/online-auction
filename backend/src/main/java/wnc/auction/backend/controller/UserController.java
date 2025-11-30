@@ -16,7 +16,7 @@ import wnc.auction.backend.service.RatingService;
 import wnc.auction.backend.service.UserService;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 @Tag(name = "User", description = "User profile management endpoints")
 public class UserController {

@@ -16,7 +16,7 @@ import java.io.IOException;
 @Slf4j
 public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
-    @Value("${app.frontend.url:http://localhost:5173}")
+    @Value("${app.frontend.url}")
     private String frontendUrl;
 
     @Override

@@ -16,6 +16,7 @@ public class ProductListDto {
 
     private Long id;
     private String name;
+    private String description;
     private BigDecimal currentPrice;
     private BigDecimal buyNowPrice;
     private String thumbnailImage;

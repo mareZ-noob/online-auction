@@ -2,6 +2,7 @@
   "realm": "auction-realm",
   "enabled": true,
   "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
   "verifyEmail": true,
   "resetPasswordAllowed": true,
   "loginWithEmailAllowed": true,
