@@ -1,15 +1,100 @@
 import { useState } from "react";
-import { GalleryVerticalEnd, SearchIcon } from "lucide-react";
+import {
+	GalleryVerticalEnd,
+	Heart,
+	LogOut,
+	Moon,
+	SearchIcon,
+	User,
+	UserPen,
+	WalletCards,
+} from "lucide-react";
 import {
 	InputGroup,
 	InputGroupAddon,
 	InputGroupInput,
 } from "@/components/ui/input-group";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button.tsx";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/auth-store.ts";
 import { cn } from "@/lib/utils.ts";
 import { useSignOut } from "@/hooks/auth-hooks.ts";
+import { useFetchCategories } from "@/hooks/product-hooks";
+import { useUserStore } from "@/store/user-store";
+
+function WatchList() {
+	return (
+		<Button variant="outline" className="flex items-center justify-center">
+			<Heart />
+			<p>Watchlist</p>
+		</Button>
+	);
+}
+
+function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
+	const fullName = useUserStore((state) => state.fullName);
+	const email = useUserStore((state) => state.email);
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button variant="outline" className="flex items-center justify-center">
+					<User />
+					<p>{fullName}</p>
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent className="w-60" align="end">
+				<DropdownMenuLabel className="flex items-center gap-2">
+					My Account
+					<p className="font-light text-gray-300">|</p>
+					<p className="font-light text-gray-500">{email}</p>
+				</DropdownMenuLabel>
+				<DropdownMenuGroup>
+					<DropdownMenuItem className="flex items-center">
+						<UserPen className="text-black" />
+						Profile
+					</DropdownMenuItem>
+					<DropdownMenuItem className="flex items-center">
+						<WalletCards className="text-black" />
+						Billing
+					</DropdownMenuItem>
+					<DropdownMenuItem className="flex items-center">
+						<Moon className="text-black" />
+						Dark Mode
+					</DropdownMenuItem>
+				</DropdownMenuGroup>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem onClick={handleSignOut} className="flex items-center">
+					<LogOut className="text-black" />
+					Log out
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}
+
+function SearchBar() {
+	return (
+		<>
+			<InputGroup className="mx-4">
+				<InputGroupInput placeholder="Search..." />
+				<InputGroupAddon>
+					<SearchIcon />
+				</InputGroupAddon>
+			</InputGroup>
+			<Button>Search</Button>
+		</>
+	);
+}
 
 function Header() {
 	const navigate = useNavigate();
@@ -36,12 +121,7 @@ function Header() {
 						<p className="text-nowrap">Online Auction</p>
 					</a>
 				</div>
-				<InputGroup className="mx-4">
-					<InputGroupInput placeholder="Search..." />
-					<InputGroupAddon>
-						<SearchIcon />
-					</InputGroupAddon>
-				</InputGroup>
+				<SearchBar />
 			</div>
 			<div>
 				{isTokenExpired() ? (
@@ -54,44 +134,24 @@ function Header() {
 				) : isPending ? (
 					<Button disabled>Logging out...</Button>
 				) : (
-					<Button onClick={handleSignOut}>Logout</Button>
+					<div className="flex items-center justify-center gap-2">
+						<WatchList />
+						<NavUser handleSignOut={handleSignOut} />
+					</div>
 				)}
 			</div>
 		</div>
 	);
 }
 
-const categories = [
-	{
-		id: "electronics",
-		label: "Electronics",
-		subCategories: [
-			{ id: "phones", title: "Smartphones" },
-			{ id: "laptops", title: "Laptops" },
-		],
-	},
-	{
-		id: "fashion",
-		label: "Fashion",
-		subCategories: [
-			{ id: "men", title: "Men's Wear" },
-			{ id: "women", title: "Women's Wear" },
-		],
-	},
-	{
-		id: "home",
-		label: "Home & Garden",
-		subCategories: [
-			{ id: "kitchen", title: "Kitchen" },
-			{ id: "furniture", title: "Furniture" },
-		],
-	},
-];
-
 function Category() {
-	const [activeCategory, setActiveCategory] = useState<string | null>(null);
+	const navigate = useNavigate();
 
-	const handleCategoryClick = (id: string) => {
+	const { data: categories } = useFetchCategories();
+	const [activeCategory, setActiveCategory] = useState<number | null>(null);
+	const cats = categories ?? [];
+
+	const handleCategoryClick = (id: number) => {
 		setActiveCategory((prev) => (prev === id ? null : id));
 	};
 
@@ -99,17 +159,33 @@ function Category() {
 		setActiveCategory(null);
 	};
 
-	const activeData = categories.find((c) => c.id === activeCategory);
+	const handleSubCategoryClick = (
+		categoryName: string,
+		categoryId: number,
+		subCategoryName: string,
+		subCategoryId: number,
+	) => {
+		navigate(
+			`/products/category/${categoryName}/subCategory/${subCategoryName}`,
+			{
+				state: {
+					categoryId: categoryId,
+					subCategoryId: subCategoryId,
+				},
+			},
+		);
+	};
+
+	const activeData = cats.find((c) => c.id === activeCategory);
 
 	return (
 		<div className="w-full flex flex-col relative">
 			<div className="flex items-center justify-between w-full border-b border-[#ddd] px-16">
 				<div>
-					{categories.map((cat) => (
+					{cats.map((cat) => (
 						<button
 							key={cat.id}
-							onClick={() => handleCategoryClick(cat.id)}
-							onBlur={handleResetCategory}
+							onMouseEnter={() => handleCategoryClick(cat.id)}
 							className={cn(
 								"text-sm font-medium transition-colors hover:text-primary hover:cursor-pointer",
 								activeCategory === cat.id
@@ -117,22 +193,35 @@ function Category() {
 									: "text-muted-foreground",
 							)}
 						>
-							<p className="py-4 pr-16">{cat.label}</p>
+							<p className="py-4 pr-16">{cat.name}</p>
 						</button>
 					))}
 				</div>
 			</div>
 
-			{activeCategory && activeData && (
-				<div className="absolute left-0 top-full w-full bg-white px-16 py-4 border-b border-[#ddd] flex gap-10 z-50">
-					{activeData.subCategories.map((subCategory) => (
-						<p
-							key={subCategory.id}
-							className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer"
-						>
-							{subCategory.title}
-						</p>
-					))}
+			{activeCategory && (
+				<div
+					className="absolute left-0 top-full w-full bg-white px-16 py-4 border-b border-[#ddd] flex gap-10 z-50"
+					onMouseEnter={() => setActiveCategory(activeCategory)}
+					onMouseLeave={handleResetCategory}
+				>
+					{activeData &&
+						activeData?.children.map((subCategory) => (
+							<p
+								key={subCategory.id}
+								className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer"
+								onClick={() =>
+									handleSubCategoryClick(
+										activeData.name,
+										activeData.id,
+										subCategory.name,
+										subCategory.id,
+									)
+								}
+							>
+								{subCategory.name}
+							</p>
+						))}
 				</div>
 			)}
 		</div>

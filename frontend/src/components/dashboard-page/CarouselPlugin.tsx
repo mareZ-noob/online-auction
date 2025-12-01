@@ -10,7 +10,7 @@ import {
 	CarouselPrevious,
 } from "@/components/ui/carousel";
 
-export function CarouselPlugin({children}: {children: React.ReactNode}) {
+export function CarouselPlugin({ children }: { children: React.ReactNode }) {
 	const plugin = React.useRef(
 		Autoplay({ delay: 2000, stopOnInteraction: true }),
 	);
@@ -22,9 +22,7 @@ export function CarouselPlugin({children}: {children: React.ReactNode}) {
 			onMouseEnter={plugin.current.stop}
 			onMouseLeave={plugin.current.reset}
 		>
-			<CarouselContent className="w-full -ml-0">
-				{children}
-			</CarouselContent>
+			<CarouselContent className="w-full -ml-0">{children}</CarouselContent>
 
 			<CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-50 size-12" />
 			<CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-50 size-12" />

@@ -1,7 +1,7 @@
 import { CarouselPlugin } from "@/components/dashboard-page/CarouselPlugin.tsx";
 import Products from "@/components/dashboard-page/Products.tsx";
 import CarouselCardItem from "@/components/dashboard-page/CarouselCardItem.tsx";
-import type {CardItemInformation} from "@/types/CardItem";
+import type { CardItemInformation } from "@/types/CardItem";
 
 function DashboardPage() {
 	const fakeData = {
@@ -14,7 +14,8 @@ function DashboardPage() {
 		bidderPrice: 2000,
 		publishedDate: "November 29th, 2025 | 7:00 AM",
 		remainingTime: "1 hour",
-		bidTurns: 10,
+		bidCount: 10,
+		categoryName: "Smartphones",
 	} as CardItemInformation;
 
 	return (

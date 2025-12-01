@@ -27,7 +27,7 @@ import {
 	useVerifyEmailOTP,
 } from "@/hooks/auth-hooks.ts";
 
-export const otp_schema = z.object({
+const otp_schema = z.object({
 	otp: z
 		.string()
 		.min(6, "OTP must be 6 digits")
@@ -43,7 +43,7 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
 
 	useEffect(() => {
 		if (!state || !state?.email) navigate("/auth/sign-up");
-	}, [state]);
+	}, [state, navigate]);
 
 	const {
 		control,
@@ -67,6 +67,8 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
 	} = useResendEmailVerification();
 
 	const onSubmit = (values: OTPFormData) => {
+		if (!state || !state?.email) navigate("/auth/sign-up");
+
 		const { otp } = values;
 		const data = {
 			email: state.email,
@@ -81,6 +83,8 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
 	};
 
 	const handleResendEmailCode = () => {
+		if (!state || !state?.email) navigate("/auth/sign-up");
+
 		const data = {
 			email: state.email,
 		};

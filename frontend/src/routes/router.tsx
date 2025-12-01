@@ -17,7 +17,11 @@ const ResetPassword = lazy(
 );
 const OTPPage = lazy(() => import("@/components/auth-page/OTPPage.tsx"));
 const ProductDetailPage = lazy(
-	() => import("@/components/product-page/ProductDetailPage.tsx"),
+	() =>
+		import("@/components/product-page/product-detail/ProductDetailPage.tsx"),
+);
+const ProductListPage = lazy(
+	() => import("@/components/product-page/product-list/ProductListPage.tsx"),
 );
 const CommonLayout = lazy(() => import("@/layouts/CommonLayout"));
 
@@ -81,6 +85,14 @@ const router = createBrowserRouter([
 		errorElement: <ErrorPage />,
 		element: <CommonLayout />,
 		children: [
+			{
+				path: "category/:categoryName/subCategory/:subCategoryName",
+				element: (
+					<Suspense fallback={<LoadingPage />}>
+						<ProductListPage />
+					</Suspense>
+				),
+			},
 			{
 				path: ":id",
 				element: (

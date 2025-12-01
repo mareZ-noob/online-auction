@@ -1,14 +1,24 @@
 import type { CardItemInformation } from "@/types/CardItem";
 import { Button } from "@/components/ui/button.tsx";
 
-function ProductItemCard({ data, height = 400 }: { data: CardItemInformation, height?: number }) {
+function ProductItemCard({
+	data,
+	height = 400,
+}: {
+	data: CardItemInformation;
+	height?: number;
+}) {
 	return (
 		<div className="flex flex-col">
-			<div className={`bg-muted min-h-[${height}px] relative block`}>
+			<div
+				className="bg-muted relative block"
+				style={{ height: `${height}px` }}
+			>
 				<img
 					src={data.productImage}
 					alt="Image"
-					className={`absolute inset-0 h-[${height}px] w-full object-cover dark:brightness-[0.2] dark:grayscale`}
+					className="absolute inset-0 object-cover dark:brightness-[0.2] dark:grayscale"
+					style={{ height: `${height}px` }}
 				/>
 			</div>
 
@@ -19,12 +29,12 @@ function ProductItemCard({ data, height = 400 }: { data: CardItemInformation, he
 					<p>Buy Now: {data.buyNowPrice}</p>
 				</div>
 				<div className="flex mb-4 justify-between">
-					<p>Bidder: {data.bidderName}</p>
+					<p>Highest Bidder: {data.bidderName}</p>
 					<p>Bid Price: {data.bidderPrice}</p>
 				</div>
 				<p className="mb-4">Published Date: {data.publishedDate}</p>
 				<p className="mb-4">Remaining Time: {data.remainingTime}</p>
-				<p>Current Bid Count: {data.bidTurns}</p>
+				<p>Current Bid Count: {data.bidCount}</p>
 
 				<div className="ml-auto">
 					<Button variant="outline" className=" mt-4 size-12 px-12 mr-4">

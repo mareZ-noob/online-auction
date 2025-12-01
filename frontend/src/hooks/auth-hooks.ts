@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from "@/hooks/endpoints";
 import apiClient from "@/query/api-client";
 import { useAuthStore } from "@/store/auth-store";
 import { jwtDecode } from "jwt-decode";
+import { useUserStore } from "@/store/user-store";
 
 interface LoginResponseData {
 	accessToken: string;
@@ -52,8 +53,37 @@ interface SignupResponse {
 	timestamp: string;
 }
 
+interface AccessTokenPayload {
+	sub: number;
+	email: string;
+	role: string;
+	exp: number;
+}
+
+interface CurrentUser {
+	id: number;
+	email: string;
+	fullName: string;
+	address: string;
+	dateOfBirth?: string;
+	role: string;
+	emailVerified: boolean;
+	positiveRatings: number;
+	negativeRatings: number;
+	createdAt: string;
+}
+
+interface CurrentUserResponse {
+	success: boolean;
+	message: string;
+	data: CurrentUser;
+	timestamp: string;
+}
+
 export const useLogin = () => {
 	const setAuth = useAuthStore((state) => state.setAuth);
+	const setId = useUserStore((state) => state.setId);
+	const setUser = useUserStore((state) => state.setUser);
 
 	return useMutation({
 		mutationFn: async (credentials: { email: string; password: string }) => {
@@ -63,11 +93,29 @@ export const useLogin = () => {
 			);
 			return data.data;
 		},
-		onSuccess: (data) => {
-			const decoded = jwtDecode<{ exp: number }>(data.accessToken);
+		onSuccess: async (data) => {
+			const decoded = jwtDecode<AccessTokenPayload>(data.accessToken);
+			const sub = decoded.sub;
 			const expireIn = decoded.exp - Math.floor(Date.now() / 1000); // seconds left
 
+			// store tokens and id in zustand stores
 			setAuth(data.accessToken, data.refreshToken, expireIn);
+			setId(sub);
+
+			// fetch current user profile and populate user-store
+			try {
+				const { data: profileResp } = await apiClient.get<CurrentUserResponse>(
+					API_ENDPOINTS.USER_BY_ID(sub),
+				);
+
+				if (profileResp?.data) {
+					setUser(profileResp.data);
+				}
+			} catch (err) {
+				// non-fatal: profile fetch failed — user still logged in
+				// eslint-disable-next-line no-console
+				console.warn("Failed to fetch user profile after login:", err);
+			}
 		},
 	});
 };
@@ -182,7 +230,9 @@ export const useResendEmailVerification = () => {
 				data: string;
 				timestamp: Date;
 			}>(
-				`${API_ENDPOINTS.RESEND_EMAIL_VERIFICATION}?email=${encodeURIComponent(credentials.email)}`,
+				`${API_ENDPOINTS.RESEND_EMAIL_VERIFICATION}?email=${encodeURIComponent(
+					credentials.email,
+				)}`,
 				{},
 			);
 

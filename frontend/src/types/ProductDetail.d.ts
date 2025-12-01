@@ -19,6 +19,7 @@ export type ProductImage = {
 
 export type ProductTimeInfo = {
 	postedAt: string;
+	timeRemaining: string;
 	endsAt: string;
 };
 

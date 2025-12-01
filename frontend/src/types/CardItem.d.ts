@@ -1,4 +1,5 @@
 export type CardItemInformation = {
+	id: number;
 	productName: string;
 	currentPrice: number;
 	buyNowPrice: number;
@@ -7,5 +8,6 @@ export type CardItemInformation = {
 	bidderPrice: number;
 	publishedDate: string;
 	remainingTime: string;
-	bidTurns: number;
+	bidCount: number;
+	categoryName: string;
 };
