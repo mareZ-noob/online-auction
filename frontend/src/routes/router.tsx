@@ -7,102 +7,102 @@ import { ProtectedRoute } from "@/routes/protected-route.ts";
 const SignInPage = lazy(() => import("@/components/auth-page/SignInPage"));
 const SignUpPage = lazy(() => import("@/components/auth-page/SignUpPage.tsx"));
 const DashboardPage = lazy(
-	() => import("@/components/dashboard-page/DashboardPage.tsx"),
+  () => import("@/components/dashboard-page/DashboardPage.tsx")
 );
 const ForgotPassword = lazy(
-	() => import("@/components/auth-page/ForgotPassword.tsx"),
+  () => import("@/components/auth-page/ForgotPassword.tsx")
 );
 const ResetPassword = lazy(
-	() => import("@/components/auth-page/ResetPassword"),
+  () => import("@/components/auth-page/ResetPassword")
 );
 const OTPPage = lazy(() => import("@/components/auth-page/OTPPage.tsx"));
 const ProductDetailPage = lazy(
-	() =>
-		import("@/components/product-page/product-detail/ProductDetailPage.tsx"),
+  () => import("@/components/product-page/product-detail/ProductDetailPage.tsx")
 );
 const ProductListPage = lazy(
-	() => import("@/components/product-page/product-list/ProductListPage.tsx"),
+  () => import("@/components/product-page/product-list/ProductListPage.tsx")
 );
 const CommonLayout = lazy(() => import("@/layouts/CommonLayout"));
 
 const router = createBrowserRouter([
-	{
-		path: "/",
-		errorElement: <ErrorPage />,
-		element: <CommonLayout />,
-		children: [
-			{
-				index: true,
-				element: <Navigate to="me" replace />,
-			},
-			{
-				path: "me",
-				element: <DashboardPage />,
-			},
-		],
-		// loader: ProtectedRoute,
-	},
-	{
-		path: "/auth",
-		errorElement: <ErrorPage />,
-		children: [
-			{
-				index: true,
-				element: <Navigate to="sign-in" replace />,
-			},
-			{
-				path: "sign-in",
-				element: (
-					<Suspense fallback={<LoadingPage />}>
-						<SignInPage />
-					</Suspense>
-				),
-			},
-			{
-				path: "sign-up",
-				element: (
-					<Suspense fallback={<LoadingPage />}>
-						<SignUpPage />
-					</Suspense>
-				),
-			},
-			{
-				path: "forgot-password",
-				element: <ForgotPassword />,
-			},
-			{
-				path: "reset-password",
-				element: <ResetPassword />,
-			},
-			{
-				path: "otp",
-				element: <OTPPage />,
-			},
-		],
-	},
-	{
-		path: "/products",
-		errorElement: <ErrorPage />,
-		element: <CommonLayout />,
-		children: [
-			{
-				path: "category/:categoryName/subCategory/:subCategoryName",
-				element: (
-					<Suspense fallback={<LoadingPage />}>
-						<ProductListPage />
-					</Suspense>
-				),
-			},
-			{
-				path: ":id",
-				element: (
-					<Suspense fallback={<LoadingPage />}>
-						<ProductDetailPage />
-					</Suspense>
-				),
-			},
-		],
-	},
+  {
+    path: "/",
+    errorElement: <ErrorPage />,
+    element: <CommonLayout />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="me" replace />,
+      },
+      {
+        path: "me",
+        element: <DashboardPage />,
+      },
+    ],
+    // loader: ProtectedRoute,
+  },
+  {
+    path: "/auth",
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="sign-in" replace />,
+      },
+      {
+        path: "sign-in",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <SignInPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "sign-up",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <SignUpPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "forgot-password",
+        element: <ForgotPassword />,
+      },
+      {
+        path: "reset-password",
+        element: <ResetPassword />,
+      },
+      {
+        path: "otp",
+        element: <OTPPage />,
+      },
+    ],
+  },
+  {
+    path: "/products",
+    errorElement: <ErrorPage />,
+    element: <CommonLayout />,
+    children: [
+      {
+        // path: "category/:categoryName/subCategory/:subCategoryName",
+        index: true,
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <ProductListPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: ":id",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <ProductDetailPage />
+          </Suspense>
+        ),
+      },
+    ],
+  },
 ]);
 
 export default router;

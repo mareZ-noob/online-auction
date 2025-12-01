@@ -2,40 +2,480 @@ import apiClient from "@/query/api-client";
 import { useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "./endpoints";
 import type {
-	CATEGORY,
-	CATEGORY_RESPONSE,
-	PRODUCTS_BY_SUB_CATEGORY_ID,
-	PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE,
+  CATEGORY,
+  CATEGORY_RESPONSE,
+  PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE,
 } from "@/types/Product";
 
 export const useFetchCategories = () => {
-	return useQuery<CATEGORY[]>({
-		queryKey: ["all_categories"],
-		queryFn: async () => {
-			const { data } = await apiClient.get<CATEGORY_RESPONSE>(
-				API_ENDPOINTS.PARENT_CATEGORIES,
-			);
-			return data.data;
-		},
-		staleTime: 5 * 60 * 1000, // 5 minutes
-	});
+  return useQuery<CATEGORY[]>({
+    queryKey: ["all_categories"],
+    queryFn: async () => {
+      const { data } = await apiClient.get<CATEGORY_RESPONSE>(
+        API_ENDPOINTS.PARENT_CATEGORIES
+      );
+      return data.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 };
 
 export const useFetchProductsyBySubCategoryId = (
-	id: number,
-	page: number,
-	size: number,
+  id: number,
+  page: number,
+  size: number
 ) => {
-	return useQuery<PRODUCTS_BY_SUB_CATEGORY_ID[]>({
-		queryKey: ["category", id, page, size],
-		queryFn: async () => {
-			const { data } =
-				await apiClient.get<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE>(
-					API_ENDPOINTS.PRODUCTS_BY_SUB_CATEGORY_ID(id) +
-						`?page=${page}&size=${size}`,
-				);
-			return data.data.content;
-		},
-		staleTime: 0,
-	});
+  return useQuery<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE["data"] | undefined>({
+    queryKey: ["category", id, page, size],
+    queryFn: async () => {
+      const { data } =
+        await apiClient.get<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE>(
+          API_ENDPOINTS.PRODUCTS_BY_SUB_CATEGORY_ID(id) +
+            `?page=${page}&size=${size}`
+        );
+      return data.data;
+    },
+    enabled: !!id,
+    staleTime: 0,
+  });
 };
+
+export const useSearchProdutcs = (
+  keyword: string,
+  page: number,
+  size: number,
+  categoryId?: number | null,
+  sortBy?: string,
+  sortDirection?: string
+) => {
+  if (!categoryId) categoryId = null;
+  if (!sortBy) sortBy = "price";
+  if (!sortDirection) sortDirection = "asc";
+
+  return useQuery<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE["data"] | undefined>({
+    queryKey: [
+      "search_products",
+      keyword,
+      categoryId,
+      page,
+      size,
+      sortBy,
+      sortDirection,
+    ],
+    queryFn: async () => {
+      const body = {
+        keyword,
+        categoryId,
+        page,
+        size,
+        sortBy,
+        sortDirection,
+      } as const;
+
+      const { data } =
+        await apiClient.post<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE>(
+          API_ENDPOINTS.SEARCH_PRODUCTS,
+          body
+        );
+
+      return data.data;
+    },
+    enabled: !!keyword,
+    staleTime: 0,
+  });
+};
+
+/*
+const fakedata: PRODUCTS_BY_SUB_CATEGORY_ID[] = [
+  {
+    id: 1,
+    name: "Wireless Headphones",
+    currentPrice: 49.99,
+    buyNowPrice: 79.99,
+    thumbnailImage: "/img/products/headphones1.jpg",
+    endTime: "2025-12-02T14:30:00Z",
+    timeRemaining: "5h 30m",
+    bidCount: 12,
+    isNew: true,
+    categoryName: "Electronics",
+    createAt: "2025-11-28T10:00:00Z",
+  },
+  {
+    id: 2,
+    name: "Smartwatch Pro X",
+    currentPrice: 120.0,
+    buyNowPrice: 199.99,
+    thumbnailImage: "/img/products/smartwatch1.jpg",
+    endTime: "2025-12-03T16:00:00Z",
+    timeRemaining: "1d 7h",
+    bidCount: 22,
+    isNew: false,
+    categoryName: "Electronics",
+    createAt: "2025-11-25T09:15:00Z",
+  },
+  {
+    id: 3,
+    name: "Gaming Keyboard RGB",
+    currentPrice: 30.5,
+    buyNowPrice: 59.99,
+    thumbnailImage: "/img/products/keyboard1.jpg",
+    endTime: "2025-12-05T12:00:00Z",
+    timeRemaining: "3d 3h",
+    bidCount: 8,
+    isNew: true,
+    categoryName: "Computers",
+    createAt: "2025-11-29T12:45:00Z",
+  },
+  {
+    id: 4,
+    name: "Mountain Bike Helmet",
+    currentPrice: 25.0,
+    buyNowPrice: 49.99,
+    thumbnailImage: "/img/products/helmet1.jpg",
+    endTime: "2025-12-04T09:00:00Z",
+    timeRemaining: "2d 1h",
+    bidCount: 14,
+    isNew: false,
+    categoryName: "Sports",
+    createAt: "2025-11-26T08:00:00Z",
+  },
+  {
+    id: 5,
+    name: "4K Action Camera",
+    currentPrice: 89.99,
+    buyNowPrice: 149.99,
+    thumbnailImage: "/img/products/camera1.jpg",
+    endTime: "2025-12-10T20:00:00Z",
+    timeRemaining: "8d 12h",
+    bidCount: 5,
+    isNew: true,
+    categoryName: "Electronics",
+    createAt: "2025-11-30T11:20:00Z",
+  },
+  {
+    id: 6,
+    name: "Office Chair Ergonomic",
+    currentPrice: 75.0,
+    buyNowPrice: 129.99,
+    thumbnailImage: "/img/products/chair1.jpg",
+    endTime: "2025-12-08T14:00:00Z",
+    timeRemaining: "6d 5h",
+    bidCount: 19,
+    isNew: false,
+    categoryName: "Furniture",
+    createAt: "2025-11-22T14:10:00Z",
+  },
+  {
+    id: 7,
+    name: "Bluetooth Speaker Mini",
+    currentPrice: 18.99,
+    buyNowPrice: 39.99,
+    thumbnailImage: "/img/products/speaker1.jpg",
+    endTime: "2025-12-06T18:00:00Z",
+    timeRemaining: "4d 9h",
+    bidCount: 7,
+    isNew: true,
+    categoryName: "Audio",
+    createAt: "2025-11-27T16:40:00Z",
+  },
+  {
+    id: 8,
+    name: "Running Shoes UltraGrip",
+    currentPrice: 45.0,
+    buyNowPrice: 89.99,
+    thumbnailImage: "/img/products/shoes1.jpg",
+    endTime: "2025-12-12T11:00:00Z",
+    timeRemaining: "10d 2h",
+    bidCount: 10,
+    isNew: false,
+    categoryName: "Sports",
+    createAt: "2025-11-20T17:00:00Z",
+  },
+  {
+    id: 9,
+    name: "LED Desk Lamp",
+    currentPrice: 22.5,
+    buyNowPrice: 34.99,
+    thumbnailImage: "/img/products/lamp1.jpg",
+    endTime: "2025-12-09T10:00:00Z",
+    timeRemaining: "7d 0h",
+    bidCount: 4,
+    isNew: false,
+    categoryName: "Home",
+    createAt: "2025-11-24T09:30:00Z",
+  },
+  {
+    id: 10,
+    name: "Laptop Sleeve 15-inch",
+    currentPrice: 12.99,
+    buyNowPrice: 24.99,
+    thumbnailImage: "/img/products/sleeve1.jpg",
+    endTime: "2025-12-11T08:00:00Z",
+    timeRemaining: "9d 23h",
+    bidCount: 6,
+    isNew: true,
+    categoryName: "Computers",
+    createAt: "2025-11-29T13:50:00Z",
+  },
+  {
+    id: 11,
+    name: "Kitchen Blender Pro",
+    currentPrice: 33.0,
+    buyNowPrice: 59.99,
+    thumbnailImage: "/img/products/blender1.jpg",
+    endTime: "2025-12-14T19:00:00Z",
+    timeRemaining: "12d 10h",
+    bidCount: 9,
+    isNew: false,
+    categoryName: "Home Appliances",
+    createAt: "2025-11-21T11:00:00Z",
+  },
+  {
+    id: 12,
+    name: "Yoga Mat Premium",
+    currentPrice: 20.0,
+    buyNowPrice: 39.99,
+    thumbnailImage: "/img/products/yogamat1.jpg",
+    endTime: "2025-12-13T15:00:00Z",
+    timeRemaining: "11d 6h",
+    bidCount: 11,
+    isNew: true,
+    categoryName: "Fitness",
+    createAt: "2025-11-28T15:20:00Z",
+  },
+  {
+    id: 13,
+    name: "Noise-Cancelling Earbuds",
+    currentPrice: 29.99,
+    buyNowPrice: 49.99,
+    thumbnailImage: "/img/products/earbuds1.jpg",
+    endTime: "2025-12-07T21:00:00Z",
+    timeRemaining: "5d 12h",
+    bidCount: 18,
+    isNew: false,
+    categoryName: "Audio",
+    createAt: "2025-11-23T09:50:00Z",
+  },
+  {
+    id: 14,
+    name: "Smart Home Plug",
+    currentPrice: 14.0,
+    buyNowPrice: 24.99,
+    thumbnailImage: "/img/products/smartplug1.jpg",
+    endTime: "2025-12-06T10:00:00Z",
+    timeRemaining: "4d 1h",
+    bidCount: 3,
+    isNew: true,
+    categoryName: "Smart Home",
+    createAt: "2025-11-30T08:40:00Z",
+  },
+  {
+    id: 15,
+    name: "Photography Tripod",
+    currentPrice: 27.99,
+    buyNowPrice: 49.99,
+    thumbnailImage: "/img/products/tripod1.jpg",
+    endTime: "2025-12-04T13:00:00Z",
+    timeRemaining: "2d 4h",
+    bidCount: 16,
+    isNew: false,
+    categoryName: "Photography",
+    createAt: "2025-11-22T07:20:00Z",
+  },
+  {
+    id: 16,
+    name: "Portable Monitor 1080p",
+    currentPrice: 89.0,
+    buyNowPrice: 149.99,
+    thumbnailImage: "/img/products/monitor1.jpg",
+    endTime: "2025-12-15T12:00:00Z",
+    timeRemaining: "13d 3h",
+    bidCount: 12,
+    isNew: true,
+    categoryName: "Computers",
+    createAt: "2025-11-27T10:10:00Z",
+  },
+  {
+    id: 17,
+    name: "Coffee Maker Mini",
+    currentPrice: 24.5,
+    buyNowPrice: 39.99,
+    thumbnailImage: "/img/products/coffeemaker1.jpg",
+    endTime: "2025-12-02T20:00:00Z",
+    timeRemaining: "5h 50m",
+    bidCount: 13,
+    isNew: false,
+    categoryName: "Kitchen",
+    createAt: "2025-11-25T12:00:00Z",
+  },
+  {
+    id: 18,
+    name: "USB-C Docking Station",
+    currentPrice: 37.99,
+    buyNowPrice: 69.99,
+    thumbnailImage: "/img/products/dock1.jpg",
+    endTime: "2025-12-09T22:00:00Z",
+    timeRemaining: "7d 13h",
+    bidCount: 20,
+    isNew: true,
+    categoryName: "Computers",
+    createAt: "2025-11-30T10:30:00Z",
+  },
+  {
+    id: 19,
+    name: "Car Vacuum Cleaner",
+    currentPrice: 21.0,
+    buyNowPrice: 34.99,
+    thumbnailImage: "/img/products/carvacuum1.jpg",
+    endTime: "2025-12-03T11:00:00Z",
+    timeRemaining: "1d 2h",
+    bidCount: 5,
+    isNew: false,
+    categoryName: "Automotive",
+    createAt: "2025-11-29T11:30:00Z",
+  },
+  {
+    id: 20,
+    name: "Electric Toothbrush Pro",
+    currentPrice: 28.99,
+    buyNowPrice: 49.99,
+    thumbnailImage: "/img/products/toothbrush1.jpg",
+    endTime: "2025-12-05T09:00:00Z",
+    timeRemaining: "3d 0h",
+    bidCount: 4,
+    isNew: true,
+    categoryName: "Health",
+    createAt: "2025-11-26T16:00:00Z",
+  },
+  {
+    id: 21,
+    name: "Laptop Stand Adjustable",
+    currentPrice: 19.99,
+    buyNowPrice: 34.99,
+    thumbnailImage: "/img/products/laptopstand1.jpg",
+    endTime: "2025-12-11T18:00:00Z",
+    timeRemaining: "10d 9h",
+    bidCount: 9,
+    isNew: true,
+    categoryName: "Computers",
+    createAt: "2025-11-28T14:00:00Z",
+  },
+  {
+    id: 22,
+    name: "Outdoor Camping Lantern",
+    currentPrice: 15.99,
+    buyNowPrice: 29.99,
+    thumbnailImage: "/img/products/lantern1.jpg",
+    endTime: "2025-12-07T08:00:00Z",
+    timeRemaining: "5d 23h",
+    bidCount: 6,
+    isNew: false,
+    categoryName: "Outdoors",
+    createAt: "2025-11-24T13:30:00Z",
+  },
+  {
+    id: 23,
+    name: "Pet Grooming Kit",
+    currentPrice: 30.0,
+    buyNowPrice: 54.99,
+    thumbnailImage: "/img/products/petgroom1.jpg",
+    endTime: "2025-12-08T20:00:00Z",
+    timeRemaining: "6d 11h",
+    bidCount: 11,
+    isNew: true,
+    categoryName: "Pets",
+    createAt: "2025-11-23T11:40:00Z",
+  },
+  {
+    id: 24,
+    name: "Electric Kettle Steel",
+    currentPrice: 26.5,
+    buyNowPrice: 44.99,
+    thumbnailImage: "/img/products/kettle1.jpg",
+    endTime: "2025-12-10T06:00:00Z",
+    timeRemaining: "8d 21h",
+    bidCount: 8,
+    isNew: false,
+    categoryName: "Kitchen",
+    createAt: "2025-11-20T07:15:00Z",
+  },
+  {
+    id: 25,
+    name: "HD Webcam",
+    currentPrice: 32.99,
+    buyNowPrice: 59.99,
+    thumbnailImage: "/img/products/webcam1.jpg",
+    endTime: "2025-12-15T16:00:00Z",
+    timeRemaining: "13d 7h",
+    bidCount: 17,
+    isNew: true,
+    categoryName: "Computers",
+    createAt: "2025-11-29T08:00:00Z",
+  },
+  {
+    id: 26,
+    name: "Electric Screwdriver",
+    currentPrice: 27.0,
+    buyNowPrice: 49.99,
+    thumbnailImage: "/img/products/screwdriver1.jpg",
+    endTime: "2025-12-04T16:00:00Z",
+    timeRemaining: "2d 7h",
+    bidCount: 10,
+    isNew: false,
+    categoryName: "Tools",
+    createAt: "2025-11-22T05:30:00Z",
+  },
+  {
+    id: 27,
+    name: "Massage Gun Mini",
+    currentPrice: 40.0,
+    buyNowPrice: 79.99,
+    thumbnailImage: "/img/products/massagegun1.jpg",
+    endTime: "2025-12-14T10:00:00Z",
+    timeRemaining: "12d 1h",
+    bidCount: 14,
+    isNew: true,
+    categoryName: "Fitness",
+    createAt: "2025-11-25T15:15:00Z",
+  },
+  {
+    id: 28,
+    name: "Smart Light Bulb RGB",
+    currentPrice: 9.99,
+    buyNowPrice: 19.99,
+    thumbnailImage: "/img/products/lightbulb1.jpg",
+    endTime: "2025-12-03T08:00:00Z",
+    timeRemaining: "1d 23h",
+    bidCount: 3,
+    isNew: true,
+    categoryName: "Smart Home",
+    createAt: "2025-11-30T10:00:00Z",
+  },
+  {
+    id: 29,
+    name: "Water Bottle Steel",
+    currentPrice: 13.5,
+    buyNowPrice: 24.99,
+    thumbnailImage: "/img/products/waterbottle1.jpg",
+    endTime: "2025-12-06T07:00:00Z",
+    timeRemaining: "3d 22h",
+    bidCount: 2,
+    isNew: false,
+    categoryName: "Outdoors",
+    createAt: "2025-11-26T09:00:00Z",
+  },
+  {
+    id: 30,
+    name: "Portable Power Bank 10000mAh",
+    currentPrice: 21.99,
+    buyNowPrice: 39.99,
+    thumbnailImage: "/img/products/powerbank1.jpg",
+    endTime: "2025-12-09T05:00:00Z",
+    timeRemaining: "6d 20h",
+    bidCount: 15,
+    isNew: true,
+    categoryName: "Electronics",
+    createAt: "2025-11-28T11:30:00Z",
+  },
+];
+*/
