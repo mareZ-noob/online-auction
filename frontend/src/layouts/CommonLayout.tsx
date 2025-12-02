@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   GalleryVerticalEnd,
   Heart,
   LogOut,
+  Mail,
   Moon,
   SearchIcon,
   User,
@@ -32,8 +33,18 @@ import { useFetchCategories } from "@/hooks/product-hooks";
 import { useUserStore } from "@/store/user-store";
 
 function WatchList() {
+  const navigate = useNavigate();
+
+  const goToWatchList = () => {
+    navigate("/watch-list");
+  };
+
   return (
-    <Button variant="outline" className="flex items-center justify-center">
+    <Button
+      variant="outline"
+      className="flex items-center justify-center"
+      onClick={goToWatchList}
+    >
       <Heart />
       <p>Watchlist</p>
     </Button>
@@ -41,8 +52,17 @@ function WatchList() {
 }
 
 function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
-  const fullName = useUserStore((state) => state.fullName);
-  const email = useUserStore((state) => state.email);
+  const id = useUserStore((state) => state.id);
+  const fullName = useUserStore((s) => s.fullName);
+  const email = useUserStore((s) => s.email);
+
+  const fetchUser = useUserStore((state) => state.fetchUser);
+
+  useEffect(() => {
+    if (id) {
+      fetchUser();
+    }
+  }, [id, fetchUser]);
 
   return (
     <DropdownMenu>
@@ -52,11 +72,10 @@ function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
           <p>{fullName}</p>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-60" align="end">
-        <DropdownMenuLabel className="flex items-center gap-2">
-          My Account
-          <p className="font-light text-gray-300">|</p>
-          <p className="font-light text-gray-500">{email}</p>
+      <DropdownMenuContent className="w-64" align="end">
+        <DropdownMenuLabel className="flex items-center gap-2 text-gray-500">
+          <Mail size={16} />
+          <p className="font-light">{email}</p>
         </DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuItem className="flex items-center">
@@ -117,6 +136,14 @@ function Header() {
 
   const { mutate, isPending } = useSignOut();
 
+  const handleSignIn = () => {
+    navigate("/auth/sign-in");
+  };
+
+  const handleSignUp = () => {
+    navigate("/auth/sign-up");
+  };
+
   const handleSignOut = () => {
     mutate(undefined, {
       onSuccess: () => {
@@ -141,10 +168,10 @@ function Header() {
       <div>
         {isTokenExpired() ? (
           <div className="flex items-center justify-center">
-            <Button variant="outline" className="mr-4">
+            <Button variant="outline" className="mr-4" onClick={handleSignIn}>
               Login
             </Button>
-            <Button>Signup</Button>
+            <Button onClick={handleSignUp}>Signup</Button>
           </div>
         ) : isPending ? (
           <Button disabled>Logging out...</Button>

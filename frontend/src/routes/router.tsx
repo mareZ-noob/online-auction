@@ -22,6 +22,9 @@ const ProductDetailPage = lazy(
 const ProductListPage = lazy(
   () => import("@/components/product-page/product-list/ProductListPage.tsx")
 );
+const WatchListPage = lazy(
+  () => import("@/components/watch-list/WatchListPage.tsx")
+);
 const CommonLayout = lazy(() => import("@/layouts/CommonLayout"));
 
 const router = createBrowserRouter([
@@ -37,6 +40,15 @@ const router = createBrowserRouter([
       {
         path: "me",
         element: <DashboardPage />,
+      },
+      {
+        path: "watch-list",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <WatchListPage />
+          </Suspense>
+        ),
+        loader: ProtectedRoute,
       },
     ],
     // loader: ProtectedRoute,
