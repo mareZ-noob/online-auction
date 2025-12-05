@@ -55,32 +55,12 @@ interface SignupResponse {
   timestamp: string;
 }
 
-interface AccessTokenPayload {
+export interface AccessTokenPayload {
   sub: number;
   email: string;
   role: string;
   exp: number;
 }
-
-// interface CurrentUser {
-//   id: number;
-//   email: string;
-//   fullName: string;
-//   address: string;
-//   dateOfBirth?: string;
-//   role: string;
-//   emailVerified: boolean;
-//   positiveRatings: number;
-//   negativeRatings: number;
-//   createdAt: string;
-// }
-
-// interface CurrentUserResponse {
-//   success: boolean;
-//   message: string;
-//   data: CurrentUser;
-//   timestamp: string;
-// }
 
 export const useLogin = () => {
   const setIsEmailVerified = useAuthStore((state) => state.setIsEmailVerified);
@@ -154,6 +134,7 @@ export const useRegister = () => {
 export const useSignOut = () => {
   const refreshToken = useAuthStore((state) => state.refreshToken);
   const logout = useAuthStore((state) => state.logout);
+  const clearUser = useUserStore((state) => state.clearUser);
 
   return useMutation({
     mutationFn: async () => {
@@ -163,6 +144,7 @@ export const useSignOut = () => {
     },
     onSuccess: () => {
       logout();
+      clearUser();
     },
   });
 };

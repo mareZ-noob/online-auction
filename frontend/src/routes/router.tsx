@@ -48,10 +48,10 @@ const router = createBrowserRouter([
             <WatchListPage />
           </Suspense>
         ),
-        loader: ProtectedRoute,
+        // loader: ProtectedRoute,
       },
     ],
-    // loader: ProtectedRoute,
+    loader: ProtectedRoute,
   },
   {
     path: "/auth",

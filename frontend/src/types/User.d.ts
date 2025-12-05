@@ -7,6 +7,7 @@ export type USER_BY_ID = {
   address: string;
   dateOfBirth?: string;
   role: string;
+  linkedProviders: string[];
   emailVerified: boolean;
   positiveRatings: number;
   negativeRatings: number;

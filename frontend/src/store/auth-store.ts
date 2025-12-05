@@ -1,5 +1,8 @@
+import apiClient from "@/query/api-client";
+import { jwtDecode } from "jwt-decode";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { AccessTokenPayload } from "@/hooks/auth-hooks";
 
 interface AuthState {
   token: string | null;
@@ -11,7 +14,7 @@ interface AuthState {
   setToken: (token: string, expiresIn: number) => void;
   logout: () => void;
   isTokenExpired: () => boolean;
-  refreshAccessToken: () => Promise<void>;
+  refreshUserToken: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -51,7 +54,7 @@ export const useAuthStore = create<AuthState>()(
 
         return now >= expireThreshold;
       },
-      refreshAccessToken: async () => {
+      refreshUserToken: async () => {
         const refreshToken = get().refreshToken;
         if (!refreshToken) {
           get().logout();
@@ -59,20 +62,25 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const response = await fetch("/api/auth/refresh-token", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ refreshToken }),
+          const response = await apiClient.post<{
+            data: {
+              accessToken: string;
+              refreshToken: string;
+            };
+          }>("/auth/refresh-token", {
+            refreshToken,
           });
 
-          if (!response.ok) {
+          if (!response) {
             throw new Error("Failed to refresh token");
           }
 
-          const data = await response.json();
-          get().setAuth(data.token, data.refreshToken, data.expiresIn);
+          const { data } = response.data;
+
+          const decoded = jwtDecode<AccessTokenPayload>(data.accessToken);
+          const expireIn = decoded.exp - Math.floor(Date.now() / 1000); // seconds left
+
+          get().setAuth(data.accessToken, data.refreshToken, expireIn);
         } catch (error) {
           console.error("Error refreshing token:", error);
           get().logout();

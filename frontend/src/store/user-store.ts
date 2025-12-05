@@ -20,6 +20,7 @@ interface UserState {
 interface UserAction {
   setId: (id: number) => void;
   setUser: (user: Partial<UserState> | null) => void;
+  clearUser: () => void;
   fetchUser: () => Promise<void>;
 }
 
@@ -39,6 +40,10 @@ export const useUserStore = create<UserState & UserAction>()(
 
       setId: (id) => set(() => ({ id })),
       setUser: (user) => set((prev) => ({ ...prev, ...(user ?? {}) })),
+      clearUser: () =>
+        set(() => ({
+          id: null,
+        })),
       fetchUser: async () => {
         const id = get().id;
         if (!id) return;
