@@ -5,7 +5,7 @@ export function ProtectedRoute({ request }: { request: Request }) {
   const token = useAuthStore.getState().token;
   const isTokenExpired = useAuthStore.getState().isTokenExpired;
 
-  if (isTokenExpired()) {
+  if (token && isTokenExpired()) {
     useAuthStore.getState().refreshUserToken();
   }
 
