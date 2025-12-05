@@ -1,15 +1,53 @@
+import {
+  useAddAProductToWatchList,
+  useCheckAProductInWatchList,
+  useRemoveAProductFromWatchList,
+} from "@/hooks/watch-list-hooks";
 import { Button } from "@/components/ui/button.tsx";
 import type { CardItemInformation } from "@/types/CardItem";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 function ProductItemCard({
   data,
   height = 400,
-  isWatchList = true,
+  isWatchList = false,
 }: {
   data: CardItemInformation;
   height?: number;
   isWatchList?: boolean;
 }) {
+  const navigate = useNavigate();
+
+  const { mutate: removeFromWatchList } = useRemoveAProductFromWatchList(
+    data.id
+  );
+  const { mutate: addToWatchList } = useAddAProductToWatchList(data.id);
+  const isAddedToWatchList = useCheckAProductInWatchList(data.id);
+
+  const [watchListButton, setWatchListButton] = useState("Follow");
+
+  const handleViewDetails = (id: number) => {
+    navigate(`/products/${id}`);
+  };
+
+  const handleAddToWatchList = () => {
+    setWatchListButton("Following");
+    addToWatchList();
+  };
+
+  const handleRemoveFromWatchList = () => {
+    removeFromWatchList();
+  };
+
+  useEffect(() => {
+    if (isAddedToWatchList.data) {
+      setWatchListButton("Following");
+    } else {
+      setWatchListButton("Follow");
+    }
+  }, [isAddedToWatchList.data]);
+
   return (
     <div className="flex flex-col">
       <div
@@ -39,13 +77,29 @@ function ProductItemCard({
         <p>Current Bid Count: {data.bidCount}</p>
 
         <div className="flex items-center justify-between">
-          {isWatchList && (
-            <Button variant="outline" className=" mt-4 size-12 px-12 mr-4">
-              Follow
+          {isWatchList ? (
+            <Button
+              variant="outline"
+              className=" mt-4 size-12 px-12 mr-4"
+              onClick={handleRemoveFromWatchList}
+            >
+              Remove
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              className=" mt-4 size-12 px-12 mr-4"
+              onClick={handleAddToWatchList}
+            >
+              {watchListButton}
             </Button>
           )}
           <div className="ml-auto">
-            <Button variant="outline" className=" mt-4 size-12 px-12 mr-4">
+            <Button
+              variant="outline"
+              className=" mt-4 size-12 px-12 mr-4"
+              onClick={() => handleViewDetails(data.id)}
+            >
               View details
             </Button>
             <Button variant="default" className=" mt-4 size-12 px-12">

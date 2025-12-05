@@ -1,3 +1,4 @@
+import type { USER_BY_ID_RESPONSE } from "@/types/User";
 import { API_ENDPOINTS } from "@/hooks/endpoints";
 import apiClient from "@/query/api-client";
 import { create } from "zustand";
@@ -22,26 +23,6 @@ interface UserAction {
   fetchUser: () => Promise<void>;
 }
 
-interface CurrentUser {
-  id: number;
-  email: string;
-  fullName: string;
-  address: string;
-  dateOfBirth?: string;
-  role: string;
-  emailVerified: boolean;
-  positiveRatings: number;
-  negativeRatings: number;
-  createdAt: string;
-}
-
-interface CurrentUserResponse {
-  success: boolean;
-  message: string;
-  data: CurrentUser;
-  timestamp: string;
-}
-
 export const useUserStore = create<UserState & UserAction>()(
   persist(
     (set, get) => ({
@@ -64,7 +45,7 @@ export const useUserStore = create<UserState & UserAction>()(
 
         try {
           const { data: profileResp } =
-            await apiClient.get<CurrentUserResponse>(
+            await apiClient.get<USER_BY_ID_RESPONSE>(
               API_ENDPOINTS.USER_BY_ID(id)
             );
 

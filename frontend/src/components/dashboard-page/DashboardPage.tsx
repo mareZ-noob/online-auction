@@ -1,22 +1,17 @@
 import { CarouselPlugin } from "@/components/dashboard-page/CarouselPlugin.tsx";
 import Products from "@/components/dashboard-page/Products.tsx";
 import CarouselCardItem from "@/components/dashboard-page/CarouselCardItem.tsx";
-import type { CardItemInformation } from "@/types/CardItem";
+import {
+  useFetchEndingSoonProducts,
+  useFetchTopHighestPriceProducts,
+  useFetchTopMostBidProducts,
+} from "@/hooks/product-hooks";
+import { CardItemInformationMapper } from "@/lib/utils";
 
 function DashboardPage() {
-  const fakeData = {
-    productName: "Iphone 17 of Elon Musk",
-    currentPrice: 1000,
-    buyNowPrice: 9999,
-    productImage:
-      "https://www.macobserver.com/wp-content/uploads/2025/09/iphone-17-wallpapers.png",
-    bidderName: "Donald Trump",
-    bidderPrice: 2000,
-    publishedDate: "November 29th, 2025 | 7:00 AM",
-    remainingTime: "1 hour",
-    bidCount: 10,
-    categoryName: "Smartphones",
-  } as CardItemInformation;
+  const { data: endingSoonProducts } = useFetchEndingSoonProducts();
+  const { data: topMostBidProducts } = useFetchTopMostBidProducts();
+  const { data: topHighestPriceProducts } = useFetchTopHighestPriceProducts();
 
   return (
     <div className="mt-28">
@@ -33,23 +28,37 @@ function DashboardPage() {
         </p>
 
         <CarouselPlugin>
-          <CarouselCardItem data={fakeData} />
-          <CarouselCardItem data={fakeData} />
-          <CarouselCardItem data={fakeData} />
-          <CarouselCardItem data={fakeData} />
-          <CarouselCardItem data={fakeData} />
+          {endingSoonProducts &&
+            endingSoonProducts.map((product) => (
+              <CarouselCardItem
+                key={product.id}
+                data={CardItemInformationMapper(product)}
+              />
+            ))}
         </CarouselPlugin>
       </section>
       <section className="mt-24">
         <p className="mb-12 text-4xl uppercase">Top 5 Most Bidded Products</p>
-        <Products />
+        <Products
+          data={
+            topMostBidProducts
+              ? topMostBidProducts.map(CardItemInformationMapper)
+              : []
+          }
+        />
       </section>
 
       <section className="mt-24">
         <p className="mb-12 text-4xl uppercase">
           Top 5 Highest-Priced Products
         </p>
-        <Products />
+        <Products
+          data={
+            topHighestPriceProducts
+              ? topHighestPriceProducts.map(CardItemInformationMapper)
+              : []
+          }
+        />
       </section>
     </div>
   );

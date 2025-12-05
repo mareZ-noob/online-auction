@@ -11,7 +11,7 @@ export function ProtectedRoute({ request }: { request: Request }) {
 
   if (!token) {
     const url = new URL(request.url);
-    return redirect(`auth/sign-in?from=${url.pathname}`);
+    return redirect(`/auth/sign-in?from=${url.pathname}`);
   }
 
   return null;

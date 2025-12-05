@@ -76,9 +76,22 @@ function ProductListPage() {
       <div className="col-span-3 flex flex-col gap-4">
         {products && <ProductyContainer data={products} />}
 
-        <div className="mt-12 flex justify-center">
-          <ProductPagination />
-        </div>
+        {products && products.length > 0 && (
+          <div className="mt-12 flex justify-center">
+            <ProductPagination
+              page={page}
+              totalPages={
+                searchQuery
+                  ? searchData?.totalPages ?? 0
+                  : subData?.totalPages ?? 0
+              }
+              onPageChange={(newPage) => {
+                // Update the page in the store
+                useProductStore.getState().setPage(newPage);
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   InputGroup,
   InputGroupAddon,
@@ -6,30 +6,48 @@ import {
 } from "../ui/input-group";
 import { SearchIcon } from "lucide-react";
 import { Button } from "../ui/button";
-import type { CardItemInformation } from "@/types/CardItem";
 import ProductItemCard from "../dashboard-page/ProductItemCard";
-import { Pagination } from "../ui/pagination";
+import { useFetchMyWatchList } from "@/hooks/watch-list-hooks";
+import { CardItemInformationMapper } from "@/lib/utils";
+import ProductPagination from "../product-page/product-list/ProductPagination";
+import WatchListFallback from "./WatchListFallback";
+import WatchListSearchResult from "./WatchListSearchResult";
+import type { PRODUCTS_BY_SUB_CATEGORY_ID } from "@/types/Product";
 
 function WatchList() {
-  const [inputValue, setInputValue] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchResultMode, setIsSearchResultMode] = useState(false);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
+  const { data: productsInWatchList } = useFetchMyWatchList(page);
+
+  const [searchedProducts, setSearchedProducts] = useState<
+    PRODUCTS_BY_SUB_CATEGORY_ID[]
+  >([]);
   const onSearch = () => {
-    console.log("Searching for:", inputValue);
+    if (
+      searchTerm &&
+      productsInWatchList &&
+      productsInWatchList.content.length > 0
+    ) {
+      const results = productsInWatchList.content.filter((p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSearchedProducts(results);
+      setIsSearchResultMode(true);
+    } else {
+      setSearchedProducts([]);
+      setIsSearchResultMode(false);
+    }
   };
 
-  const fakeData = {
-    productName: "Iphone 17 of Elon Musk",
-    currentPrice: 1000,
-    buyNowPrice: 9999,
-    productImage:
-      "https://www.macobserver.com/wp-content/uploads/2025/09/iphone-17-wallpapers.png",
-    bidderName: "Donald Trump",
-    bidderPrice: 2000,
-    publishedDate: "November 29th, 2025 | 7:00 AM",
-    remainingTime: "1 hour",
-    bidCount: 10,
-    categoryName: "Smartphones",
-  } as CardItemInformation;
+  useEffect(() => {
+    if (productsInWatchList) {
+      setPage(productsInWatchList.page);
+      setTotalPages(productsInWatchList.totalPages);
+    }
+  }, [productsInWatchList]);
 
   return (
     <div className="mt-24">
@@ -39,26 +57,56 @@ function WatchList() {
           <InputGroup className="mx-4 max-w-sm">
             <InputGroupInput
               placeholder="Search your watch list..."
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchTerm}
             />
             <InputGroupAddon>
               <SearchIcon />
             </InputGroupAddon>
           </InputGroup>
           <Button onClick={onSearch}>Search</Button>
+          {isSearchResultMode && (
+            <Button
+              variant="outline"
+              className="ml-2"
+              onClick={() => {
+                setIsSearchResultMode(false);
+                setSearchTerm("");
+              }}
+            >
+              Back to Watch List
+            </Button>
+          )}
         </div>
       </div>
-      <div className="mt-8 grid grid-cols-3 gap-16">
-        <ProductItemCard data={fakeData} isWatchList={false} />
-        <ProductItemCard data={fakeData} isWatchList={false} />
-        <ProductItemCard data={fakeData} isWatchList={false} />
-        <ProductItemCard data={fakeData} isWatchList={false} />
-        <ProductItemCard data={fakeData} isWatchList={false} />
-        <ProductItemCard data={fakeData} isWatchList={false} />
-        <ProductItemCard data={fakeData} isWatchList={false} />
-        <ProductItemCard data={fakeData} isWatchList={false} />
-      </div>
-      <Pagination />
+
+      {!isSearchResultMode ? (
+        <>
+          {productsInWatchList && productsInWatchList.content.length > 0 ? (
+            <>
+              <div className="mt-8 grid grid-cols-3 gap-16">
+                {productsInWatchList.content.map((product) => (
+                  <ProductItemCard
+                    key={product.id}
+                    data={CardItemInformationMapper(product)}
+                    isWatchList={true}
+                  />
+                ))}
+              </div>
+              <ProductPagination
+                className="mt-24"
+                page={page}
+                totalPages={totalPages}
+                onPageChange={(newPage) => setPage(newPage)}
+              />
+            </>
+          ) : (
+            <WatchListFallback />
+          )}
+        </>
+      ) : (
+        <WatchListSearchResult data={searchedProducts} />
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 export const API_ENDPOINTS = {
+  // Auth
   REGISTER: "/auth/register",
   LOGIN: "/auth/login",
   LOGOUT: "/auth/logout",
@@ -8,20 +9,33 @@ export const API_ENDPOINTS = {
   RESEND_EMAIL_VERIFICATION: "/auth/resend-verification",
   REFRESH_TOKEN: "/auth/refresh-token",
 
+  // Categories
   ALL_CATEGORIES: "/public/categories",
   PARENT_CATEGORIES: "/public/categories/root",
   CATEGORIES_BY_ID: (id: string | number) => `/public/categories/${id}`,
   SUB_CATEGORIES: (id: string | number) => `/public/categories/${id}/children`,
 
+  // Products
   ALL_PRODUCTS: "/public/products",
   PRODUCT_DETAIL_BY_ID: (id: string | number) => `/public/products/${id}`,
   RELATED_PRODUCTS: (id: string | number) => `/public/products/${id}/related`,
-  MOST_BID_PRODUCTS: "/public/products/top/most-bid",
+  MOST_BID_PRODUCTS: "/public/products/top/most-bids",
   HIGHEST_PRICE_PRODUCTS: "/public/products/top/highest-price",
   ENDING_SOON_PRODUCTS: "/public/products/top/ending-soon",
   PRODUCTS_BY_SUB_CATEGORY_ID: (categoryId: string | number) =>
     `/public/products/category/${categoryId}`,
   SEARCH_PRODUCTS: "/public/products/search",
 
+  // User
   USER_BY_ID: (id: string | number) => `/user/${id}`,
+
+  // watch List
+  ADD_A_PRODUCT_TO_WATCHLIST: (productId: string | number) =>
+    `bidder/watchlist/${productId}`,
+  REMOVE_A_PRODUCT_FROM_WATCHLIST: (productId: string | number) =>
+    `bidder/watchlist/${productId}`,
+  GET_WATCHLIST_PRODUCTS: "/bidder/watchlist",
+  GET_MY_WATCHLIST: "/bidder/watchlist",
+  CHECK_A_PRODUCT_IN_WATCHLIST: (productId: string | number) =>
+    `bidder/watchlist/check/${productId}`,
 };

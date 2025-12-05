@@ -1,6 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
-import { API_ENDPOINTS } from "@/hooks/endpoints";
 import apiClient from "@/query/api-client";
+import { API_ENDPOINTS } from "@/hooks/endpoints";
+import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth-store";
 import { jwtDecode } from "jwt-decode";
 import { useUserStore } from "@/store/user-store";
@@ -83,8 +83,6 @@ interface AccessTokenPayload {
 // }
 
 export const useLogin = () => {
-  console.log("login");
-
   const setIsEmailVerified = useAuthStore((state) => state.setIsEmailVerified);
   const setAuth = useAuthStore((state) => state.setAuth);
   const setId = useUserStore((state) => state.setId);
@@ -107,32 +105,14 @@ export const useLogin = () => {
       setIsEmailVerified(data.user.emailVerified);
       setAuth(data.accessToken, data.refreshToken, expireIn);
       setId(sub);
-
-      // fetch current user profile and populate user-store
-      // try {
-      //   const { data: profileResp } = await apiClient.get<CurrentUserResponse>(
-      //     API_ENDPOINTS.USER_BY_ID(sub)
-      //   );
-
-      //   if (profileResp?.data) {
-      //     setUser(profileResp.data);
-      //   }
-      // } catch (err) {
-      //   // non-fatal: profile fetch failed — user still logged in
-      //   // eslint-disable-next-line no-console
-      //   console.warn("Failed to fetch user profile after login:", err);
-      // }
     },
   });
 };
 
 export const useRegister = () => {
-  console.log("register");
-
   const setIsEmailVerified = useAuthStore((state) => state.setIsEmailVerified);
   const setAuth = useAuthStore((state) => state.setAuth);
   const setId = useUserStore((state) => state.setId);
-  // const setUser = useUserStore((state) => state.setUser);
 
   return useMutation({
     mutationFn: async (credentials: {
@@ -157,21 +137,6 @@ export const useRegister = () => {
       setIsEmailVerified(data.user.emailVerified);
       setAuth(data.accessToken, data.refreshToken, expireIn);
       setId(sub);
-
-      // fetch current user profile and populate user-store
-      // try {
-      //   const { data: profileResp } = await apiClient.get<CurrentUserResponse>(
-      //     API_ENDPOINTS.USER_BY_ID(sub)
-      //   );
-
-      //   if (profileResp?.data) {
-      //     setUser(profileResp.data);
-      //   }
-      // } catch (err) {
-      //   // non-fatal: profile fetch failed — user still logged in
-      //   // eslint-disable-next-line no-console
-      //   console.warn("Failed to fetch user profile after login:", err);
-      // }
     },
   });
 };
