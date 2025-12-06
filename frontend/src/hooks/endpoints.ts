@@ -8,6 +8,7 @@ export const API_ENDPOINTS = {
   VERIFY_EMAIL: "/auth/verify-email",
   RESEND_EMAIL_VERIFICATION: "/auth/resend-verification",
   REFRESH_TOKEN: "/auth/refresh-token",
+  EXCHANGE_TOKEN: "/auth/exchange",
 
   // Categories
   ALL_CATEGORIES: "/public/categories",
