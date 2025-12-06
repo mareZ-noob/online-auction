@@ -29,7 +29,7 @@ export const API_ENDPOINTS = {
   // User
   USER_BY_ID: (id: string | number) => `/user/${id}`,
 
-  // watch List
+  // Watch List
   ADD_A_PRODUCT_TO_WATCHLIST: (productId: string | number) =>
     `bidder/watchlist/${productId}`,
   REMOVE_A_PRODUCT_FROM_WATCHLIST: (productId: string | number) =>
@@ -38,4 +38,12 @@ export const API_ENDPOINTS = {
   GET_MY_WATCHLIST: "/bidder/watchlist",
   CHECK_A_PRODUCT_IN_WATCHLIST: (productId: string | number) =>
     `bidder/watchlist/check/${productId}`,
+
+  // Bid
+  GET_MY_BID_HISTORY: "/bidder/bids",
+  PLACE_A_BID: "/bidder/bids",
+  GET_BID_HISTORY_OF_A_PRODUCT: (productId: string | number) =>
+    `/bidder/products/${productId}/bids`,
+
+  // Bidder
 };

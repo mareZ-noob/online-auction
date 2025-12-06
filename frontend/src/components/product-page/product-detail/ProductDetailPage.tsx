@@ -10,6 +10,7 @@ import {
 import { CardItemInformationMapper } from "@/lib/utils";
 import { useParams } from "react-router-dom";
 import ProductDetailPageFallback from "./ProductDetailPageFallback";
+import ProductBidHistory from "./product-bid/ProductBidHistory";
 
 function ProductDetailPage() {
   const productId = useParams().id as string;
@@ -39,19 +40,24 @@ function ProductDetailPage() {
         />
         <ProductInfo data={rest} />
       </section>
-      <div className="my-8 border-b" />
+      <div className="my-8 border-b border-gray-200" />
+      <section>
+        <p className="text-xl mb-4">Product Bid History</p>
+        <ProductBidHistory productId={Number(productId)} />
+      </section>
+      <div className="my-8 border-b border-gray-200" />
       <section>
         <p className="text-xl mb-4">Additional Details</p>
         <p className="font-light text-gray-500">
           {productDetails?.description}
         </p>
       </section>
-      <div className="my-8 border-b" />
+      <div className="my-8 border-b border-gray-200" />
       <section>
         <p className="text-xl mb-4">Comments</p>
         <ProductComments />
       </section>
-      <div className="my-8 border-b" />
+      <div className="my-8 border-b border-gray-200" />
       <section>
         <p className="text-xl mb-4">You May Also Like</p>
         {relatedProducts?.length ? (
