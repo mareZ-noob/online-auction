@@ -1,5 +1,11 @@
 package wnc.auction.backend.config;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -16,12 +22,6 @@ import wnc.auction.backend.model.enumeration.UserRole;
 import wnc.auction.backend.repository.CategoryRepository;
 import wnc.auction.backend.repository.ProductRepository;
 import wnc.auction.backend.repository.UserRepository;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -53,7 +53,6 @@ public class DataSeeder implements CommandLineRunner {
                 .fullName("System Administrator")
                 .address("123 Admin St")
                 .role(UserRole.ADMIN)
-                .socialAccounts(new ArrayList<>())
                 .emailVerified(true)
                 .isActive(true)
                 .positiveRatings(0)
@@ -77,7 +76,7 @@ public class DataSeeder implements CommandLineRunner {
                 .fullName("John Seller")
                 .address("456 Market St")
                 .role(UserRole.SELLER)
-                .socialAccounts(new ArrayList<>())
+                .socialAccounts(new HashSet<>())
                 .emailVerified(true)
                 .isActive(true)
                 .positiveRatings(10)
@@ -101,7 +100,7 @@ public class DataSeeder implements CommandLineRunner {
                 .fullName("Alice Bidder")
                 .address("789 Auction Rd")
                 .role(UserRole.BIDDER)
-                .socialAccounts(new ArrayList<>())
+                .socialAccounts(new HashSet<>())
                 .emailVerified(true)
                 .isActive(true)
                 .positiveRatings(5)

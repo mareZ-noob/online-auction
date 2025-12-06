@@ -1,5 +1,7 @@
 package wnc.auction.backend.security;
 
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,9 +22,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import wnc.auction.backend.model.enumeration.UserRole;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -31,10 +30,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService userDetailsService;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final wnc.auction.backend.security.oauth2.CustomOidcUserService customOidcUserService;
+    private final CustomOidcUserService customOidcUserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Value("${app.frontend.url}")
@@ -42,11 +39,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers(
@@ -63,39 +58,32 @@ public class SecurityConfig {
                                 "/api/categories/**",
                                 "/swagger-ui/**",
                                 "/api-docs/**",
-                                "/v3/api-docs/**"
-                        ).permitAll()
+                                "/v3/api-docs/**")
+                        .permitAll()
 
                         // Bidder endpoints
-                        .requestMatchers("/api/bidder/**").hasAnyRole(UserRole.BIDDER.name(), UserRole.SELLER.name(), UserRole.ADMIN.name())
+                        .requestMatchers("/api/bidder/**")
+                        .hasAnyRole(UserRole.BIDDER.name(), UserRole.SELLER.name(), UserRole.ADMIN.name())
 
                         // Seller endpoints
-                        .requestMatchers("/api/seller/**").hasAnyRole(UserRole.SELLER.name(), UserRole.ADMIN.name())
+                        .requestMatchers("/api/seller/**")
+                        .hasAnyRole(UserRole.SELLER.name(), UserRole.ADMIN.name())
 
                         // Admin endpoints
-                        .requestMatchers("/api/admin/**").hasRole(UserRole.ADMIN.name())
+                        .requestMatchers("/api/admin/**")
+                        .hasRole(UserRole.ADMIN.name())
 
                         // All other requests require authentication
-                        .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(auth -> auth
-                                .baseUri("/api/auth/oauth2/authorize")
-                        )
-                        .redirectionEndpoint(red -> red
-                                .baseUri("/login/oauth2/code/*")
-                        )
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService) // For normal OAuth2
-                                .oidcUserService(customOidcUserService) // For Keycloak/OIDC
-                        )
-                        .successHandler(oAuth2AuthenticationSuccessHandler)
-                        .failureHandler(oAuth2AuthenticationFailureHandler)
-                )
+                        .anyRequest()
+                        .authenticated())
+                .oauth2Login(oauth2 -> oauth2.authorizationEndpoint(auth -> auth.baseUri("/api/auth/oauth2/authorize"))
+                        .redirectionEndpoint(red -> red.baseUri("/login/oauth2/code/*"))
+                        .userInfoEndpoint(
+                                userInfo -> userInfo.oidcUserService(customOidcUserService) // For Keycloak/OIDC
+                                )
+                        .successHandler(oAuth2AuthenticationSuccessHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)
-                );
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint));
 
         return http.build();
     }
@@ -119,8 +107,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authConfig) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 }

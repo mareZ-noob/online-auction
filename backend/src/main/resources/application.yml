@@ -2,6 +2,13 @@ spring:
   application:
     name: online-auction
 
+  threads:
+    virtual:
+      enabled: true
+
+  cache:
+    type: redis
+
   datasource:
     url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/auction_db}
     username: ${POSTGRES_USERNAME:postgres}
@@ -65,11 +72,8 @@ spring:
 
 server:
   port: 8088
-
-jwt:
-  secret: ${JWT_SECRET:eW91ci1zZWNyZXQta2V5LWNoYW5nZS10aGlzLWluLXByb2R1Y3Rpb24tbWluLTI1Ni1iaXRz}
-  access-token-expiration: 3600000 # 1 hour
-  refresh-token-expiration: 604800000 # 7 days
+  forward-headers-strategy: framework
+  shutdown: graceful
 
 app:
   file:
@@ -83,11 +87,21 @@ app:
     from-address: ${MAIL_USERNAME:noreply@online-auction.com}
   otp:
     expiration-minutes: 5
-  audit:
-    topic: auction-audit-logs
-    enabled: true
   frontend:
-    url: http://localhost:5173
+    url: ${FRONTEND_URL:http://localhost:5173}
+  kafka:
+    topic:
+      audit-log: audit-log
+      exception-log: exception-log
+  jwt:
+    secret: ${JWT_SECRET:eW91ci1zZWNyZXQta2V5LWNoYW5nZS10aGlzLWluLXByb2R1Y3Rpb24tbWluLTI1Ni1iaXRz}
+    access-token-expiration: 3600000 # 1 hour
+    refresh-token-expiration: 604800000 # 7 days
+  jobs:
+    # Config: second minute hour day month day of week
+    # 0 0 0 * * ?  => 12h each night
+    # 0 0 */6 * * ? => every 6 hour
+    token_cleanup_cron: "0 0 0 * * ?"
 
 springdoc:
   api-docs:
@@ -95,3 +109,11 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
+    oauth2-redirect-url: http://localhost:8088/swagger-ui/oauth2-redirect.html
+  oauth:
+    client-id: swagger-ui
+    use-pkce-with-authorization-code-grant: true
+  oauthflow:
+    authorization-url: ${KEYCLOAK_AUTHORIZATION_URL:http://localhost:8180/realms/auction-realm/protocol/openid-connect/auth}
+    token-url: ${KEYCLOAK_TOKEN_URL:http://localhost:8180/realms/auction-realm/protocol/openid-connect/token}
+  show-actuator: true

@@ -10,8 +10,6 @@ public class ValidationConfig {
 
     @Bean
     public Validator validator() {
-        return Validation
-                .buildDefaultValidatorFactory()
-                .getValidator();
+        return Validation.buildDefaultValidatorFactory().getValidator();
     }
 }

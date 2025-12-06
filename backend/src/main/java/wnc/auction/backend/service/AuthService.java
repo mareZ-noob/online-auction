@@ -1,8 +1,15 @@
 package wnc.auction.backend.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,27 +21,19 @@ import wnc.auction.backend.dto.request.RegisterRequest;
 import wnc.auction.backend.dto.request.ResetPasswordRequest;
 import wnc.auction.backend.dto.request.VerifyOtpRequest;
 import wnc.auction.backend.dto.response.AuthResponse;
-import wnc.auction.backend.exception.BadRequestException;
-import wnc.auction.backend.exception.NotFoundException;
-import wnc.auction.backend.exception.UnauthorizedException;
+import wnc.auction.backend.exception.*;
 import wnc.auction.backend.mapper.UserMapper;
-import wnc.auction.backend.model.Otp;
-import wnc.auction.backend.model.RefreshToken;
-import wnc.auction.backend.model.SocialAccount;
-import wnc.auction.backend.model.User;
+import wnc.auction.backend.model.*;
 import wnc.auction.backend.model.enumeration.AuthProvider;
 import wnc.auction.backend.model.enumeration.OtpType;
 import wnc.auction.backend.model.enumeration.UserRole;
 import wnc.auction.backend.repository.OtpRepository;
 import wnc.auction.backend.repository.RefreshTokenRepository;
+import wnc.auction.backend.repository.TokenBlacklistRepository;
 import wnc.auction.backend.repository.UserRepository;
 import wnc.auction.backend.security.JwtTokenProvider;
 import wnc.auction.backend.security.UserPrincipal;
 import wnc.auction.backend.utils.Constants;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -49,11 +48,17 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
     private final EmailService emailService;
+    private final TokenBlacklistRepository tokenBlacklistRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
 
     @Value("${app.otp.expiration-minutes}")
     private int otpExpirationMinutes;
 
-    public AuthResponse register(RegisterRequest request) {
+    @Value("${app.jwt.refresh-token-expiration}")
+    private long refreshTokenDurationMs;
+
+    public void register(RegisterRequest request) {
         // Validate reCAPTCHA (implement actual validation)
 
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -66,7 +71,7 @@ public class AuthService {
                 .fullName(request.getFullName())
                 .address(request.getAddress())
                 .role(UserRole.BIDDER)
-                .socialAccounts(new ArrayList<>())
+                .socialAccounts(new HashSet<>())
                 .emailVerified(false)
                 .isActive(true)
                 .positiveRatings(0)
@@ -87,42 +92,42 @@ public class AuthService {
 
         // Send OTP for email verification
         sendEmailVerificationOtp(user.getEmail());
-
-        // Auto-login after registration
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
-
-        return generateAuthResponse(authentication);
     }
 
     public AuthResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
+        // Check if email is verified
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = userRepository
+                .findById(userPrincipal.getId())
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
+
+        if (Boolean.FALSE.equals(user.getEmailVerified())) {
+            throw new UnauthorizedException(Constants.ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        if (Boolean.FALSE.equals(user.getIsActive())) {
+            throw new UnauthorizedException(Constants.ErrorCode.ACCOUNT_DEACTIVATED);
+        }
 
         return generateAuthResponse(authentication);
     }
 
     public AuthResponse refreshToken(String refreshToken) {
-        RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
+        RefreshToken token = refreshTokenRepository
+                .findByToken(refreshToken)
+                .orElseThrow(() -> new JWTException(Constants.ErrorCode.INVALID_REFRESH_TOKEN));
 
         if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
             refreshTokenRepository.delete(token);
-            throw new UnauthorizedException("Refresh token expired");
+            throw new JWTException(Constants.ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
 
         UserPrincipal userPrincipal = UserPrincipal.create(token.getUser());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userPrincipal, null, userPrincipal.getAuthorities()
-        );
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
 
         String newAccessToken = tokenProvider.generateAccessToken(authentication);
 
@@ -134,11 +139,12 @@ public class AuthService {
     }
 
     public void sendEmailVerificationOtp(String email) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository
+                .findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         if (Boolean.TRUE.equals(user.getEmailVerified())) {
-            throw new BadRequestException("Email already verified");
+            throw new BadRequestException(Constants.ErrorCode.EMAIL_ALREADY_VERIFIED);
         }
 
         // Delete existing OTPs
@@ -158,18 +164,16 @@ public class AuthService {
         otpRepository.save(otp);
 
         // Send email
-        emailService.sendOtpEmail(email, code, "Email Verification");
+        emailService.sendOtpEmail(user.getId(), code, "Email Verification");
     }
 
     public void verifyEmail(VerifyOtpRequest request) {
-        Otp otp = otpRepository.findValidOtp(
-                        request.getEmail(),
-                        request.getCode(),
-                        OtpType.EMAIL_VERIFICATION,
-                        LocalDateTime.now())
-                .orElseThrow(() -> new BadRequestException("Invalid or expired OTP"));
+        Otp otp = otpRepository
+                .findValidOtp(request.getEmail(), request.getCode(), OtpType.EMAIL_VERIFICATION, LocalDateTime.now())
+                .orElseThrow(() -> new BadRequestException(Constants.ErrorCode.INVALID_OTP));
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository
+                .findByEmail(request.getEmail())
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         user.setEmailVerified(true);
@@ -180,7 +184,8 @@ public class AuthService {
     }
 
     public void sendPasswordResetOtp(String email) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository
+                .findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         // Delete existing OTPs
@@ -200,18 +205,16 @@ public class AuthService {
         otpRepository.save(otp);
 
         // Send email
-        emailService.sendOtpEmail(email, code, "Password Reset");
+        emailService.sendOtpEmail(user.getId(), code, "Password Reset");
     }
 
     public void resetPassword(ResetPasswordRequest request) {
-        Otp otp = otpRepository.findValidOtp(
-                        request.getEmail(),
-                        request.getCode(),
-                        OtpType.PASSWORD_RESET,
-                        LocalDateTime.now())
+        Otp otp = otpRepository
+                .findValidOtp(request.getEmail(), request.getCode(), OtpType.PASSWORD_RESET, LocalDateTime.now())
                 .orElseThrow(() -> new BadRequestException("Invalid or expired OTP"));
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository
+                .findByEmail(request.getEmail())
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -224,9 +227,38 @@ public class AuthService {
         refreshTokenRepository.deleteByUserId(user.getId());
     }
 
-    public void logout(String refreshToken) {
-        refreshTokenRepository.findByToken(refreshToken)
-                .ifPresent(refreshTokenRepository::delete);
+    public void logout(String refreshToken, String authorizationHeader) {
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring(7);
+
+            try {
+                if (!tokenBlacklistRepository.existsByToken(accessToken)) {
+
+                    LocalDateTime expiresAt = tokenProvider.getExpirationDateFromToken(accessToken);
+                    Long userId = tokenProvider.getUserIdFromToken(accessToken);
+
+                    if (expiresAt != null && userId != null) {
+
+                        if (expiresAt.isAfter(LocalDateTime.now())) {
+                            TokenBlacklist tokenBlacklist = TokenBlacklist.builder()
+                                    .token(accessToken)
+                                    .userId(userId)
+                                    .expiresAt(expiresAt)
+                                    .blacklistedAt(LocalDateTime.now())
+                                    .reason("User Logout")
+                                    .build();
+                            tokenBlacklistRepository.save(tokenBlacklist);
+                        }
+                    }
+                }
+            } catch (ExpiredJwtException e) {
+                log.info("Logout with expired access token. Skipping blacklist.");
+            } catch (Exception e) {
+                log.warn("Error processing access token during logout: {}", e.getMessage());
+            }
+        }
+
+        refreshTokenRepository.findByToken(refreshToken).ifPresent(refreshTokenRepository::delete);
     }
 
     private AuthResponse generateAuthResponse(Authentication authentication) {
@@ -234,14 +266,17 @@ public class AuthService {
         String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        User user = userRepository.findById(userPrincipal.getId())
+        User user = userRepository
+                .findById(userPrincipal.getId())
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
+
+        LocalDateTime expiryDate = LocalDateTime.now().plus(refreshTokenDurationMs, ChronoUnit.MILLIS);
 
         // Save refresh token
         RefreshToken token = RefreshToken.builder()
                 .user(user)
                 .token(refreshToken)
-                .expiresAt(LocalDateTime.now().plusDays(7))
+                .expiresAt(expiryDate)
                 .build();
         refreshTokenRepository.save(token);
 
@@ -256,4 +291,30 @@ public class AuthService {
         return String.format("%06d", new Random().nextInt(999999));
     }
 
+    public AuthResponse exchangeToken(String code) {
+        String redisKey = "auth_code:" + code;
+
+        Object cachedData = redisTemplate.opsForValue().get(redisKey);
+
+        if (cachedData == null) {
+            throw new BadRequestException(Constants.ErrorCode.INVALID_AUTH_CODE);
+        }
+
+        AuthResponse authResponse;
+        try {
+            if (cachedData instanceof AuthResponse) {
+                authResponse = (AuthResponse) cachedData;
+            } else {
+                authResponse = objectMapper.convertValue(cachedData, AuthResponse.class);
+            }
+        } catch (Exception e) {
+            log.error("Error converting cached auth data", e);
+            throw new AuctionException(Constants.ErrorCode.AUTH_PROCESSING_ERROR);
+        }
+
+        redisTemplate.delete(redisKey);
+
+        log.info("Token exchanged successfully for code: {}", code);
+        return authResponse;
+    }
 }

@@ -1,5 +1,8 @@
 package wnc.auction.backend.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,10 +30,6 @@ import wnc.auction.backend.repository.UserRepository;
 import wnc.auction.backend.security.CurrentUser;
 import wnc.auction.backend.utils.Constants;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -46,10 +45,12 @@ public class BidService {
 
     public BidDto placeBid(PlaceBidRequest request) {
         Long bidderId = CurrentUser.getUserId();
-        User bidder = userRepository.findById(bidderId)
+        User bidder = userRepository
+                .findById(bidderId)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository
+                .findById(request.getProductId())
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND));
 
         // Validation
@@ -61,8 +62,7 @@ public class BidService {
 
         if (isAutoBid) {
             // Process auto-bid logic
-            bidAmount = processAutoBid(product, bidder, request.getAmount(),
-                    request.getMaxAutoBidAmount());
+            bidAmount = processAutoBid(product, bidder, request.getAmount(), request.getMaxAutoBidAmount());
         } else {
             // Regular bid
             BigDecimal minBid = product.getCurrentPrice().add(product.getStepPrice());
@@ -97,8 +97,7 @@ public class BidService {
         // Emit real-time event
         notificationService.sendBidUpdate(product.getId(), bidAmount, bidder.getFullName());
 
-        log.info("Bid placed: {} on product: {} by user: {}",
-                bidAmount, product.getId(), bidderId);
+        log.info("Bid placed: {} on product: {} by user: {}", bidAmount, product.getId(), bidderId);
 
         return BidMapper.toDto(bid);
     }
@@ -119,31 +118,26 @@ public class BidService {
         }
 
         // Check if bidder is blocked
-        if (blockedBidderRepository.existsByProductIdAndBidderId(
-                product.getId(), bidder.getId())) {
+        if (blockedBidderRepository.existsByProductIdAndBidderId(product.getId(), bidder.getId())) {
             throw new ForbiddenException("You are blocked from bidding on this product");
         }
 
         // Check if bidder can bid (rating requirement)
         if (!product.getAllowUnratedBidders() && !bidder.canBid()) {
-            throw new ForbiddenException(
-                    "You need at least 80% positive rating to bid on this product");
+            throw new ForbiddenException("You need at least 80% positive rating to bid on this product");
         }
 
         // Check if bidder is current highest bidder
-        if (product.getCurrentBidder() != null &&
-                product.getCurrentBidder().getId().equals(bidder.getId())) {
+        if (product.getCurrentBidder() != null
+                && product.getCurrentBidder().getId().equals(bidder.getId())) {
             throw new BadRequestException("You are already the highest bidder");
         }
     }
 
-    private BigDecimal processAutoBid(Product product, User bidder,
-                                      BigDecimal amount, BigDecimal maxAmount) {
+    private BigDecimal processAutoBid(Product product, User bidder, BigDecimal amount, BigDecimal maxAmount) {
         // Get current highest bid
         Pageable pageable = PageRequest.of(0, 2);
-        List<Bid> topBids = bidRepository.findTop2BidsForProduct(
-                product.getId(), pageable
-        );
+        List<Bid> topBids = bidRepository.findTop2BidsForProduct(product.getId(), pageable);
 
         if (topBids.isEmpty()) {
             // First bid
@@ -162,13 +156,11 @@ public class BidService {
                 return theirMax.add(product.getStepPrice());
             } else if (ourMax.compareTo(theirMax) < 0) {
                 // They will outbid us
-                throw new BadRequestException(
-                        "Your max bid is lower than current highest bidder's max bid");
+                throw new BadRequestException("Your max bid is lower than current highest bidder's max bid");
             } else {
                 // Same max bid - first bidder wins
                 if (highestBid.getCreatedAt().isBefore(LocalDateTime.now())) {
-                    throw new BadRequestException(
-                            "Current bidder has same max bid and bid earlier");
+                    throw new BadRequestException("Current bidder has same max bid and bid earlier");
                 }
             }
         }
@@ -177,35 +169,22 @@ public class BidService {
         return product.getCurrentPrice().add(product.getStepPrice());
     }
 
-    private void sendBidNotifications(Product product, User newBidder,
-                                      User previousBidder, BigDecimal amount) {
+    private void sendBidNotifications(Product product, User newBidder, User previousBidder, BigDecimal amount) {
         // Notify seller
         emailService.sendBidNotification(
-                product.getSeller().getEmail(),
-                product.getName(),
-                newBidder.getFullName(),
-                amount.toString()
-        );
+                product.getSeller().getId(), product.getName(), newBidder.getFullName(), amount.toString());
 
         // Notify previous highest bidder (they were outbid)
         if (previousBidder != null) {
-            emailService.sendOutbidNotification(
-                    previousBidder.getEmail(),
-                    product.getName(),
-                    amount.toString()
-            );
+            emailService.sendOutbidNotification(previousBidder.getId(), product.getName(), amount.toString());
         }
     }
 
     public List<BidHistoryDto> getBidHistory(Long productId) {
         Pageable pageable = PageRequest.of(0, 100);
-        Page<Bid> bids = bidRepository.findByProductOrderByCreatedAtDesc(
-                productId, pageable
-        );
+        Page<Bid> bids = bidRepository.findByProductOrderByCreatedAtDesc(productId, pageable);
 
-        return bids.getContent().stream()
-                .map(BidMapper::toHistoryDto)
-                .toList();
+        return bids.getContent().stream().map(BidMapper::toHistoryDto).toList();
     }
 
     public PageResponse<BidDto> getMyBids(int page, int size) {
@@ -213,9 +192,8 @@ public class BidService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Bid> bidPage = bidRepository.findByUserOrderByCreatedAtDesc(userId, pageable);
 
-        List<BidDto> content = bidPage.getContent().stream()
-                .map(BidMapper::toDto)
-                .toList();
+        List<BidDto> content =
+                bidPage.getContent().stream().map(BidMapper::toDto).toList();
 
         return PageResponse.<BidDto>builder()
                 .content(content)
@@ -229,30 +207,27 @@ public class BidService {
 
     public void blockBidder(Long productId, Long bidderId) {
         Long sellerId = CurrentUser.getUserId();
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+        Product product =
+                productRepository.findById(productId).orElseThrow(() -> new NotFoundException("Product not found"));
 
         if (!product.getSeller().getId().equals(sellerId)) {
             throw new ForbiddenException("You can only block bidders from your own products");
         }
 
-        User bidder = userRepository.findById(bidderId)
-                .orElseThrow(() -> new NotFoundException("Bidder not found"));
+        User bidder = userRepository.findById(bidderId).orElseThrow(() -> new NotFoundException("Bidder not found"));
 
         if (blockedBidderRepository.existsByProductIdAndBidderId(productId, bidderId)) {
             throw new BadRequestException("Bidder is already blocked");
         }
 
-        BlockedBidder blockedBidder = BlockedBidder.builder()
-                .product(product)
-                .bidder(bidder)
-                .build();
+        BlockedBidder blockedBidder =
+                BlockedBidder.builder().product(product).bidder(bidder).build();
 
         blockedBidderRepository.save(blockedBidder);
 
         // If blocked bidder is current highest, reassign to second highest
-        if (product.getCurrentBidder() != null &&
-                product.getCurrentBidder().getId().equals(bidderId)) {
+        if (product.getCurrentBidder() != null
+                && product.getCurrentBidder().getId().equals(bidderId)) {
             reassignHighestBidder(product);
         }
 
@@ -261,9 +236,7 @@ public class BidService {
 
     private void reassignHighestBidder(Product product) {
         Pageable pageable = PageRequest.of(0, 2);
-        List<Bid> topBids = bidRepository.findTop2BidsForProduct(
-                product.getId(), pageable
-        );
+        List<Bid> topBids = bidRepository.findTop2BidsForProduct(product.getId(), pageable);
 
         if (topBids.size() > 1) {
             Bid secondHighest = topBids.get(1);

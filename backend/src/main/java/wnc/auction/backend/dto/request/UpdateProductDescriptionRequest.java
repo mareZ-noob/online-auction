@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateProductDescriptionRequest {
 
-    @NotBlank
+    @NotBlank(message = "{validation.product.description.required}")
     private String additionalDescription;
 }
-

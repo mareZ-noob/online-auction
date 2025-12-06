@@ -1,12 +1,11 @@
 package wnc.auction.backend.mapper;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import lombok.experimental.UtilityClass;
 import wnc.auction.backend.dto.model.ProductDto;
 import wnc.auction.backend.dto.model.ProductListDto;
 import wnc.auction.backend.model.Product;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 @UtilityClass
 public class ProductMapper {
@@ -31,12 +30,18 @@ public class ProductMapper {
                 .sellerId(product.getSeller().getId())
                 .sellerName(product.getSeller().getFullName())
                 .sellerRating(product.getSeller().getRatingPercentage())
-                .currentBidderId(product.getCurrentBidder() != null ?
-                        product.getCurrentBidder().getId() : null)
-                .currentBidderName(product.getCurrentBidder() != null ?
-                        product.getCurrentBidder().getFullName() : null)
-                .currentBidderRating(product.getCurrentBidder() != null ?
-                        product.getCurrentBidder().getRatingPercentage() : null)
+                .currentBidderId(
+                        product.getCurrentBidder() != null
+                                ? product.getCurrentBidder().getId()
+                                : null)
+                .currentBidderName(
+                        product.getCurrentBidder() != null
+                                ? product.getCurrentBidder().getFullName()
+                                : null)
+                .currentBidderRating(
+                        product.getCurrentBidder() != null
+                                ? product.getCurrentBidder().getRatingPercentage()
+                                : null)
                 .startTime(product.getStartTime())
                 .endTime(product.getEndTime())
                 .timeRemaining(calculateTimeRemaining(product.getEndTime()))
@@ -58,9 +63,14 @@ public class ProductMapper {
                 .description(product.getDescription())
                 .currentPrice(product.getCurrentPrice())
                 .buyNowPrice(product.getBuyNowPrice())
-                .thumbnailImage(product.getImages().isEmpty() ? null : product.getImages().get(0))
-                .currentBidderName(product.getCurrentBidder() != null ?
-                        maskUserName(product.getCurrentBidder().getFullName()) : null)
+                .thumbnailImage(
+                        product.getImages().isEmpty()
+                                ? null
+                                : product.getImages().get(0))
+                .currentBidderName(
+                        product.getCurrentBidder() != null
+                                ? maskUserName(product.getCurrentBidder().getFullName())
+                                : null)
                 .endTime(product.getEndTime())
                 .timeRemaining(calculateTimeRemaining(product.getEndTime()))
                 .bidCount(product.getBidCount())

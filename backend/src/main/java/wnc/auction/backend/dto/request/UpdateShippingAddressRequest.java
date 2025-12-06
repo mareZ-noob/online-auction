@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateShippingAddressRequest {
 
-    @NotBlank
+    @NotBlank(message = "{validation.shipping.address.required}")
     private String shippingAddress;
 }

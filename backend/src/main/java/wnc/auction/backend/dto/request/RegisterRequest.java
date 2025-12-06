@@ -2,7 +2,6 @@ package wnc.auction.backend.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,19 +12,19 @@ import wnc.auction.backend.validation.StrongPassword;
 @AllArgsConstructor
 public class RegisterRequest {
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "{validation.email.required}")
+    @Email(message = "{validation.email.invalid}")
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @StrongPassword(message = "Password must be strong: at least 8 chars, 1 upper, 1 lower, 1 digit, 1 special char")
+    @NotBlank(message = "{validation.password.required}")
+    @StrongPassword(message = "{validation.password.strong}")
     private String password;
 
-    @NotBlank(message = "Full name is required")
+    @NotBlank(message = "{validation.fullname.required}")
     private String fullName;
 
     private String address;
 
-    @NotBlank(message = "reCAPTCHA token is required")
+    @NotBlank(message = "{validation.recaptcha.required}")
     private String recaptchaToken;
 }

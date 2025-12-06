@@ -2,16 +2,15 @@ package wnc.auction.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import wnc.auction.backend.model.embeddable.DescriptionUpdate;
 import wnc.auction.backend.model.enumeration.ProductStatus;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -100,8 +99,7 @@ public class Product {
     private List<BlockedBidder> blockedBidders = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name = "product_description_history",
-            joinColumns = @JoinColumn(name = "product_id"))
+    @CollectionTable(name = "product_description_history", joinColumns = @JoinColumn(name = "product_id"))
     private List<DescriptionUpdate> descriptionHistory = new ArrayList<>();
 
     @CreationTimestamp
@@ -111,13 +109,11 @@ public class Product {
     private LocalDateTime updatedAt;
 
     public boolean isActive() {
-        return status == ProductStatus.ACTIVE &&
-                LocalDateTime.now().isBefore(endTime);
+        return status == ProductStatus.ACTIVE && LocalDateTime.now().isBefore(endTime);
     }
 
     public boolean isNew() {
         // Product is "new" within configured minutes
-        return LocalDateTime.now().minusMinutes(60)
-                .isBefore(createdAt);
+        return LocalDateTime.now().minusMinutes(60).isBefore(createdAt);
     }
 }

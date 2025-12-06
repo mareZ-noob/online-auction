@@ -1,13 +1,12 @@
 package wnc.auction.backend.model;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import wnc.auction.backend.model.enumeration.TransactionStatus;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transactions")
@@ -51,6 +50,7 @@ public class Transaction {
 
     @Column(nullable = false)
     private Boolean cancelled = false;
+
     private String cancellationReason;
 
     @CreationTimestamp

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header-winner {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #f39c12;
+        }
+        .header-ended {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #95a5a6;
+        }
+        .content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .detail-row {
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .label {
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+        .value {
+            color: #2c3e50;
+            margin-top: 5px;
+            font-size: 18px;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #f39c12;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .message {
+            text-align: center;
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div th:if="${isWinner}" class="header-winner">
+            <h1>🎊 <span th:text="#{email.auction.winner.congrats}">Congratulations!</span></h1>
+        </div>
+        <div th:unless="${isWinner}" class="header-ended">
+            <h1><span th:text="#{email.auction.ended.subject}">Auction Ended</span></h1>
+        </div>
+
+        <p th:text="#{email.auction.greeting}">Hello,</p>
+
+        <div class="content">
+            <div class="detail-row">
+                <div class="label" th:text="#{email.common.product}">Product:</div>
+                <div class="value" th:text="${productName}">Product Name</div>
+            </div>
+            <div class="detail-row">
+                <div class="label" th:text="#{email.auction.final}">Final amount:</div>
+                <div class="value" th:text="${finalAmount}">$200</div>
+            </div>
+        </div>
+
+        <div th:if="${isWinner}">
+            <div style="text-align: center;">
+                <a href="#" class="btn" th:text="#{email.auction.winner.payment}">Proceed to Payment</a>
+            </div>
+        </div>
+
+        <div th:unless="${isWinner}" class="message">
+            <p th:text="#{email.auction.thanks}">Thank you for participating!</p>
+        </div>
+
+        <div class="footer">
+            <p th:text="#{email.footer.automated}">This is an automated message, please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>

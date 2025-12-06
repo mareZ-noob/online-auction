@@ -9,9 +9,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 class RequestLoggingInterceptor implements HandlerInterceptor {
 
     @Override
-    public boolean preHandle(HttpServletRequest request,
-                             HttpServletResponse response,
-                             Object handler) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
         String method = request.getMethod();
         String uri = request.getRequestURI();
@@ -23,10 +21,8 @@ class RequestLoggingInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request,
-                                HttpServletResponse response,
-                                Object handler,
-                                Exception ex) {
+    public void afterCompletion(
+            HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 
         String method = request.getMethod();
         String uri = request.getRequestURI();

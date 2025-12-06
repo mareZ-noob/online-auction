@@ -1,5 +1,8 @@
 package wnc.auction.backend.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,10 +26,6 @@ import wnc.auction.backend.repository.UserRepository;
 import wnc.auction.backend.security.CurrentUser;
 import wnc.auction.backend.utils.Constants;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -38,7 +37,8 @@ public class UpgradeRequestService {
 
     public UpgradeRequestDto createUpgradeRequest(CreateUpgradeRequest request) {
         Long userId = CurrentUser.getUserId();
-        User user = userRepository.findById(userId)
+        User user = userRepository
+                .findById(userId)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
         if (user.getRole() != UserRole.BIDDER) {
@@ -46,8 +46,7 @@ public class UpgradeRequestService {
         }
 
         // Check if there's already a pending request
-        Optional<UpgradeRequest> pending = upgradeRequestRepository
-                .findPendingRequestByUserId(userId);
+        Optional<UpgradeRequest> pending = upgradeRequestRepository.findPendingRequestByUserId(userId);
 
         if (pending.isPresent()) {
             throw new BadRequestException("You already have a pending upgrade request");
@@ -68,8 +67,7 @@ public class UpgradeRequestService {
 
     public PageResponse<UpgradeRequestDto> getPendingRequests(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<UpgradeRequest> requestPage = upgradeRequestRepository
-                .findPendingRequests(pageable);
+        Page<UpgradeRequest> requestPage = upgradeRequestRepository.findPendingRequests(pageable);
 
         List<UpgradeRequestDto> content = requestPage.getContent().stream()
                 .map(UpgradeRequestMapper::toDto)
@@ -85,21 +83,19 @@ public class UpgradeRequestService {
                 .build();
     }
 
-    public UpgradeRequestDto reviewUpgradeRequest(Long requestId,
-                                                  ReviewUpgradeRequest request) {
+    public UpgradeRequestDto reviewUpgradeRequest(Long requestId, ReviewUpgradeRequest request) {
         Long adminId = CurrentUser.getUserId();
-        User admin = userRepository.findById(adminId)
-                .orElseThrow(() -> new NotFoundException("Admin not found"));
+        User admin = userRepository.findById(adminId).orElseThrow(() -> new NotFoundException("Admin not found"));
 
-        UpgradeRequest upgradeRequest = upgradeRequestRepository.findById(requestId)
+        UpgradeRequest upgradeRequest = upgradeRequestRepository
+                .findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Upgrade request not found"));
 
         if (upgradeRequest.getStatus() != RequestStatus.PENDING) {
             throw new BadRequestException("Request has already been reviewed");
         }
 
-        upgradeRequest.setStatus(request.getApproved() ?
-                RequestStatus.APPROVED : RequestStatus.REJECTED);
+        upgradeRequest.setStatus(request.getApproved() ? RequestStatus.APPROVED : RequestStatus.REJECTED);
         upgradeRequest.setReviewedBy(admin);
         upgradeRequest.setReviewedAt(LocalDateTime.now());
 
@@ -112,8 +108,11 @@ public class UpgradeRequestService {
 
         upgradeRequest = upgradeRequestRepository.save(upgradeRequest);
 
-        log.info("Upgrade request {} {} by admin {}",
-                requestId, request.getApproved() ? "approved" : "rejected", adminId);
+        log.info(
+                "Upgrade request {} {} by admin {}",
+                requestId,
+                request.getApproved() ? "approved" : "rejected",
+                adminId);
 
         return UpgradeRequestMapper.toDto(upgradeRequest);
     }
@@ -122,8 +121,6 @@ public class UpgradeRequestService {
         Long userId = CurrentUser.getUserId();
         List<UpgradeRequest> requests = upgradeRequestRepository.findByUserId(userId);
 
-        return requests.stream()
-                .map(UpgradeRequestMapper::toDto)
-                .toList();
+        return requests.stream().map(UpgradeRequestMapper::toDto).toList();
     }
 }

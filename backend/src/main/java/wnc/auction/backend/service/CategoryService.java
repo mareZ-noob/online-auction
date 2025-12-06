@@ -1,5 +1,6 @@
 package wnc.auction.backend.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,9 +13,6 @@ import wnc.auction.backend.mapper.CategoryMapper;
 import wnc.auction.backend.model.Category;
 import wnc.auction.backend.repository.CategoryRepository;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,7 +24,8 @@ public class CategoryService {
     public CategoryDto createCategory(CategoryRequest request) {
         Category parent = null;
         if (request.getParentId() != null) {
-            parent = categoryRepository.findById(request.getParentId())
+            parent = categoryRepository
+                    .findById(request.getParentId())
                     .orElseThrow(() -> new NotFoundException("Parent category not found"));
         }
 
@@ -43,45 +42,41 @@ public class CategoryService {
     }
 
     public CategoryDto getCategoryById(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category not found"));
+        Category category =
+                categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
 
         return CategoryMapper.toDto(category);
     }
 
     public List<CategoryDto> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
-        return categories.stream()
-                .map(CategoryMapper::toDto)
-                .toList();
+        return categories.stream().map(CategoryMapper::toDto).toList();
     }
 
     public List<CategoryDto> getRootCategories() {
         List<Category> categories = categoryRepository.findByParentIsNull();
-        return categories.stream()
-                .map(CategoryMapper::toDto)
-                .toList();
+        return categories.stream().map(CategoryMapper::toDto).toList();
     }
 
     public List<CategoryDto> getSubCategories(Long parentId) {
-        Category parent = categoryRepository.findById(parentId)
+        Category parent = categoryRepository
+                .findById(parentId)
                 .orElseThrow(() -> new NotFoundException("Parent category not found"));
 
         List<Category> categories = categoryRepository.findByParent(parent);
-        return categories.stream()
-                .map(CategoryMapper::toDto)
-                .toList();
+        return categories.stream().map(CategoryMapper::toDto).toList();
     }
 
     public CategoryDto updateCategory(Long id, CategoryRequest request) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category not found"));
+        Category category =
+                categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
 
         category.setName(request.getName());
         category.setDescription(request.getDescription());
 
         if (request.getParentId() != null) {
-            Category parent = categoryRepository.findById(request.getParentId())
+            Category parent = categoryRepository
+                    .findById(request.getParentId())
                     .orElseThrow(() -> new NotFoundException("Parent category not found"));
             category.setParent(parent);
         }
@@ -93,8 +88,8 @@ public class CategoryService {
     }
 
     public void deleteCategory(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category not found"));
+        Category category =
+                categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
 
         long productCount = categoryRepository.countProductsByCategory(id);
         if (productCount > 0) {

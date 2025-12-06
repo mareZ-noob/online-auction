@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ConfirmPaymentRequest {
 
-    @NotBlank
+    @NotBlank(message = "{validation.payment.method.required}")
     private String paymentMethod;
 
-    @NotBlank
+    @NotBlank(message = "{validation.transaction.id.required}")
     private String transactionId;
 }

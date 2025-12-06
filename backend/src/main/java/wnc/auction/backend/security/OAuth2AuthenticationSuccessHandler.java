@@ -3,16 +3,27 @@ package wnc.auction.backend.security;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.io.IOException;
+import wnc.auction.backend.dto.response.AuthResponse;
+import wnc.auction.backend.exception.NotFoundException;
+import wnc.auction.backend.mapper.UserMapper;
+import wnc.auction.backend.model.RefreshToken;
+import wnc.auction.backend.model.User;
+import wnc.auction.backend.repository.RefreshTokenRepository;
+import wnc.auction.backend.repository.UserRepository;
+import wnc.auction.backend.utils.Constants;
 
 @Component
 @RequiredArgsConstructor
@@ -20,13 +31,22 @@ import java.io.IOException;
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider tokenProvider;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${app.frontend.url}")
     private String frontendURL;
 
+    @Value("${app.jwt.refresh-token-expiration}")
+    private long refreshTokenDurationMs;
+
+    private static final long CODE_TTL_SECONDS = 60;
+
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(
+            HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+            throws IOException, ServletException {
 
         log.info("OAuth2 Authentication Success for user: {}", authentication.getName());
 
@@ -42,31 +62,54 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
-    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) {
+    @Override
+    protected String determineTargetUrl(
+            HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 
-        log.info("Determining target URL for authentication: {}", authentication.getName());
+        // Generate JWT Tokens
+        String accessToken = tokenProvider.generateAccessToken(authentication);
+        String refreshTokenStr = tokenProvider.generateRefreshToken(authentication);
 
-        // Generate JWT token
-        String token = tokenProvider.generateAccessToken(authentication);
-        log.info("Generated JWT token for user");
+        // Retrieve User details to build the full response object
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = userRepository
+                .findByIdWithSocialAccounts(userPrincipal.getId())
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
-        String idToken = "";
-        if (authentication.getPrincipal() instanceof OidcUser oidcUser && oidcUser.getIdToken() != null) {
-            idToken = oidcUser.getIdToken().getTokenValue();
-            log.info("Extracted OIDC ID token");
-        }
+        LocalDateTime expiryDate = LocalDateTime.now().plus(refreshTokenDurationMs, ChronoUnit.MILLIS);
 
-        // Build frontend redirect URL
-        String redirectUrl = UriComponentsBuilder.fromUriString(frontendURL)
+        // Persist Refresh Token to DB (Same logic as manual login)
+        RefreshToken refreshTokenEntity = RefreshToken.builder()
+                .user(user)
+                .token(refreshTokenStr)
+                .expiresAt(expiryDate)
+                .build();
+        refreshTokenRepository.save(refreshTokenEntity);
+
+        // Create the AuthResponse object that will be cached
+        AuthResponse authResponse = AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshTokenStr)
+                .user(UserMapper.toDto(user))
+                .tokenType("Bearer")
+                .build();
+
+        // Generate a unique authorization code (UUID)
+        String code = UUID.randomUUID().toString().replace("-", "")
+                + UUID.randomUUID().toString().replace("-", "");
+
+        // Store AuthResponse in Redis mapped by the code
+        // Key: auth_code:{uuid} -> Value: AuthResponse
+        String redisKey = "auth_code:" + code;
+        redisTemplate.opsForValue().set(redisKey, authResponse, Duration.ofSeconds(CODE_TTL_SECONDS));
+
+        log.info("Stored auth tokens in Redis with code: {}", code);
+
+        // Build frontend redirect URL with ONLY the code
+        return UriComponentsBuilder.fromUriString(frontendURL)
                 .path("/oauth2/redirect")
-                .queryParam("token", token)
-                .queryParam("id_token", idToken)
+                .queryParam("code", code)
                 .build()
                 .toUriString();
-
-        log.info("Built redirect URL: {}", redirectUrl);
-
-        return redirectUrl;
     }
 }

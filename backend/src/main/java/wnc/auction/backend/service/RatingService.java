@@ -1,5 +1,7 @@
 package wnc.auction.backend.service;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,10 +26,6 @@ import wnc.auction.backend.repository.UserRepository;
 import wnc.auction.backend.security.CurrentUser;
 import wnc.auction.backend.utils.Constants;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -41,28 +39,31 @@ public class RatingService {
 
     public RatingDto rateUser(RateUserRequest request) {
         Long raterId = CurrentUser.getUserId();
-        User rater = userRepository.findById(raterId)
+        User rater = userRepository
+                .findById(raterId)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository
+                .findById(request.getUserId())
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository
+                .findById(request.getProductId())
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
         // Verify that rater is involved in this transaction
-        Transaction transaction = transactionRepository.findByProductId(product.getId())
+        Transaction transaction = transactionRepository
+                .findByProductId(product.getId())
                 .orElseThrow(() -> new NotFoundException("Transaction not found"));
 
-        if (!transaction.getBuyer().getId().equals(raterId) &&
-            !transaction.getSeller().getId().equals(raterId)) {
+        if (!transaction.getBuyer().getId().equals(raterId)
+                && !transaction.getSeller().getId().equals(raterId)) {
             throw new ForbiddenException("You can only rate users you transacted with");
         }
 
         // Check if already rated
         Optional<Rating> existing = ratingRepository.findByUserIdAndRatedByIdAndProductId(
-            request.getUserId(), raterId, request.getProductId()
-        );
+                request.getUserId(), raterId, request.getProductId());
 
         Rating rating;
         if (existing.isPresent()) {
@@ -103,8 +104,7 @@ public class RatingService {
         rating = ratingRepository.save(rating);
         userRepository.save(user);
 
-        log.info("User {} rated by user {}: {}",
-            request.getUserId(), raterId, request.getIsPositive());
+        log.info("User {} rated by user {}: {}", request.getUserId(), raterId, request.getIsPositive());
 
         return RatingMapper.toDto(rating);
     }
@@ -113,9 +113,8 @@ public class RatingService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Rating> ratingPage = ratingRepository.findByUserId(userId, pageable);
 
-        List<RatingDto> content = ratingPage.getContent().stream()
-                .map(RatingMapper::toDto)
-                .toList();
+        List<RatingDto> content =
+                ratingPage.getContent().stream().map(RatingMapper::toDto).toList();
 
         return PageResponse.<RatingDto>builder()
                 .content(content)
