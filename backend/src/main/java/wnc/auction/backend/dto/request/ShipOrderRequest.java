@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ShipOrderRequest {
 
-    @NotBlank
+    @NotBlank(message = "{validation.tracking.number.required}")
     private String trackingNumber;
 }

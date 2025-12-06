@@ -1,5 +1,6 @@
 package wnc.auction.backend.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,8 +22,6 @@ import wnc.auction.backend.repository.WatchListRepository;
 import wnc.auction.backend.security.CurrentUser;
 import wnc.auction.backend.utils.Constants;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -35,20 +34,19 @@ public class WatchListService {
 
     public void addToWatchList(Long productId) {
         Long userId = CurrentUser.getUserId();
-        User user = userRepository.findById(userId)
+        User user = userRepository
+                .findById(userId)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository
+                .findById(productId)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND));
 
         if (watchListRepository.existsByUserIdAndProductId(userId, productId)) {
             throw new BadRequestException("Product already in watchlist");
         }
 
-        WatchList watchList = WatchList.builder()
-                .user(user)
-                .product(product)
-                .build();
+        WatchList watchList = WatchList.builder().user(user).product(product).build();
 
         watchListRepository.save(watchList);
 

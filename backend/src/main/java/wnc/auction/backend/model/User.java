@@ -2,15 +2,15 @@ package wnc.auction.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import wnc.auction.backend.model.enumeration.AuthProvider;
 import wnc.auction.backend.model.enumeration.UserRole;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -41,20 +41,31 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private UserRole role = UserRole.BIDDER;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean emailVerified = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    private List<SocialAccount> socialAccounts = new ArrayList<>();
+    private Set<SocialAccount> socialAccounts = new HashSet<>();
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
 
     private Integer positiveRatings = 0;
     private Integer negativeRatings = 0;
+
+    @Column(name = "region", length = 2)
+    @Builder.Default
+    private String region = "US"; // VN for Vietnam, US for United States, etc.
+
+    @Column(name = "preferred_language", length = 5)
+    @Builder.Default
+    private String preferredLanguage = "en"; // 'vi' for Vietnamese, 'en' for English
 
     @CreationTimestamp
     private LocalDateTime createdAt;

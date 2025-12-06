@@ -1,5 +1,8 @@
 package wnc.auction.backend.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,10 +24,6 @@ import wnc.auction.backend.model.enumeration.TransactionStatus;
 import wnc.auction.backend.model.enumeration.UserRole;
 import wnc.auction.backend.repository.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -43,22 +42,20 @@ public class AdminService {
         long totalSellers = userRepository.findByRole(UserRole.SELLER).size();
         long totalProducts = productRepository.count();
 
-        long activeProducts = productRepository.findActiveProducts(
-            LocalDateTime.now(), PageRequest.of(0, Integer.MAX_VALUE)
-        ).getTotalElements();
+        long activeProducts = productRepository
+                .findActiveProducts(LocalDateTime.now(), PageRequest.of(0, Integer.MAX_VALUE))
+                .getTotalElements();
 
         long completedProducts = totalProducts - activeProducts;
 
         // Calculate total revenue (sum of all completed transactions)
-        List<Transaction> completedTransactions = transactionRepository
-                .findByStatus(TransactionStatus.DELIVERED);
-        BigDecimal totalRevenue = completedTransactions.stream()
-                .map(Transaction::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<Transaction> completedTransactions = transactionRepository.findByStatus(TransactionStatus.DELIVERED);
+        BigDecimal totalRevenue =
+                completedTransactions.stream().map(Transaction::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // New users this month
-        LocalDateTime monthStart = LocalDateTime.now().withDayOfMonth(1)
-                .withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime monthStart =
+                LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
         long newUsersThisMonth = userRepository.findAll().stream()
                 .filter(u -> u.getCreatedAt().isAfter(monthStart))
                 .count();
@@ -91,9 +88,8 @@ public class AdminService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<User> userPage = userRepository.findAll(pageable);
 
-        List<UserDto> content = userPage.getContent().stream()
-                .map(UserMapper::toDto)
-                .toList();
+        List<UserDto> content =
+                userPage.getContent().stream().map(UserMapper::toDto).toList();
 
         return PageResponse.<UserDto>builder()
                 .content(content)
@@ -106,8 +102,8 @@ public class AdminService {
     }
 
     public void deleteProduct(Long productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+        Product product =
+                productRepository.findById(productId).orElseThrow(() -> new NotFoundException("Product not found"));
 
         product.setStatus(ProductStatus.CANCELLED);
         productRepository.save(product);

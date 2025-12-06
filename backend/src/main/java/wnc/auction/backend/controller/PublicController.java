@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +17,6 @@ import wnc.auction.backend.dto.response.ApiResponse;
 import wnc.auction.backend.dto.response.PageResponse;
 import wnc.auction.backend.service.CategoryService;
 import wnc.auction.backend.service.ProductService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/public")
@@ -52,10 +51,8 @@ public class PublicController {
     @GetMapping("/products")
     @Operation(summary = "Get all active products")
     public ResponseEntity<ApiResponse<PageResponse<ProductListDto>>> getActiveProducts(
-            @Parameter(description = "Page number", example = "0")
-            @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Page size", example = "10")
-            @RequestParam(defaultValue = "20") int size) {
+            @Parameter(description = "Page number", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size", example = "10") @RequestParam(defaultValue = "20") int size) {
         PageResponse<ProductListDto> products = productService.getActiveProducts(page, size);
         return ResponseEntity.ok(ApiResponse.success(products));
     }
@@ -63,8 +60,7 @@ public class PublicController {
     @GetMapping("/products/{id}")
     @Operation(summary = "Get product details")
     public ResponseEntity<ApiResponse<ProductDto>> getProduct(
-            @Parameter(description = "Product ID", example = "1")
-            @PathVariable Long id) {
+            @Parameter(description = "Product ID", example = "1") @PathVariable Long id) {
         ProductDto product = productService.getProductById(id);
         return ResponseEntity.ok(ApiResponse.success(product));
     }
@@ -72,14 +68,10 @@ public class PublicController {
     @GetMapping("/products/category/{categoryId}")
     @Operation(summary = "Get products by category")
     public ResponseEntity<ApiResponse<PageResponse<ProductListDto>>> getProductsByCategory(
-            @Parameter(description = "Category ID", example = "1")
-            @PathVariable Long categoryId,
-            @Parameter(description = "Page number", example = "0")
-            @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Page size", example = "10")
-            @RequestParam(defaultValue = "20") int size) {
-        PageResponse<ProductListDto> products = productService
-                .getProductsByCategory(categoryId, page, size);
+            @Parameter(description = "Category ID", example = "1") @PathVariable Long categoryId,
+            @Parameter(description = "Page number", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size", example = "10") @RequestParam(defaultValue = "20") int size) {
+        PageResponse<ProductListDto> products = productService.getProductsByCategory(categoryId, page, size);
         return ResponseEntity.ok(ApiResponse.success(products));
     }
 
@@ -87,22 +79,18 @@ public class PublicController {
     @Operation(summary = "Search products")
     public ResponseEntity<ApiResponse<PageResponse<ProductListDto>>> searchProducts(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Search criteria",
-                    content = @Content(
-                            examples = @ExampleObject(
-                                    value = """
-                                            {
-                                              "keyword": "iphone",
-                                              "categoryId": 1,
-                                              "sortBy": "price",
-                                              "sortDirection": "asc",
-                                              "page": 0,
-                                              "size": 10
-                                            }"""
-                            )
-                    )
-            )
-            @RequestBody SearchRequest request) {
+                            description = "Search criteria",
+                            content = @Content(examples = @ExampleObject(value = """
+											{
+											"keyword": "iphone",
+											"categoryId": 1,
+											"sortBy": "price",
+											"sortDirection": "asc",
+											"page": 0,
+											"size": 10
+											}""")))
+                    @RequestBody
+                    SearchRequest request) {
         PageResponse<ProductListDto> products = productService.searchProducts(request);
         return ResponseEntity.ok(ApiResponse.success(products));
     }
@@ -110,8 +98,7 @@ public class PublicController {
     @GetMapping("/products/{id}/related")
     @Operation(summary = "Get related products")
     public ResponseEntity<ApiResponse<List<ProductListDto>>> getRelatedProducts(
-            @Parameter(description = "Product ID", example = "1")
-            @PathVariable Long id) {
+            @Parameter(description = "Product ID", example = "1") @PathVariable Long id) {
         List<ProductListDto> products = productService.getRelatedProducts(id);
         return ResponseEntity.ok(ApiResponse.success(products));
     }
@@ -133,8 +120,7 @@ public class PublicController {
     @GetMapping("/categories/{id}")
     @Operation(summary = "Get category by ID")
     public ResponseEntity<ApiResponse<CategoryDto>> getCategory(
-            @Parameter(description = "Category ID", example = "1")
-            @PathVariable Long id) {
+            @Parameter(description = "Category ID", example = "1") @PathVariable Long id) {
         CategoryDto category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(ApiResponse.success(category));
     }
@@ -142,8 +128,7 @@ public class PublicController {
     @GetMapping("/categories/{id}/children")
     @Operation(summary = "Get sub-categories")
     public ResponseEntity<ApiResponse<List<CategoryDto>>> getSubCategories(
-            @Parameter(description = "Parent Category ID", example = "1")
-            @PathVariable Long id) {
+            @Parameter(description = "Parent Category ID", example = "1") @PathVariable Long id) {
         List<CategoryDto> categories = categoryService.getSubCategories(id);
         return ResponseEntity.ok(ApiResponse.success(categories));
     }

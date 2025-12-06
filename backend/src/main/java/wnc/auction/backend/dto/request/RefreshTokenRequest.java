@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RefreshTokenRequest {
 
-    @NotBlank
+    @NotBlank(message = "{validation.refresh_token.required}")
     private String refreshToken;
 }

@@ -7,23 +7,23 @@
 -- USERS (Password: 1)
 -- ============================================
 INSERT INTO users (email, password, full_name, address, role, email_verified, is_active, positive_ratings,
-                   negative_ratings, created_at, updated_at)
+                   negative_ratings, region, preferred_language, created_at, updated_at)
 VALUES ('admin@auction.com', '$2a$10$.jipHZhmnl8fGPxfH4hBCOL5irqrxujGvWv6/f6UOKLiwDV2sAmcK', 'Quản trị viên hệ thống',
-        '123 Đường Nguyễn Huệ, Quận 1, TP.HCM', 'ADMIN', true, true, 0, 0, NOW(), NOW()),
+        '123 Đường Nguyễn Huệ, Quận 1, TP.HCM', 'ADMIN', true, true, 0, 0, 'US', 'en', NOW(), NOW()),
        ('seller1@auction.com', '$2a$10$.jipHZhmnl8fGPxfH4hBCOL5irqrxujGvWv6/f6UOKLiwDV2sAmcK', 'Nguyễn Văn An',
-        '456 Lê Lợi, Quận 1, TP.HCM', 'SELLER', true, true, 15, 1, NOW(), NOW()),
+        '456 Lê Lợi, Quận 1, TP.HCM', 'SELLER', true, true, 15, 1, 'VN', 'vi', NOW(), NOW()),
        ('seller2@auction.com', '$2a$10$.jipHZhmnl8fGPxfH4hBCOL5irqrxujGvWv6/f6UOKLiwDV2sAmcK', 'Trần Thị Bình',
-        '789 Trần Hưng Đạo, Quận 5, TP.HCM', 'SELLER', true, true, 23, 2, NOW(), NOW()),
+        '789 Trần Hưng Đạo, Quận 5, TP.HCM', 'SELLER', true, true, 23, 2, 'US', 'en', NOW(), NOW()),
        ('seller3@auction.com', '$2a$10$.jipHZhmnl8fGPxfH4hBCOL5irqrxujGvWv6/f6UOKLiwDV2sAmcK', 'Lê Minh Công',
-        '321 Hai Bà Trưng, Quận 3, TP.HCM', 'SELLER', true, true, 8, 0, NOW(), NOW()),
+        '321 Hai Bà Trưng, Quận 3, TP.HCM', 'SELLER', true, true, 8, 0, 'VN', 'vi', NOW(), NOW()),
        ('bidder1@auction.com', '$2a$10$.jipHZhmnl8fGPxfH4hBCOL5irqrxujGvWv6/f6UOKLiwDV2sAmcK', 'Phạm Thị Dung',
-        '654 Võ Văn Tần, Quận 3, TP.HCM', 'BIDDER', true, true, 12, 0, NOW(), NOW()),
+        '654 Võ Văn Tần, Quận 3, TP.HCM', 'BIDDER', true, true, 12, 0, 'US', 'en', NOW(), NOW()),
        ('bidder2@auction.com', '$2a$10$.jipHZhmnl8fGPxfH4hBCOL5irqrxujGvWv6/f6UOKLiwDV2sAmcK', 'Hoàng Văn Em',
-        '987 Nguyễn Thị Minh Khai, Quận 1, TP.HCM', 'BIDDER', true, true, 7, 1, NOW(), NOW()),
+        '987 Nguyễn Thị Minh Khai, Quận 1, TP.HCM', 'BIDDER', true, true, 7, 1, 'VN', 'vi', NOW(), NOW()),
        ('bidder3@auction.com', '$2a$10$.jipHZhmnl8fGPxfH4hBCOL5irqrxujGvWv6/f6UOKLiwDV2sAmcK', 'Đặng Thu Phương',
-        '147 Lý Tự Trọng, Quận 1, TP.HCM', 'BIDDER', true, true, 20, 0, NOW(), NOW()),
+        '147 Lý Tự Trọng, Quận 1, TP.HCM', 'BIDDER', true, true, 20, 0, 'US', 'en', NOW(), NOW()),
        ('bidder4@auction.com', '$2a$10$.jipHZhmnl8fGPxfH4hBCOL5irqrxujGvWv6/f6UOKLiwDV2sAmcK', 'Vũ Quang Hải',
-        '258 Pasteur, Quận 3, TP.HCM', 'BIDDER', true, true, 5, 0, NOW(), NOW());
+        '258 Pasteur, Quận 3, TP.HCM', 'BIDDER', true, true, 5, 0, 'VN', 'vi', NOW(), NOW());
 
 -- ============================================
 -- SOCIAL ACCOUNTS

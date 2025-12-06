@@ -1,4 +1,3 @@
 package wnc.auction.backend.service;
 
-public class FileUploadService {
-}
+public class FileUploadService {}

@@ -1,5 +1,8 @@
 package wnc.auction.backend.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,10 +33,6 @@ import wnc.auction.backend.repository.UserRepository;
 import wnc.auction.backend.security.CurrentUser;
 import wnc.auction.backend.utils.Constants;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -47,7 +46,8 @@ public class TransactionService {
     private final EmailService emailService;
 
     public TransactionDto createTransaction(Long productId) {
-        Product product = productRepository.findById(productId)
+        Product product = productRepository
+                .findById(productId)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND));
 
         if (product.getStatus() != ProductStatus.COMPLETED) {
@@ -75,20 +75,20 @@ public class TransactionService {
 
         transaction = transactionRepository.save(transaction);
 
-        log.info("Transaction created: {} for product: {}",
-                transaction.getId(), productId);
+        log.info("Transaction created: {} for product: {}", transaction.getId(), productId);
 
         return TransactionMapper.toDto(transaction);
     }
 
     public TransactionDto getTransaction(Long transactionId) {
-        Transaction transaction = transactionRepository.findById(transactionId)
+        Transaction transaction = transactionRepository
+                .findById(transactionId)
                 .orElseThrow(() -> new NotFoundException("Transaction not found"));
 
         Long userId = CurrentUser.getUserId();
-        if (!transaction.getBuyer().getId().equals(userId) &&
-                !transaction.getSeller().getId().equals(userId) &&
-                !CurrentUser.isAdmin()) {
+        if (!transaction.getBuyer().getId().equals(userId)
+                && !transaction.getSeller().getId().equals(userId)
+                && !CurrentUser.isAdmin()) {
             throw new ForbiddenException("Access denied");
         }
 
@@ -96,22 +96,23 @@ public class TransactionService {
     }
 
     public TransactionDto getTransactionByProduct(Long productId) {
-        Transaction transaction = transactionRepository.findByProductId(productId)
+        Transaction transaction = transactionRepository
+                .findByProductId(productId)
                 .orElseThrow(() -> new NotFoundException("Transaction not found"));
 
         Long userId = CurrentUser.getUserId();
-        if (!transaction.getBuyer().getId().equals(userId) &&
-                !transaction.getSeller().getId().equals(userId) &&
-                !CurrentUser.isAdmin()) {
+        if (!transaction.getBuyer().getId().equals(userId)
+                && !transaction.getSeller().getId().equals(userId)
+                && !CurrentUser.isAdmin()) {
             throw new ForbiddenException("Access denied");
         }
 
         return TransactionMapper.toDto(transaction);
     }
 
-    public TransactionDto updateShippingAddress(Long transactionId,
-                                                UpdateShippingAddressRequest request) {
-        Transaction transaction = transactionRepository.findById(transactionId)
+    public TransactionDto updateShippingAddress(Long transactionId, UpdateShippingAddressRequest request) {
+        Transaction transaction = transactionRepository
+                .findById(transactionId)
                 .orElseThrow(() -> new NotFoundException("Transaction not found"));
 
         Long userId = CurrentUser.getUserId();
@@ -127,9 +128,9 @@ public class TransactionService {
         return TransactionMapper.toDto(transaction);
     }
 
-    public TransactionDto confirmPayment(Long transactionId,
-                                         ConfirmPaymentRequest request) {
-        Transaction transaction = transactionRepository.findById(transactionId)
+    public TransactionDto confirmPayment(Long transactionId, ConfirmPaymentRequest request) {
+        Transaction transaction = transactionRepository
+                .findById(transactionId)
                 .orElseThrow(() -> new NotFoundException("Transaction not found"));
 
         Long userId = CurrentUser.getUserId();
@@ -151,7 +152,8 @@ public class TransactionService {
     }
 
     public TransactionDto shipOrder(Long transactionId, ShipOrderRequest request) {
-        Transaction transaction = transactionRepository.findById(transactionId)
+        Transaction transaction = transactionRepository
+                .findById(transactionId)
                 .orElseThrow(() -> new NotFoundException("Transaction not found"));
 
         Long userId = CurrentUser.getUserId();
@@ -174,7 +176,8 @@ public class TransactionService {
     }
 
     public TransactionDto confirmDelivery(Long transactionId) {
-        Transaction transaction = transactionRepository.findById(transactionId)
+        Transaction transaction = transactionRepository
+                .findById(transactionId)
                 .orElseThrow(() -> new NotFoundException("Transaction not found"));
 
         Long userId = CurrentUser.getUserId();
@@ -195,9 +198,9 @@ public class TransactionService {
         return TransactionMapper.toDto(transaction);
     }
 
-    public TransactionDto cancelTransaction(Long transactionId,
-                                            CancelTransactionRequest request) {
-        Transaction transaction = transactionRepository.findById(transactionId)
+    public TransactionDto cancelTransaction(Long transactionId, CancelTransactionRequest request) {
+        Transaction transaction = transactionRepository
+                .findById(transactionId)
                 .orElseThrow(() -> new NotFoundException("Transaction not found"));
 
         Long userId = CurrentUser.getUserId();
@@ -238,8 +241,7 @@ public class TransactionService {
     public PageResponse<TransactionDto> getMyPurchases(int page, int size) {
         Long buyerId = CurrentUser.getUserId();
         Pageable pageable = PageRequest.of(page, size);
-        Page<Transaction> transactionPage = transactionRepository
-                .findByBuyerId(buyerId, pageable);
+        Page<Transaction> transactionPage = transactionRepository.findByBuyerId(buyerId, pageable);
 
         List<TransactionDto> content = transactionPage.getContent().stream()
                 .map(TransactionMapper::toDto)
@@ -258,8 +260,7 @@ public class TransactionService {
     public PageResponse<TransactionDto> getMySales(int page, int size) {
         Long sellerId = CurrentUser.getUserId();
         Pageable pageable = PageRequest.of(page, size);
-        Page<Transaction> transactionPage = transactionRepository
-                .findBySellerId(sellerId, pageable);
+        Page<Transaction> transactionPage = transactionRepository.findBySellerId(sellerId, pageable);
 
         List<TransactionDto> content = transactionPage.getContent().stream()
                 .map(TransactionMapper::toDto)

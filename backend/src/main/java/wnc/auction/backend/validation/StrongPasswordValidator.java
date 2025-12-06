@@ -21,11 +21,11 @@ public class StrongPasswordValidator implements ConstraintValidator<StrongPasswo
         // (?=.*\\d)         : at least one digit
         // (?=.*[a-z])       : at least one lowercase letter
         // (?=.*[A-Z])       : at least one uppercase letter
-        // (?=.*[@#$%^&+=!]) : at least one special character
+        // (?=.*[@#$%^&+=!-_]) : at least one special character
         // (?=\S+$)          : no whitespace allowed
         // .{8,}             : at least 8 characters
         // $                 : end of string
-        String passwordPattern = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
+        String passwordPattern = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!-_])(?=\\S+$).{8,}$";
 
         return password.matches(passwordPattern);
     }

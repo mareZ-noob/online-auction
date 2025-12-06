@@ -2,23 +2,23 @@ package wnc.auction.backend.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import java.time.LocalDateTime;
+import java.util.*;
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.util.*;
-
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret}")
+    @Value("${app.jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.access-token-expiration}")
+    @Value("${app.jwt.access-token-expiration}")
     private long accessTokenExpiration;
 
-    @Value("${jwt.refresh-token-expiration}")
+    @Value("${app.jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
     private SecretKey getSigningKey() {
@@ -65,13 +65,22 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token);
+            Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException ex) {
             return false;
         }
+    }
+
+    public LocalDateTime getExpirationDateFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        Date expiration = claims.getExpiration();
+        return LocalDateTime.ofInstant(
+                expiration.toInstant(), TimeZone.getDefault().toZoneId());
     }
 }

@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CancelTransactionRequest {
 
-    @NotBlank
+    @NotBlank(message = "{validation.reason.required}")
     private String reason;
 }

@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RateUserRequest {
 
-    @NotNull
+    @NotNull(message = "{validation.required}")
     private Long userId;
 
-    @NotNull
+    @NotNull(message = "{validation.product.id.required}")
     private Long productId;
 
-    @NotNull
+    @NotNull(message = "{validation.required}")
     private Boolean isPositive;
 
     private String comment;

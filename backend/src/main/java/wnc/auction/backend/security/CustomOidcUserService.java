@@ -1,5 +1,6 @@
-package wnc.auction.backend.security.oauth2;
+package wnc.auction.backend.security;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -9,6 +10,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import wnc.auction.backend.exception.ConflictException;
 import wnc.auction.backend.exception.OAuth2DuplicateEmailException;
 import wnc.auction.backend.model.SocialAccount;
 import wnc.auction.backend.model.User;
@@ -16,9 +18,7 @@ import wnc.auction.backend.model.enumeration.AuthProvider;
 import wnc.auction.backend.model.enumeration.UserRole;
 import wnc.auction.backend.repository.SocialAccountRepository;
 import wnc.auction.backend.repository.UserRepository;
-import wnc.auction.backend.security.UserPrincipal;
-
-import java.util.Optional;
+import wnc.auction.backend.utils.Constants;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +52,8 @@ public class CustomOidcUserService extends OidcUserService {
         AuthProvider provider = AuthProvider.valueOf(registrationId.toUpperCase());
 
         // Check if social account already exists
-        Optional<SocialAccount> socialAccountOptional = socialAccountRepository.findByProviderAndProviderId(provider, providerId);
+        Optional<SocialAccount> socialAccountOptional =
+                socialAccountRepository.findByProviderAndProviderId(provider, providerId);
 
         User user;
         if (socialAccountOptional.isPresent()) {
@@ -65,7 +66,7 @@ public class CustomOidcUserService extends OidcUserService {
             Optional<User> userOptional = userRepository.findByEmail(email);
 
             if (userOptional.isPresent()) {
-                // EXISTING LOCAL ACCOUNT - Require email verification for linking
+                // Existing local account - Require email verification for linking
                 user = userOptional.get();
 
                 Boolean emailVerified = oidcUser.getEmailVerified();
@@ -88,13 +89,13 @@ public class CustomOidcUserService extends OidcUserService {
                     log.warn("Cannot link - email not verified by provider: {}", email);
                     throw new OAuth2DuplicateEmailException(
                             "email_not_verified",
-                            "An account with email " + email + " already exists. " +
-                                    "Please login with your existing credentials or verify your email with " + provider,
-                            null
-                    );
+                            "An account with email " + email + " already exists. "
+                                    + "Please login with your existing credentials or verify your email with "
+                                    + provider,
+                            null);
                 }
             } else {
-                // NEW USER REGISTRATION
+                // New user registration
                 // Allow registration even if email is not verified yet
                 // Keycloak will handle the verification flow
                 log.info("Registering new user: {}", email);
@@ -117,7 +118,8 @@ public class CustomOidcUserService extends OidcUserService {
         return UserPrincipal.create(user, oidcUser.getAttributes(), oidcUser.getIdToken(), oidcUser.getUserInfo());
     }
 
-    private User registerNewUser(OidcUserRequest userRequest, OidcUser oidcUser, AuthProvider provider, String providerId) {
+    private User registerNewUser(
+            OidcUserRequest userRequest, OidcUser oidcUser, AuthProvider provider, String providerId) {
         Boolean emailVerified = oidcUser.getEmailVerified();
         if (emailVerified == null) {
             emailVerified = false;
@@ -143,20 +145,20 @@ public class CustomOidcUserService extends OidcUserService {
 
     private void linkSocialAccount(User user, AuthProvider provider, String providerId, OidcUser oidcUser) {
         // Check if this social account already exists for another user
-        Optional<SocialAccount> existingAccount = socialAccountRepository.findByProviderAndProviderId(provider, providerId);
+        Optional<SocialAccount> existingAccount =
+                socialAccountRepository.findByProviderAndProviderId(provider, providerId);
 
         if (existingAccount.isPresent()) {
             if (!existingAccount.get().getUser().getId().equals(user.getId())) {
                 log.error("Social account already linked to different user");
-                throw new RuntimeException("This social account is already linked to another user");
+                throw new ConflictException(Constants.ErrorCode.SOCIAL_ACCOUNT_ALREADY_LINKED);
             }
             log.info("Social account already linked to this user");
             return; // Already linked
         }
 
         // Check if user already has this provider linked
-        Optional<SocialAccount> userProviderAccount = socialAccountRepository
-                .findByUserAndProvider(user, provider);
+        Optional<SocialAccount> userProviderAccount = socialAccountRepository.findByUserAndProvider(user, provider);
 
         if (userProviderAccount.isPresent()) {
             log.info("Updating existing social account for provider {}", provider);

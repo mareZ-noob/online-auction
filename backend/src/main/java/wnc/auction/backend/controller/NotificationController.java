@@ -2,6 +2,7 @@ package wnc.auction.backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import wnc.auction.backend.dto.response.ApiResponse;
 import wnc.auction.backend.security.CurrentUser;
 import wnc.auction.backend.service.NotificationService;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -33,8 +32,7 @@ public class NotificationController {
 
     @GetMapping(value = "/stream/product/{productId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "Subscribe to product bid updates (SSE)")
-    public SseEmitter subscribeToProductUpdates(
-            @PathVariable Long productId) {
+    public SseEmitter subscribeToProductUpdates(@PathVariable Long productId) {
         return notificationService.createProductConnection(productId);
     }
 
@@ -45,4 +43,3 @@ public class NotificationController {
         return ResponseEntity.ok(ApiResponse.success(stats));
     }
 }
-

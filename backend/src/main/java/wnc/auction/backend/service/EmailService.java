@@ -1,11 +1,23 @@
 package wnc.auction.backend.service;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import java.util.Locale;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import wnc.auction.backend.exception.AuctionException;
+import wnc.auction.backend.exception.NotFoundException;
+import wnc.auction.backend.model.User;
+import wnc.auction.backend.repository.UserRepository;
+import wnc.auction.backend.utils.Constants;
 
 @Service
 @RequiredArgsConstructor
@@ -13,119 +25,168 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
+    private final MessageSource messageSource;
+    private final LocaleService localeService;
+    private final UserRepository userRepository;
 
     @Value("${app.mail.from-address}")
     private String fromAddress;
 
-    public void sendOtpEmail(String to, String code, String purpose) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress);
-            message.setTo(to);
-            message.setSubject("Your OTP Code - " + purpose);
-            message.setText(String.format(
-                    "Your OTP code for %s is: %s\n\n" +
-                            "This code will expire in 5 minutes.\n\n" +
-                            "If you didn't request this, please ignore this email.",
-                    purpose, code
-            ));
+    public void sendOtpEmail(Long userId, String code, String purpose) {
+        Locale locale = localeService.getLocaleByUserId(userId);
+        sendOtpEmailWithLocale(getUserEmail(userId), code, purpose, locale);
+    }
 
-            mailSender.send(message);
-            log.info("OTP email sent to: {}", to);
+    public void sendBidNotification(Long userId, String productName, String bidderName, String amount) {
+        Locale locale = localeService.getLocaleByUserId(userId);
+        sendBidNotificationWithLocale(getUserEmail(userId), productName, bidderName, amount, locale);
+    }
+
+    public void sendOutbidNotification(Long userId, String productName, String amount) {
+        Locale locale = localeService.getLocaleByUserId(userId);
+        sendOutbidNotificationWithLocale(getUserEmail(userId), productName, amount, locale);
+    }
+
+    public void sendAuctionEndedNotification(Long userId, String productName, boolean isWinner, String finalAmount) {
+        Locale locale = localeService.getLocaleByUserId(userId);
+        sendAuctionEndedNotificationWithLocale(getUserEmail(userId), productName, isWinner, finalAmount, locale);
+    }
+
+    public void sendQuestionNotification(Long userId, String productName, String question, String askerName) {
+        Locale locale = localeService.getLocaleByUserId(userId);
+        sendQuestionNotificationWithLocale(getUserEmail(userId), productName, question, askerName, locale);
+    }
+
+    public void sendOtpEmailByEmail(String email, String code, String purpose) {
+        Locale locale = localeService.getLocaleByEmail(email);
+        sendOtpEmailWithLocale(email, code, purpose, locale);
+    }
+
+    public void sendBidNotificationByEmail(String email, String productName, String bidderName, String amount) {
+        Locale locale = localeService.getLocaleByEmail(email);
+        sendBidNotificationWithLocale(email, productName, bidderName, amount, locale);
+    }
+
+    public void sendOutbidNotificationByEmail(String email, String productName, String amount) {
+        Locale locale = localeService.getLocaleByEmail(email);
+        sendOutbidNotificationWithLocale(email, productName, amount, locale);
+    }
+
+    public void sendAuctionEndedNotificationByEmail(
+            String email, String productName, boolean isWinner, String finalAmount) {
+        Locale locale = localeService.getLocaleByEmail(email);
+        sendAuctionEndedNotificationWithLocale(email, productName, isWinner, finalAmount, locale);
+    }
+
+    public void sendQuestionNotificationByEmail(String email, String productName, String question, String askerName) {
+        Locale locale = localeService.getLocaleByEmail(email);
+        sendQuestionNotificationWithLocale(email, productName, question, askerName, locale);
+    }
+
+    private void sendOtpEmailWithLocale(String to, String code, String purpose, Locale locale) {
+        try {
+            Context context = new Context(locale);
+            context.setVariable("code", code);
+            context.setVariable("purpose", purpose);
+
+            String htmlContent = templateEngine.process("otp-email", context);
+            String subject = messageSource.getMessage("email.otp.subject", new Object[] {purpose}, locale);
+
+            sendHtmlEmail(to, subject, htmlContent);
+            log.info("OTP email sent to: {} in locale: {}", to, locale);
         } catch (Exception e) {
             log.error("Failed to send OTP email", e);
-            throw new RuntimeException("Failed to send email");
+            throw new AuctionException(Constants.ErrorCode.EMAIL_SENDING_FAILED);
         }
     }
 
-    public void sendBidNotification(String to, String productName, String bidderName, String amount) {
+    private void sendBidNotificationWithLocale(
+            String to, String productName, String bidderName, String amount, Locale locale) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress);
-            message.setTo(to);
-            message.setSubject("New Bid on Your Product - " + productName);
-            message.setText(String.format(
-                    "A new bid has been placed on your product: %s\n\n" +
-                            "Bidder: %s\n" +
-                            "Amount: %s\n\n" +
-                            "View product details at: [PRODUCT_LINK]",
-                    productName, bidderName, amount
-            ));
+            Context context = new Context(locale);
+            context.setVariable("productName", productName);
+            context.setVariable("bidderName", bidderName);
+            context.setVariable("amount", amount);
 
-            mailSender.send(message);
+            String htmlContent = templateEngine.process("bid-notification", context);
+            String subject = messageSource.getMessage("email.bid.subject", new Object[] {productName}, locale);
+
+            sendHtmlEmail(to, subject, htmlContent);
+            log.info("Bid notification sent to: {} in locale: {}", to, locale);
         } catch (Exception e) {
             log.error("Failed to send bid notification", e);
         }
     }
 
-    public void sendOutbidNotification(String to, String productName, String amount) {
+    private void sendOutbidNotificationWithLocale(String to, String productName, String amount, Locale locale) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress);
-            message.setTo(to);
-            message.setSubject("You've Been Outbid - " + productName);
-            message.setText(String.format(
-                    "You have been outbid on: %s\n\n" +
-                            "Current highest bid: %s\n\n" +
-                            "Place a new bid at: [PRODUCT_LINK]",
-                    productName, amount
-            ));
+            Context context = new Context(locale);
+            context.setVariable("productName", productName);
+            context.setVariable("amount", amount);
 
-            mailSender.send(message);
+            String htmlContent = templateEngine.process("outbid-notification", context);
+            String subject = messageSource.getMessage("email.outbid.subject", new Object[] {productName}, locale);
+
+            sendHtmlEmail(to, subject, htmlContent);
+            log.info("Outbid notification sent to: {} in locale: {}", to, locale);
         } catch (Exception e) {
             log.error("Failed to send outbid notification", e);
         }
     }
 
-    public void sendAuctionEndedNotification(String to, String productName,
-                                             boolean isWinner, String finalAmount) {
+    private void sendAuctionEndedNotificationWithLocale(
+            String to, String productName, boolean isWinner, String finalAmount, Locale locale) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress);
-            message.setTo(to);
+            Context context = new Context(locale);
+            context.setVariable("productName", productName);
+            context.setVariable("finalAmount", finalAmount);
+            context.setVariable("isWinner", isWinner);
 
-            if (isWinner) {
-                message.setSubject("Congratulations! You Won - " + productName);
-                message.setText(String.format(
-                        "Congratulations! You won the auction for: %s\n\n" +
-                                "Final amount: %s\n\n" +
-                                "Please proceed with payment at: [TRANSACTION_LINK]",
-                        productName, finalAmount
-                ));
-            } else {
-                message.setSubject("Auction Ended - " + productName);
-                message.setText(String.format(
-                        "The auction for %s has ended.\n\n" +
-                                "Final amount: %s\n\n" +
-                                "Thank you for participating!",
-                        productName, finalAmount
-                ));
-            }
+            String htmlContent = templateEngine.process("auction-ended", context);
 
-            mailSender.send(message);
+            String subjectKey = isWinner ? "email.auction.winner.subject" : "email.auction.ended.subject";
+            String subject = messageSource.getMessage(subjectKey, new Object[] {productName}, locale);
+
+            sendHtmlEmail(to, subject, htmlContent);
+            log.info("Auction ended notification sent to: {} in locale: {}", to, locale);
         } catch (Exception e) {
             log.error("Failed to send auction ended notification", e);
         }
     }
 
-    public void sendQuestionNotification(String to, String productName,
-                                         String question, String askerName) {
+    private void sendQuestionNotificationWithLocale(
+            String to, String productName, String question, String askerName, Locale locale) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress);
-            message.setTo(to);
-            message.setSubject("New Question on Your Product - " + productName);
-            message.setText(String.format(
-                    "You have a new question on your product: %s\n\n" +
-                            "From: %s\n" +
-                            "Question: %s\n\n" +
-                            "Answer at: [PRODUCT_LINK]",
-                    productName, askerName, question
-            ));
+            Context context = new Context(locale);
+            context.setVariable("productName", productName);
+            context.setVariable("question", question);
+            context.setVariable("askerName", askerName);
 
-            mailSender.send(message);
+            String htmlContent = templateEngine.process("question-notification", context);
+            String subject = messageSource.getMessage("email.question.subject", new Object[] {productName}, locale);
+
+            sendHtmlEmail(to, subject, htmlContent);
+            log.info("Question notification sent to: {} in locale: {}", to, locale);
         } catch (Exception e) {
             log.error("Failed to send question notification", e);
         }
+    }
+
+    private void sendHtmlEmail(String to, String subject, String htmlContent) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setFrom(fromAddress);
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
+    }
+
+    private String getUserEmail(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        return user.map(User::getEmail).orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
     }
 }

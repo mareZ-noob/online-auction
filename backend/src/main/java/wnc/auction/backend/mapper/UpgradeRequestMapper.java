@@ -18,8 +18,6 @@ public class UpgradeRequestMapper {
                 request.getReviewedBy() != null ? request.getReviewedBy().getId() : null,
                 request.getReviewedBy() != null ? request.getReviewedBy().getFullName() : null,
                 request.getReviewedAt(),
-                request.getCreatedAt()
-        );
+                request.getCreatedAt());
     }
 }
-

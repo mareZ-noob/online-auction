@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ReviewUpgradeRequest {
 
-    @NotNull
+    @NotNull(message = "{validation.required}")
     private Boolean approved;
 }

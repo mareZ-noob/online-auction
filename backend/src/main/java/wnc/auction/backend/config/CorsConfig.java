@@ -21,8 +21,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Serve uploaded files
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:./uploads/");
+        registry.addResourceHandler("/uploads/**").addResourceLocations("file:./uploads/");
 
         // Swagger UI resources
         registry.addResourceHandler("/swagger-ui/**")

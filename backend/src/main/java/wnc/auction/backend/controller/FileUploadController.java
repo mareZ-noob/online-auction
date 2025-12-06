@@ -1,4 +1,3 @@
 package wnc.auction.backend.controller;
 
-public class FileUploadController {
-}
+public class FileUploadController {}

@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AskQuestionRequest {
 
-    @NotNull
+    @NotNull(message = "{validation.product.id.required}")
     private Long productId;
 
-    @NotBlank
+    @NotBlank(message = "{validation.question.required}")
     private String question;
 }

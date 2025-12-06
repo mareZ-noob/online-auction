@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CategoryRequest {
 
-    @NotBlank
+    @NotBlank(message = "{validation.category.name.required}")
     private String name;
 
     private String description;

@@ -1,6 +1,9 @@
 package wnc.auction.backend.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -15,10 +18,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import wnc.auction.backend.dto.response.ApiResponse;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -26,7 +25,8 @@ public class GlobalExceptionHandler {
     @Value("${spring.servlet.multipart.max-file-size:10MB}")
     private String maxFileSize;
 
-    private <T> ResponseEntity<ApiResponse<T>> buildErrorResponse(HttpStatus status, String message, T data, Exception ex) {
+    private <T> ResponseEntity<ApiResponse<T>> buildErrorResponse(
+            HttpStatus status, String message, T data, Exception ex) {
         log.error("[{}] Exception: {}", ex.getClass().getSimpleName(), message);
         if (status.is5xxServerError()) {
             log.error("Stack trace:", ex);
@@ -122,10 +122,16 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
     }
 
+    @ExceptionHandler(JWTException.class)
+    public ResponseEntity<ApiResponse<Object>> handleJWTException(JWTException ex) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), ex);
+    }
+
     // Fallback for uncaught runtime exceptions
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException ex) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while processing your request", ex);
+        return buildErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while processing your request", ex);
     }
 
     @ExceptionHandler(Exception.class)

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wnc.auction.backend.dto.model.RatingDto;
 import wnc.auction.backend.dto.model.UserDto;
+import wnc.auction.backend.dto.request.ChangeLanguageRequest;
 import wnc.auction.backend.dto.request.ChangePasswordRequest;
 import wnc.auction.backend.dto.request.UpdateProfileRequest;
 import wnc.auction.backend.dto.response.ApiResponse;
@@ -40,16 +41,14 @@ public class UserController {
 
     @PutMapping("/profile")
     @Operation(summary = "Update user profile")
-    public ResponseEntity<ApiResponse<UserDto>> updateProfile(
-            @Valid @RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<ApiResponse<UserDto>> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
         UserDto user = userService.updateProfile(request);
         return ResponseEntity.ok(ApiResponse.success("Profile updated", user));
     }
 
     @PutMapping("/change-password")
     @Operation(summary = "Change password")
-    public ResponseEntity<ApiResponse<Void>> changePassword(
-            @Valid @RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         userService.changePassword(request);
         return ResponseEntity.ok(ApiResponse.success("Password changed successfully", null));
     }
@@ -62,5 +61,12 @@ public class UserController {
             @RequestParam(defaultValue = "20") int size) {
         PageResponse<RatingDto> ratings = ratingService.getUserRatings(id, page, size);
         return ResponseEntity.ok(ApiResponse.success(ratings));
+    }
+
+    @PutMapping("/language")
+    @Operation(summary = "Change display language (vi/en)")
+    public ResponseEntity<ApiResponse<Void>> changeLanguage(@Valid @RequestBody ChangeLanguageRequest request) {
+        userService.changeLanguage(request);
+        return ResponseEntity.ok(ApiResponse.success("Language updated successfully", null));
     }
 }

@@ -226,3 +226,72 @@ export const useAuthStatus = () => {
 
   return !!token && !isTokenExpired() && !!isEmailVerified;
 };
+
+export const useExchangeToken = (onComplete?: () => void) => {
+  const setIsEmailVerified = useAuthStore((state) => state.setIsEmailVerified);
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const setId = useUserStore((state) => state.setId);
+
+  return useMutation({
+    mutationFn: async (code: string) => {
+      console.log("Making exchange token request with code:", code);
+      
+      const { data } = await apiClient.post<LoginResponse>(
+        API_ENDPOINTS.EXCHANGE_TOKEN,
+        { code }
+      );
+      
+      console.log("Exchange token response:", data);
+      
+      if (!data.success) {
+        throw new Error(data.message || "Token exchange failed");
+      }
+      
+      return data.data;
+    },
+    onSuccess: (data) => {
+      console.log("onSuccess called with data:", data);
+      
+      try {
+        const decoded = jwtDecode<AccessTokenPayload>(data.accessToken);
+        const sub = decoded.sub;
+        const expireIn = decoded.exp - Math.floor(Date.now() / 1000);
+
+        console.log("Decoded token:", { sub, expireIn, email: decoded.email });
+        console.log("User email verified:", data.user.emailVerified);
+
+        // Set all auth state
+        setIsEmailVerified(data.user.emailVerified);
+        console.log("Email verified status set to:", data.user.emailVerified);
+        
+        setAuth(data.accessToken, data.refreshToken, expireIn);
+        console.log("Auth tokens set");
+        
+        setId(sub);
+        console.log("User ID set to:", sub);
+
+        console.log("Auth state updated successfully");
+        
+        // Verify the store was actually updated
+        const currentState = useAuthStore.getState();
+        console.log("Current auth store state:", {
+          hasToken: !!currentState.token,
+          isEmailVerified: currentState.isEmailVerified,
+          isExpired: currentState.isTokenExpired()
+        });
+
+        // Call the completion callback if provided
+        if (onComplete) {
+          console.log("Calling onComplete callback");
+          onComplete();
+        }
+      } catch (error) {
+        console.error("Error processing token:", error);
+        throw error;
+      }
+    },
+    onError: (error) => {
+      console.error("Token exchange error:", error);
+    },
+  });
+};

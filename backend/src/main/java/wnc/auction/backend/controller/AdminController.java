@@ -3,6 +3,7 @@ package wnc.auction.backend.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,8 +18,6 @@ import wnc.auction.backend.dto.response.ApiResponse;
 import wnc.auction.backend.dto.response.DashboardStats;
 import wnc.auction.backend.dto.response.PageResponse;
 import wnc.auction.backend.service.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -46,8 +45,7 @@ public class AdminController {
     @GetMapping("/users")
     @Operation(summary = "Get all users")
     public ResponseEntity<ApiResponse<PageResponse<UserDto>>> getAllUsers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         PageResponse<UserDto> users = adminService.getAllUsers(page, size);
         return ResponseEntity.ok(ApiResponse.success(users));
     }
@@ -59,11 +57,31 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(user));
     }
 
+    @PutMapping("/{userId}/disable")
+    @Operation(summary = "Disable user account and logout from all devices")
+    public ResponseEntity<ApiResponse<Void>> disableAccount(@PathVariable Long userId) {
+        userService.disableAccount(userId);
+        return ResponseEntity.ok(ApiResponse.success("User account disabled and logged out from all devices", null));
+    }
+
+    @PutMapping("/{userId}/enable")
+    @Operation(summary = "Enable user account")
+    public ResponseEntity<ApiResponse<Void>> enableAccount(@PathVariable Long userId) {
+        userService.enableAccount(userId);
+        return ResponseEntity.ok(ApiResponse.success("User account enabled", null));
+    }
+
+    @PostMapping("/{userId}/force-logout")
+    @Operation(summary = "Force logout user from all devices without disabling account")
+    public ResponseEntity<ApiResponse<Void>> forceLogout(@PathVariable Long userId) {
+        userService.forceLogoutAllDevices(userId);
+        return ResponseEntity.ok(ApiResponse.success("User logged out from all devices", null));
+    }
+
     // Category Management
     @PostMapping("/categories")
     @Operation(summary = "Create a category")
-    public ResponseEntity<ApiResponse<CategoryDto>> createCategory(
-            @Valid @RequestBody CategoryRequest request) {
+    public ResponseEntity<ApiResponse<CategoryDto>> createCategory(@Valid @RequestBody CategoryRequest request) {
         CategoryDto category = categoryService.createCategory(request);
         return ResponseEntity.ok(ApiResponse.success("Category created", category));
     }
@@ -71,8 +89,7 @@ public class AdminController {
     @PutMapping("/categories/{id}")
     @Operation(summary = "Update a category")
     public ResponseEntity<ApiResponse<CategoryDto>> updateCategory(
-            @PathVariable Long id,
-            @Valid @RequestBody CategoryRequest request) {
+            @PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
         CategoryDto category = categoryService.updateCategory(id, request);
         return ResponseEntity.ok(ApiResponse.success("Category updated", category));
     }
@@ -95,8 +112,7 @@ public class AdminController {
     @GetMapping("/products")
     @Operation(summary = "Get all products")
     public ResponseEntity<ApiResponse<PageResponse<ProductListDto>>> getAllProducts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         PageResponse<ProductListDto> products = productService.getActiveProducts(page, size);
         return ResponseEntity.ok(ApiResponse.success(products));
     }
@@ -105,28 +121,23 @@ public class AdminController {
     @GetMapping("/upgrade-requests")
     @Operation(summary = "Get pending upgrade requests")
     public ResponseEntity<ApiResponse<PageResponse<UpgradeRequestDto>>> getPendingUpgradeRequests(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        PageResponse<UpgradeRequestDto> requests = upgradeRequestService
-                .getPendingRequests(page, size);
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        PageResponse<UpgradeRequestDto> requests = upgradeRequestService.getPendingRequests(page, size);
         return ResponseEntity.ok(ApiResponse.success(requests));
     }
 
     @PostMapping("/upgrade-requests/{id}/review")
     @Operation(summary = "Review an upgrade request")
     public ResponseEntity<ApiResponse<UpgradeRequestDto>> reviewUpgradeRequest(
-            @PathVariable Long id,
-            @Valid @RequestBody ReviewUpgradeRequest request) {
-        UpgradeRequestDto upgradeRequest = upgradeRequestService
-                .reviewUpgradeRequest(id, request);
+            @PathVariable Long id, @Valid @RequestBody ReviewUpgradeRequest request) {
+        UpgradeRequestDto upgradeRequest = upgradeRequestService.reviewUpgradeRequest(id, request);
         return ResponseEntity.ok(ApiResponse.success("Request reviewed", upgradeRequest));
     }
 
     // Notification Management
     @PostMapping("/notifications/broadcast")
     @Operation(summary = "Broadcast system message to all users")
-    public ResponseEntity<ApiResponse<Void>> broadcastMessage(
-            @RequestParam String message) {
+    public ResponseEntity<ApiResponse<Void>> broadcastMessage(@RequestParam String message) {
         notificationService.broadcastSystemMessage(message);
         return ResponseEntity.ok(ApiResponse.success("Message broadcast", null));
     }

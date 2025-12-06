@@ -1,5 +1,7 @@
 package wnc.auction.backend.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,9 +26,6 @@ import wnc.auction.backend.repository.UserRepository;
 import wnc.auction.backend.security.CurrentUser;
 import wnc.auction.backend.utils.Constants;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -40,10 +39,12 @@ public class QuestionService {
 
     public QuestionDto askQuestion(AskQuestionRequest request) {
         Long userId = CurrentUser.getUserId();
-        User user = userRepository.findById(userId)
+        User user = userRepository
+                .findById(userId)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND));
 
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository
+                .findById(request.getProductId())
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND));
 
         Question question = Question.builder()
@@ -56,22 +57,17 @@ public class QuestionService {
 
         // Send email notification to seller
         emailService.sendQuestionNotification(
-                product.getSeller().getEmail(),
-                product.getName(),
-                request.getQuestion(),
-                user.getFullName()
-        );
+                product.getSeller().getId(), product.getName(), request.getQuestion(), user.getFullName());
 
-        log.info("Question asked on product: {} by user: {}",
-                product.getId(), userId);
+        log.info("Question asked on product: {} by user: {}", product.getId(), userId);
 
         return QuestionMapper.toDto(question);
     }
 
     public QuestionDto answerQuestion(Long questionId, AnswerQuestionRequest request) {
         Long sellerId = CurrentUser.getUserId();
-        Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new NotFoundException("Question not found"));
+        Question question =
+                questionRepository.findById(questionId).orElseThrow(() -> new NotFoundException("Question not found"));
 
         if (!question.getProduct().getSeller().getId().equals(sellerId)) {
             throw new ForbiddenException("You can only answer questions on your own products");
@@ -97,9 +93,7 @@ public class QuestionService {
     public List<QuestionDto> getProductQuestions(Long productId) {
         List<Question> questions = questionRepository.findByProductId(productId);
 
-        return questions.stream()
-                .map(QuestionMapper::toDto)
-                .toList();
+        return questions.stream().map(QuestionMapper::toDto).toList();
     }
 
     public PageResponse<QuestionDto> getMyQuestions(int page, int size) {
@@ -107,9 +101,8 @@ public class QuestionService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Question> questionPage = questionRepository.findByUserId(userId, pageable);
 
-        List<QuestionDto> content = questionPage.getContent().stream()
-                .map(QuestionMapper::toDto)
-                .toList();
+        List<QuestionDto> content =
+                questionPage.getContent().stream().map(QuestionMapper::toDto).toList();
 
         return PageResponse.<QuestionDto>builder()
                 .content(content)
@@ -123,11 +116,8 @@ public class QuestionService {
 
     public List<QuestionDto> getUnansweredQuestions() {
         Long sellerId = CurrentUser.getUserId();
-        List<Question> questions = questionRepository
-                .findUnansweredQuestionsBySeller(sellerId);
+        List<Question> questions = questionRepository.findUnansweredQuestionsBySeller(sellerId);
 
-        return questions.stream()
-                .map(QuestionMapper::toDto)
-                .toList();
+        return questions.stream().map(QuestionMapper::toDto).toList();
     }
 }

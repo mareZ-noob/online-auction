@@ -26,6 +26,9 @@ const WatchListPage = lazy(
   () => import("@/components/watch-list/WatchListPage.tsx")
 );
 const CommonLayout = lazy(() => import("@/layouts/CommonLayout"));
+const OAuth2RedirectHandler = lazy(
+  () => import("@/components/auth-page/OAuth2RedirectHandler")
+);
 
 const router = createBrowserRouter([
   {
@@ -51,6 +54,15 @@ const router = createBrowserRouter([
       },
     ],
     loader: ProtectedRoute,
+  },
+  {
+    path: "/oauth2/redirect",
+    element: (
+      <Suspense fallback={<LoadingPage />}>
+        <OAuth2RedirectHandler />
+      </Suspense>
+    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: "/auth",
