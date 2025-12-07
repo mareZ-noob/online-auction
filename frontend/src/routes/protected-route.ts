@@ -4,13 +4,6 @@ import { useAuthStore } from "@/store/auth-store.ts";
 export function ProtectedRoute({ request }: LoaderFunctionArgs) {
   const token = useAuthStore.getState().token;
   const isTokenExpired = useAuthStore.getState().isTokenExpired;
-  const isEmailVerified = useAuthStore.getState().isEmailVerified;
-
-  console.log("ProtectedRoute loader check:", {
-    hasToken: !!token,
-    isExpired: token ? isTokenExpired() : null,
-    isEmailVerified: isEmailVerified,
-  });
 
   // If token exists but is expired, try to refresh
   if (token && isTokenExpired()) {

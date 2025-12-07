@@ -1,4 +1,3 @@
-import { API_ENDPOINTS } from "./endpoints";
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "@/query/api-client";
 import type {
@@ -8,6 +7,7 @@ import type {
   PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE,
   TOP_PRODUCTS_BY_CONDITION,
 } from "@/types/Product";
+import { API_ENDPOINTS } from "./endpoints";
 
 export const useFetchCategories = () => {
   return useQuery<CATEGORY[]>({

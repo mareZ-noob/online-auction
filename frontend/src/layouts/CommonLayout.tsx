@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils.ts";
 import { useSignOut } from "@/hooks/auth-hooks.ts";
 import { useFetchCategories } from "@/hooks/product-hooks";
 import { useUserStore } from "@/store/user-store";
+import { useFetchUser } from "@/hooks/user-hooks";
 
 function WatchList() {
   const navigate = useNavigate();
@@ -52,33 +53,31 @@ function WatchList() {
 }
 
 function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
+  const navigate = useNavigate();
+
   const id = useUserStore((state) => state.id);
-  const fullName = useUserStore((s) => s.fullName);
-  const email = useUserStore((s) => s.email);
 
-  const fetchUser = useUserStore((state) => state.fetchUser);
+  const { data } = useFetchUser(id ?? 0);
 
-  useEffect(() => {
-    if (id) {
-      fetchUser();
-    }
-  }, [id, fetchUser]);
+  const goToProfile = () => {
+    navigate("/profile");
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="flex items-center justify-center">
           <User />
-          <p>{fullName}</p>
+          <p>{data?.fullName}</p>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64" align="end">
         <DropdownMenuLabel className="flex items-center gap-2 text-gray-500">
           <Mail size={16} />
-          <p className="font-light">{email}</p>
+          <p className="font-light">{data?.email}</p>
         </DropdownMenuLabel>
         <DropdownMenuGroup>
-          <DropdownMenuItem className="flex items-center">
+          <DropdownMenuItem className="flex items-center" onClick={goToProfile}>
             <UserPen className="text-black" />
             Profile
           </DropdownMenuItem>

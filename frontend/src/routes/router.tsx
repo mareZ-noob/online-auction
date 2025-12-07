@@ -1,6 +1,6 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import ErrorPage from "@/layouts/ErrorPage.tsx";
-import { lazy, Suspense } from "react";
 import LoadingPage from "@/layouts/LoadingPage.tsx";
 import { ProtectedRoute } from "@/routes/protected-route.ts";
 
@@ -24,6 +24,9 @@ const ProductListPage = lazy(
 );
 const WatchListPage = lazy(
   () => import("@/components/watch-list/WatchListPage.tsx")
+);
+const PersonalInformation = lazy(
+  () => import("@/components/profile/PersonalInformation.tsx")
 );
 const CommonLayout = lazy(() => import("@/layouts/CommonLayout"));
 const OAuth2RedirectHandler = lazy(
@@ -49,6 +52,25 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingPage />}>
             <WatchListPage />
+          </Suspense>
+        ),
+      },
+    ],
+    loader: ProtectedRoute,
+  },
+  {
+    path: "/profile",
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="personal-information" replace />,
+      },
+      {
+        path: "personal-information",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <PersonalInformation />
           </Suspense>
         ),
       },
