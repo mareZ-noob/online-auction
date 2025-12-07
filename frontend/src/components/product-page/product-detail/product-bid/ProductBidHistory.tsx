@@ -31,7 +31,9 @@ function ProductBidHistory({ productId }: { productId: number }) {
               <TableCell className="font-medium">
                 {history.maskedUserName}
               </TableCell>
-              <TableCell className="font-medium">{history.amount}</TableCell>
+              <TableCell className="font-medium text-right">
+                {history.amount}
+              </TableCell>
             </TableRow>
           ))}
       </TableBody>

@@ -29,7 +29,7 @@ function ProductDetailPage() {
     return <ProductDetailPageFallback />;
   }
 
-  const { id, images, ...rest } = productDetails;
+  const { images, ...rest } = productDetails;
 
   return (
     <div>

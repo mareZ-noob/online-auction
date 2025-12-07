@@ -1,11 +1,7 @@
 import type { PRODUCT_DETAILS } from "@/types/Product";
 import ProductBid from "./product-bid/ProductBid";
 
-const ProductInfo = ({
-  data,
-}: {
-  data: Omit<PRODUCT_DETAILS, "id" | "images">;
-}) => {
+const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
   return (
     <div>
       <p className="text-2xl">{data.name}</p>
@@ -30,7 +26,11 @@ const ProductInfo = ({
 
       <div className="border-b border-gray-200 my-4" />
       <p className="mb-4 text-lg">Step Price: {data.stepPrice}</p>
-      <ProductBid currentPrice={data.currentPrice} stepPrice={data.stepPrice} />
+      <ProductBid
+        productId={data.id}
+        currentPrice={data.currentPrice}
+        stepPrice={data.stepPrice}
+      />
       <div className="border-b border-gray-200 my-4" />
 
       <p className="mb-4 text-lg">Seller Name: {data.sellerName}</p>

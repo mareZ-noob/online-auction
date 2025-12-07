@@ -4,63 +4,11 @@ import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth-store";
 import { jwtDecode } from "jwt-decode";
 import { useUserStore } from "@/store/user-store";
-
-interface LoginResponseData {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: number;
-    email: string;
-    fullName: string;
-    address: string;
-    dateOfBirth: string;
-    role: string;
-    linkedProviders: string[];
-    emailVerified: boolean;
-    positiveRatings: number;
-    negativeRatings: number;
-    createdAt: string;
-  };
-}
-
-interface LoginResponse {
-  success: boolean;
-  message: string;
-  data: LoginResponseData;
-  timestamp: string;
-}
-
-interface SignupResponseData {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: number;
-    email: string;
-    fullName: string;
-    address: string;
-    dateOfBirth: string;
-    role: string;
-    linkedProviders: string[];
-    emailVerified: boolean;
-    positiveRatings: number;
-    negativeRatings: number;
-    createdAt: string;
-  };
-}
-
-interface SignupResponse {
-  success: boolean;
-  message: string;
-  data: SignupResponseData;
-  timestamp: string;
-}
-
-export interface AccessTokenPayload {
-  sub: number;
-  email: string;
-  role: string;
-  exp: number;
-}
+import type {
+  AccessTokenPayload,
+  LoginResponse,
+  SignupResponse,
+} from "@/types/Auth";
 
 export const useLogin = () => {
   const setIsEmailVerified = useAuthStore((state) => state.setIsEmailVerified);
@@ -90,10 +38,6 @@ export const useLogin = () => {
 };
 
 export const useRegister = () => {
-  const setIsEmailVerified = useAuthStore((state) => state.setIsEmailVerified);
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const setId = useUserStore((state) => state.setId);
-
   return useMutation({
     mutationFn: async (credentials: {
       fullName: string;
@@ -108,28 +52,8 @@ export const useRegister = () => {
       );
       return data.data;
     },
-    onSuccess: async (data) => {
-      const decoded = jwtDecode<AccessTokenPayload>(data.accessToken);
-      const sub = decoded.sub;
-      const expireIn = decoded.exp - Math.floor(Date.now() / 1000); // seconds left
-
-      // store tokens and id in zustand stores
-      setIsEmailVerified(data.user.emailVerified);
-      setAuth(data.accessToken, data.refreshToken, expireIn);
-      setId(sub);
-    },
   });
 };
-
-// export const useCurrentUser = () => {
-//     return useQuery({
-//         queryKey: ["currentUser"],
-//         queryFn: async () => {
-//             const { data } = await apiClient.get<User>("/me");
-//             return data;
-//         },
-//     });
-// };
 
 export const useSignOut = () => {
   const refreshToken = useAuthStore((state) => state.refreshToken);
@@ -235,23 +159,23 @@ export const useExchangeToken = (onComplete?: () => void) => {
   return useMutation({
     mutationFn: async (code: string) => {
       console.log("Making exchange token request with code:", code);
-      
+
       const { data } = await apiClient.post<LoginResponse>(
         API_ENDPOINTS.EXCHANGE_TOKEN,
         { code }
       );
-      
+
       console.log("Exchange token response:", data);
-      
+
       if (!data.success) {
         throw new Error(data.message || "Token exchange failed");
       }
-      
+
       return data.data;
     },
     onSuccess: (data) => {
       console.log("onSuccess called with data:", data);
-      
+
       try {
         const decoded = jwtDecode<AccessTokenPayload>(data.accessToken);
         const sub = decoded.sub;
@@ -263,21 +187,21 @@ export const useExchangeToken = (onComplete?: () => void) => {
         // Set all auth state
         setIsEmailVerified(data.user.emailVerified);
         console.log("Email verified status set to:", data.user.emailVerified);
-        
+
         setAuth(data.accessToken, data.refreshToken, expireIn);
         console.log("Auth tokens set");
-        
+
         setId(sub);
         console.log("User ID set to:", sub);
 
         console.log("Auth state updated successfully");
-        
+
         // Verify the store was actually updated
         const currentState = useAuthStore.getState();
         console.log("Current auth store state:", {
           hasToken: !!currentState.token,
           isEmailVerified: currentState.isEmailVerified,
-          isExpired: currentState.isTokenExpired()
+          isExpired: currentState.isTokenExpired(),
         });
 
         // Call the completion callback if provided

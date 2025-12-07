@@ -4,9 +4,11 @@ import apiClient from "@/query/api-client";
 import type {
   BID_HISTORY_OF_A_PRODUCT_RESPONSE,
   MY_BID_HISTORY_RESPONSE,
+  PLACE_A_BID_RESPONSE,
 } from "@/types/Bid";
 
 import { API_ENDPOINTS } from "./endpoints";
+import { queryClient } from "@/lib/utils";
 
 export const useFetchMyBidHistory = () => {
   return useQuery<MY_BID_HISTORY_RESPONSE, Error>({
@@ -21,18 +23,29 @@ export const useFetchMyBidHistory = () => {
 };
 
 export const usePlaceABid = () => {
-  return useMutation({
+  return useMutation<
+    PLACE_A_BID_RESPONSE,
+    Error,
+    {
+      productId: number;
+      amount: number;
+      maxAutoBidAmount: number;
+    }
+  >({
     mutationKey: ["placeABid"],
     mutationFn: async (credentials: {
       productId: number;
       amount: number;
       maxAutoBidAmount: number;
     }) => {
-      const response = await apiClient.post(
+      const response = await apiClient.post<PLACE_A_BID_RESPONSE>(
         API_ENDPOINTS.PLACE_A_BID,
         credentials
       );
       return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bidHistoryOfAProduct"] });
     },
   });
 };

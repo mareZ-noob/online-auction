@@ -18,22 +18,51 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@radix-ui/react-label";
 import NumberInput from "./NumberInput";
+import { usePlaceABid } from "@/hooks/bid-hooks";
 
 type ProductBidProps = {
+  productId: number;
   currentPrice: number;
   stepPrice: number;
 };
 
-function ProductBid({ currentPrice, stepPrice }: ProductBidProps) {
-  const [isCheckedAutoBid, setIsCheckedAutoBid] = useState(false);
-
+function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
   const validBidPriceRange = useMemo(() => {
     const start = currentPrice + stepPrice;
     return Array.from({ length: 11 }, (_, i) => start + i * stepPrice);
   }, [currentPrice, stepPrice]);
 
+  const [selectedBidPrice, setSelectedBidPrice] = useState(
+    validBidPriceRange[0]
+  );
+  const [autoBidPrice, setAutoBidPrice] = useState<number | null>(null);
+
+  const [isCheckedAutoBid, setIsCheckedAutoBid] = useState(false);
+
+  const { mutate, isPending, isError, error } = usePlaceABid();
+
   const handleToggleAutoBid = () => {
     setIsCheckedAutoBid((prev) => !prev);
+  };
+
+  const handleSelectBidPrice = (value: string) => {
+    setSelectedBidPrice(Number(value));
+  };
+
+  const handleSubmitBid = () => {
+    mutate({
+      productId: productId,
+      amount: selectedBidPrice,
+      maxAutoBidAmount: autoBidPrice || 0,
+    });
+  };
+
+  const handleSubmitAutoBid = () => {
+    mutate({
+      productId: productId,
+      amount: 0,
+      maxAutoBidAmount: autoBidPrice || 0,
+    });
   };
 
   return (
@@ -42,6 +71,7 @@ function ProductBid({ currentPrice, stepPrice }: ProductBidProps) {
         <Select
           defaultValue={String(validBidPriceRange[0])}
           disabled={isCheckedAutoBid}
+          onValueChange={(value) => handleSelectBidPrice(value)}
         >
           <SelectTrigger className="w-full text-lg">
             <SelectValue placeholder="Select Price" />
@@ -61,8 +91,12 @@ function ProductBid({ currentPrice, stepPrice }: ProductBidProps) {
             </SelectGroup>
           </SelectContent>
         </Select>
-        <Button className="ml-4" disabled={isCheckedAutoBid}>
-          Place Bid
+        <Button
+          className="ml-4"
+          disabled={isCheckedAutoBid}
+          onClick={handleSubmitBid}
+        >
+          {isPending ? "Placing Bid..." : "Place Bid"}
         </Button>
       </div>
       <Accordion type="single" collapsible className="w-full">
@@ -85,10 +119,14 @@ function ProductBid({ currentPrice, stepPrice }: ProductBidProps) {
             <div className="flex items-end justify-between px-1">
               <NumberInput
                 validBid={validBidPriceRange[0]}
-                onValidBid={(bid) => console.log("Valid bid:", bid)}
+                onValidBid={setAutoBidPrice}
               />
-              <Button className="ml-4" disabled={!isCheckedAutoBid}>
-                Place Bid
+              <Button
+                className="ml-4"
+                disabled={!isCheckedAutoBid}
+                onClick={handleSubmitAutoBid}
+              >
+                {isPending ? "Placing Bid..." : "Place Bid"}
               </Button>
             </div>
           </AccordionContent>

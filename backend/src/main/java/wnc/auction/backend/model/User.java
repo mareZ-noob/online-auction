@@ -48,6 +48,7 @@ public class User {
     @Builder.Default
     private Boolean emailVerified = false;
 
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private Set<SocialAccount> socialAccounts = new HashSet<>();
