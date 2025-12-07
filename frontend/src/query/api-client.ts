@@ -13,6 +13,10 @@ apiClient.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
 
+    const language = localStorage.getItem("lang") || "vi";
+
+    config.headers["Accept-Language"] = language;
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

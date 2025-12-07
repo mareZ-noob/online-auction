@@ -69,6 +69,7 @@ public class Product {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private ProductStatus status = ProductStatus.ACTIVE;
 
     private Integer bidCount = 0;

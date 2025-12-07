@@ -1,44 +1,36 @@
 package wnc.auction.backend.utils;
 
 import jakarta.annotation.PostConstruct;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import org.slf4j.helpers.FormattingTuple;
-import org.slf4j.helpers.MessageFormatter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.stereotype.Component;
 
-@Configuration
-@ConfigurationProperties(prefix = "messages")
+@Component
+@RequiredArgsConstructor
 public class MessagesUtils {
 
-    @Value("${messages.locale:en}")
-    private String configuredLocale;
+    private final MessageSource messageSource;
+    private static MessageSource staticMessageSource;
 
-    private static ResourceBundle messageBundle;
-
-    @SuppressWarnings({"java:S2696"})
     @PostConstruct
     public void init() {
-        Locale locale;
-        if ("vi".equalsIgnoreCase(configuredLocale)) {
-            locale = Constants.LocaleConstant.LOCALE_VN;
-        } else {
-            locale = Constants.LocaleConstant.LOCALE_EN;
-        }
-        messageBundle = ResourceBundle.getBundle("messages.messages", locale);
+        staticMessageSource = messageSource;
     }
 
-    public static String getMessage(String messageKey, Object... args) {
-        String message;
+    public static String getMessage(String code, Object... args) {
         try {
-            message = messageBundle.getString(messageKey);
-        } catch (MissingResourceException ex) {
-            message = messageKey;
+            return staticMessageSource.getMessage(code, args, LocaleContextHolder.getLocale());
+        } catch (Exception e) {
+            return code;
         }
-        FormattingTuple formattingTuple = MessageFormatter.arrayFormat(message, args);
-        return formattingTuple.getMessage();
+    }
+
+    public static String getMessageDefault(String code, String defaultValue, Object... args) {
+        try {
+            return staticMessageSource.getMessage(code, args, defaultValue, LocaleContextHolder.getLocale());
+        } catch (Exception e) {
+            return defaultValue;
+        }
     }
 }

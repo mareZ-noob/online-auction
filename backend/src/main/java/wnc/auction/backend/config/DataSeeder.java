@@ -23,7 +23,7 @@ import wnc.auction.backend.repository.CategoryRepository;
 import wnc.auction.backend.repository.ProductRepository;
 import wnc.auction.backend.repository.UserRepository;
 
-@Component
+// @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DataSeeder implements CommandLineRunner {
@@ -53,6 +53,7 @@ public class DataSeeder implements CommandLineRunner {
                 .fullName("System Administrator")
                 .address("123 Admin St")
                 .role(UserRole.ADMIN)
+                .socialAccounts(new HashSet<>())
                 .emailVerified(true)
                 .isActive(true)
                 .positiveRatings(0)
