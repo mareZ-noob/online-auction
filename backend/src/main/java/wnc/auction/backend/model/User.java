@@ -51,7 +51,6 @@ public class User {
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    @Builder.Default
     private Set<SocialAccount> socialAccounts = new HashSet<>();
 
     @Column(nullable = false)

@@ -41,6 +41,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final AuctionSchedulerService auctionSchedulerService;
     private final WatchListRepository watchListRepository;
     private final BlockedBidderRepository blockedBidderRepository;
     private final BidRepository bidRepository;
@@ -89,6 +90,9 @@ public class ProductService {
                 .build();
 
         product = productRepository.save(product);
+
+        // Schedule the closing job
+        auctionSchedulerService.scheduleAuctionClose(product.getId(), product.getEndTime());
 
         log.info("Product created: {} by seller: {}", product.getId(), sellerId);
         return ProductMapper.toDto(product, sellerId);
@@ -270,6 +274,9 @@ public class ProductService {
 
         product.setEndTime(product.getEndTime().plusMinutes(minutes));
         productRepository.save(product);
+
+        // Reschedule Quartz Job
+        auctionSchedulerService.rescheduleAuctionClose(productId, product.getEndTime());
 
         log.info("Product {} extended by {} minutes", productId, minutes);
     }
