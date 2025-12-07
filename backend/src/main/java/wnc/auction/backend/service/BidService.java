@@ -2,9 +2,11 @@ package wnc.auction.backend.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,8 +44,16 @@ public class BidService {
     private final BlockedBidderRepository blockedBidderRepository;
     private final EmailService emailService;
     private final NotificationService notificationService;
+    private final AuctionSchedulerService auctionSchedulerService;
+
+    @Value("${app.auction.auto-extend-threshold-minutes:5}")
+    private int autoExtendThresholdMinutes;
+
+    @Value("${app.auction.auto-extend-duration-minutes:10}")
+    private int autoExtendDurationMinutes;
 
     public BidDto placeBid(PlaceBidRequest request) {
+        // Fetch User and Product
         Long bidderId = CurrentUser.getUserId();
         User bidder = userRepository
                 .findById(bidderId)
@@ -53,56 +63,185 @@ public class BidService {
                 .findById(request.getProductId())
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND));
 
-        // Validation
-        validateBid(bidder, product, request.getAmount());
+        // Validate (Updated to allow current winner to update Auto-Bid)
+        validateBid(bidder, product, request.getAmount(), request.getMaxAutoBidAmount());
 
-        // Check for auto-bid
+        // Determine Bid Amount
         boolean isAutoBid = request.getMaxAutoBidAmount() != null;
         BigDecimal bidAmount = request.getAmount();
 
-        if (isAutoBid) {
-            // Process auto-bid logic
-            bidAmount = processAutoBid(product, bidder, request.getAmount(), request.getMaxAutoBidAmount());
-        } else {
-            // Regular bid
-            BigDecimal minBid = product.getCurrentPrice().add(product.getStepPrice());
-            if (bidAmount.compareTo(minBid) < 0) {
-                throw new BadRequestException("Bid must be at least: " + minBid);
-            }
+        // Calculate Minimum Requirement
+        BigDecimal minBid = product.getCurrentPrice().add(product.getStepPrice());
+        if (product.getBidCount() == 0) {
+            minBid = product.getStartingPrice();
         }
 
-        // Get previous highest bidder
+        if (bidAmount.compareTo(minBid) < 0) {
+            throw new BadRequestException("Bid must be at least: " + minBid);
+        }
+
+        // Get previous highest bidder for notification
         User previousBidder = product.getCurrentBidder();
 
-        // Create bid
-        Bid bid = Bid.builder()
-                .product(product)
-                .user(bidder)
-                .amount(bidAmount)
-                .maxAutoBidAmount(request.getMaxAutoBidAmount())
-                .isAutoBid(isAutoBid)
-                .build();
+        // Save the Manual Bid
+        Bid bid = createAndSaveBid(product, bidder, bidAmount, request.getMaxAutoBidAmount(), isAutoBid);
 
-        bid = bidRepository.save(bid);
+        // Check Auto-Extend Logic (Quartz)
+        checkAndTriggerAutoExtend(product);
 
-        // Update product
-        product.setCurrentPrice(bidAmount);
-        product.setCurrentBidder(bidder);
-        product.setBidCount(product.getBidCount() + 1);
-        productRepository.save(product);
-
-        // Send notifications
+        // Send Notifications for the manual bid
+        // Ensure the manual bidder gets confirmation
         sendBidNotifications(product, bidder, previousBidder, bidAmount);
 
-        // Emit real-time event
-        notificationService.sendBidUpdate(product.getId(), bidAmount, bidder.getFullName());
+        // Trigger Reactive Auto-Bidding
+        // Check if any previous bidders have an auto-bid that beats this new bid
+        triggerReactiveAutoBid(product, bid);
 
         log.info("Bid placed: {} on product: {} by user: {}", bidAmount, product.getId(), bidderId);
 
         return BidMapper.toDto(bid);
     }
 
-    private void validateBid(User bidder, Product product, BigDecimal amount) {
+    private Bid createAndSaveBid(Product product, User bidder, BigDecimal amount, BigDecimal maxAuto, Boolean isAuto) {
+        Bid bid = Bid.builder()
+                .product(product)
+                .user(bidder)
+                .amount(amount)
+                .maxAutoBidAmount(maxAuto)
+                .isAutoBid(isAuto != null && isAuto)
+                .build();
+
+        bid = bidRepository.save(bid);
+
+        // Update product info
+        product.setCurrentPrice(amount);
+        product.setCurrentBidder(bidder);
+        product.setBidCount(product.getBidCount() + 1);
+        productRepository.save(product);
+
+        // Emit real-time event via Socket
+        notificationService.sendBidUpdate(product.getId(), amount, bidder.getFullName());
+
+        return bid;
+    }
+
+    private void triggerReactiveAutoBid(Product product, Bid incomingBid) {
+        // Fetch competitor list (all history with auto-bid enabled)
+        List<Bid> allCompetitorBids = bidRepository.findByProductAndUserNotAndIsAutoBidTrue(
+                product.getId(), incomingBid.getUser().getId());
+
+        if (allCompetitorBids.isEmpty()) return;
+
+        // Filter list: Keep only the LATEST Auto-Bid per user (Fix Zombie Bid issue)
+        java.util.Map<Long, Bid> uniqueCompetitors = new java.util.HashMap<>();
+        for (Bid b : allCompetitorBids) {
+            // Keep the bid with the latest creation date for each user
+            if (!uniqueCompetitors.containsKey(b.getUser().getId())
+                    || b.getCreatedAt()
+                            .isAfter(uniqueCompetitors.get(b.getUser().getId()).getCreatedAt())) {
+                uniqueCompetitors.put(b.getUser().getId(), b);
+            }
+        }
+
+        if (uniqueCompetitors.isEmpty()) return;
+
+        // Identify User A (Current bidder) and User B (Strongest current competitor)
+        User currentUser = incomingBid.getUser();
+        BigDecimal currentMax = incomingBid.getMaxAutoBidAmount(); // Can be null if it's a manual bid
+
+        // Find the competitor with the highest Max Auto Bid
+        Bid strongestCompetitorBid = uniqueCompetitors.values().stream()
+                .max(Comparator.comparing(Bid::getMaxAutoBidAmount))
+                .orElse(null);
+
+        if (strongestCompetitorBid == null) {
+            return;
+        }
+
+        User competitor = strongestCompetitorBid.getUser();
+        BigDecimal competitorMax = strongestCompetitorBid.getMaxAutoBidAmount();
+
+        // Compare to determine the final winner
+        // We compare: Max of current bidder vs Max of competitor
+
+        BigDecimal winnerMax;
+        BigDecimal loserMax;
+        User winner;
+
+        // If current bidder (A) has no auto-bid or their max is lower than B
+        if (currentMax == null || competitorMax.compareTo(currentMax) > 0) {
+            // --> Competitor (B) wins
+            winner = competitor;
+            winnerMax = competitorMax;
+            loserMax = (currentMax == null) ? incomingBid.getAmount() : currentMax;
+        } else {
+            // --> Current bidder (A) wins (since Max A >= Max B)
+            winner = currentUser;
+            winnerMax = currentMax;
+            loserMax = competitorMax;
+        }
+
+        // Calculate Final Price
+        // Winning price = Loser's Max + Step Price
+        BigDecimal finalPrice = loserMax.add(product.getStepPrice());
+
+        // Winning price cannot exceed Winner's Max
+        if (finalPrice.compareTo(winnerMax) > 0) {
+            finalPrice = winnerMax;
+        }
+
+        // Place Bid (One single jump)
+        // Check: Only place bid if the calculated final price > current product price
+        if (finalPrice.compareTo(product.getCurrentPrice()) > 0) {
+
+            // (Optional) Intermediate step: Place a bid for the loser at their Max
+            // (to make bid history look more logical).
+            // If absolute speed is priority, skip this and only create the winning bid.
+            if (loserMax.compareTo(product.getCurrentPrice()) > 0) {
+                createAndSaveBid(product, (winner == currentUser) ? competitor : currentUser, loserMax, loserMax, true);
+            }
+
+            log.info("Direct Auto-Bid: User {} wins against others with price {}", winner.getId(), finalPrice);
+
+            // Create the final winning bid
+            // Note: If winner is currentUser, we theoretically should update their existing bid or create new.
+            // Here we create a new one to simplify history logic.
+            createAndSaveBid(product, winner, finalPrice, winnerMax, true);
+
+            // Check Auto-Extend and Schedule
+            checkAndTriggerAutoExtend(product);
+
+            // Notify the loser (The one who was just outbid)
+            User loser = (winner.getId().equals(currentUser.getId())) ? competitor : currentUser;
+            emailService.sendOutbidNotification(loser.getId(), product.getName(), finalPrice.toString());
+        }
+    }
+
+    private void checkAndTriggerAutoExtend(Product product) {
+        if (Boolean.TRUE.equals(product.getAutoExtend())) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime currentEndTime = product.getEndTime();
+
+            // If within threshold (e.g., last 5 mins)
+            if (now.plusMinutes(autoExtendThresholdMinutes).isAfter(currentEndTime)) {
+
+                LocalDateTime newEndTime = currentEndTime.plusMinutes(autoExtendDurationMinutes);
+                product.setEndTime(newEndTime);
+                productRepository.save(product);
+
+                // Reschedule Quartz Job
+                auctionSchedulerService.rescheduleAuctionClose(product.getId(), newEndTime);
+
+                log.info("Auction auto-extended for product {}. New end time: {}", product.getId(), newEndTime);
+
+                // Broadcast system message
+                notificationService.broadcastSystemMessage("Auction for product '" + product.getName()
+                        + "' extended by " + autoExtendDurationMinutes + " minutes!");
+            }
+        }
+    }
+
+    private void validateBid(User bidder, Product product, BigDecimal amount, BigDecimal maxAutoBidAmount) {
         // Check if product is active
         if (product.getStatus() != ProductStatus.ACTIVE) {
             throw new BadRequestException("Product is not active");
@@ -130,51 +269,47 @@ public class BidService {
         // Check if bidder is current highest bidder
         if (product.getCurrentBidder() != null
                 && product.getCurrentBidder().getId().equals(bidder.getId())) {
+
+            // Allow update if they are setting a new Auto-Bid limit
+            if (maxAutoBidAmount != null) {
+                return;
+            }
+
             throw new BadRequestException("You are already the highest bidder");
         }
     }
 
     private BigDecimal processAutoBid(Product product, User bidder, BigDecimal amount, BigDecimal maxAmount) {
-        // Get current highest bid
         Pageable pageable = PageRequest.of(0, 2);
         List<Bid> topBids = bidRepository.findTop2BidsForProduct(product.getId(), pageable);
 
         if (topBids.isEmpty()) {
-            // First bid
             return amount;
         }
 
-        Bid highestBid = topBids.get(0);
+        Bid highestBid = topBids.getFirst();
 
-        // Check if current highest bid has auto-bid
         if (highestBid.getIsAutoBid() && highestBid.getMaxAutoBidAmount() != null) {
             BigDecimal theirMax = highestBid.getMaxAutoBidAmount();
             BigDecimal ourMax = maxAmount;
 
             if (ourMax.compareTo(theirMax) > 0) {
-                // We can outbid them
                 return theirMax.add(product.getStepPrice());
             } else if (ourMax.compareTo(theirMax) < 0) {
-                // They will outbid us
                 throw new BadRequestException("Your max bid is lower than current highest bidder's max bid");
             } else {
-                // Same max bid - first bidder wins
                 if (highestBid.getCreatedAt().isBefore(LocalDateTime.now())) {
                     throw new BadRequestException("Current bidder has same max bid and bid earlier");
                 }
             }
         }
-
-        // Calculate bid amount (just enough to win)
         return product.getCurrentPrice().add(product.getStepPrice());
     }
 
     private void sendBidNotifications(Product product, User newBidder, User previousBidder, BigDecimal amount) {
-        // Notify seller
         emailService.sendBidNotification(
                 product.getSeller().getId(), product.getName(), newBidder.getFullName(), amount.toString());
 
-        // Notify previous highest bidder (they were outbid)
         if (previousBidder != null) {
             emailService.sendOutbidNotification(previousBidder.getId(), product.getName(), amount.toString());
         }
@@ -183,7 +318,6 @@ public class BidService {
     public List<BidHistoryDto> getBidHistory(Long productId) {
         Pageable pageable = PageRequest.of(0, 100);
         Page<Bid> bids = bidRepository.findByProductOrderByCreatedAtDesc(productId, pageable);
-
         return bids.getContent().stream().map(BidMapper::toHistoryDto).toList();
     }
 
@@ -191,7 +325,6 @@ public class BidService {
         Long userId = CurrentUser.getUserId();
         Pageable pageable = PageRequest.of(page, size);
         Page<Bid> bidPage = bidRepository.findByUserOrderByCreatedAtDesc(userId, pageable);
-
         List<BidDto> content =
                 bidPage.getContent().stream().map(BidMapper::toDto).toList();
 
@@ -222,10 +355,8 @@ public class BidService {
 
         BlockedBidder blockedBidder =
                 BlockedBidder.builder().product(product).bidder(bidder).build();
-
         blockedBidderRepository.save(blockedBidder);
 
-        // If blocked bidder is current highest, reassign to second highest
         if (product.getCurrentBidder() != null
                 && product.getCurrentBidder().getId().equals(bidderId)) {
             reassignHighestBidder(product);

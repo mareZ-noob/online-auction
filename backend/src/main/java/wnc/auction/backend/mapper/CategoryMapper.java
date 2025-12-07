@@ -15,16 +15,14 @@ public class CategoryMapper {
 
         // Key: category.data.{Name in DB}: category.data.Electronics
         String translatedName = MessagesUtils.getMessageDefault(
-                "category.data." + category.getName().replaceAll("\\s+", ""),
-                category.getName() // Default value
-        );
+                "category.data." + category.getName().replaceAll("\\s+", ""), category.getName() // Default value
+                );
 
         String parentName = null;
         if (category.getParent() != null) {
-             parentName = MessagesUtils.getMessageDefault(
-                "category.data." + category.getParent().getName().replaceAll("\\s+", ""),
-                category.getParent().getName()
-            );
+            parentName = MessagesUtils.getMessageDefault(
+                    "category.data." + category.getParent().getName().replaceAll("\\s+", ""),
+                    category.getParent().getName());
         }
 
         return CategoryDto.builder()

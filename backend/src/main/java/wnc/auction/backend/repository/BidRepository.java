@@ -30,4 +30,8 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     // Get second highest bid
     @Query("SELECT b FROM Bid b WHERE b.product.id = :productId " + "ORDER BY b.amount DESC, b.createdAt ASC")
     List<Bid> findTop2BidsForProduct(@Param("productId") Long productId, Pageable pageable);
+
+    // Find people enabled Auto-bid
+    @Query("SELECT b FROM Bid b WHERE b.product.id = :productId AND b.user.id <> :userId AND b.isAutoBid = true")
+    List<Bid> findByProductAndUserNotAndIsAutoBidTrue(@Param("productId") Long productId, @Param("userId") Long userId);
 }

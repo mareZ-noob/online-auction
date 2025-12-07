@@ -53,6 +53,7 @@ services:
       - online-auction
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./quartz/quartz-schema.sql:/docker-entrypoint-initdb.d/quartz-schema.sql
 
   mailhog:
     image: mailhog/mailhog:latest
