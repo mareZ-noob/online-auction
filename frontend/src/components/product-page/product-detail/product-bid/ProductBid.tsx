@@ -19,6 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@radix-ui/react-label";
 import NumberInput from "./NumberInput";
 import { usePlaceABid } from "@/hooks/bid-hooks";
+import { toastError, toastSuccess } from "@/components/toast/toast-ui";
 
 type ProductBidProps = {
   productId: number;
@@ -29,13 +30,14 @@ type ProductBidProps = {
 function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
   const validBidPriceRange = useMemo(() => {
     const start = currentPrice + stepPrice;
-    return Array.from({ length: 11 }, (_, i) => start + i * stepPrice);
+    return Array.from({ length: 10 }, (_, i) => start + (i + 1) * stepPrice);
   }, [currentPrice, stepPrice]);
 
   const [selectedBidPrice, setSelectedBidPrice] = useState(
     validBidPriceRange[0]
   );
   const [autoBidPrice, setAutoBidPrice] = useState<number | null>(null);
+  const [maxAutoBidPrice, setMaxAutoBidPrice] = useState<number | null>(null);
 
   const [isCheckedAutoBid, setIsCheckedAutoBid] = useState(false);
 
@@ -50,19 +52,39 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
   };
 
   const handleSubmitBid = () => {
-    mutate({
-      productId: productId,
-      amount: selectedBidPrice,
-      maxAutoBidAmount: autoBidPrice || 0,
-    });
+    mutate(
+      {
+        productId: productId,
+        amount: selectedBidPrice,
+        maxAutoBidAmount: null,
+      },
+      {
+        onSuccess: (result) => {
+          toastSuccess(result.message);
+        },
+        onError: (error) => {
+          toastError(error);
+        },
+      }
+    );
   };
 
   const handleSubmitAutoBid = () => {
-    mutate({
-      productId: productId,
-      amount: 0,
-      maxAutoBidAmount: autoBidPrice || 0,
-    });
+    mutate(
+      {
+        productId: productId,
+        amount: autoBidPrice || 0,
+        maxAutoBidAmount: maxAutoBidPrice || 0,
+      },
+      {
+        onSuccess: (result) => {
+          toastSuccess(result.message);
+        },
+        onError: (error) => {
+          toastError(error);
+        },
+      }
+    );
   };
 
   return (
@@ -116,13 +138,22 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="flex items-end justify-between px-1">
+            <div className="flex flex-col items-end justify-between px-1">
               <NumberInput
+                label={`Enter max auto-bid price (must be > ${validBidPriceRange[0]})`}
+                placeholder={`e.g., ${validBidPriceRange[0] + 1}`}
                 validBid={validBidPriceRange[0]}
                 onValidBid={setAutoBidPrice}
               />
+              <NumberInput
+                className="mt-4"
+                label="Enter your maximum budget"
+                placeholder={`e.g., ${validBidPriceRange[0] + 1}`}
+                validBid={validBidPriceRange[0]}
+                onValidBid={setMaxAutoBidPrice}
+              />
               <Button
-                className="ml-4"
+                className="ml-4 mt-4"
                 disabled={!isCheckedAutoBid}
                 onClick={handleSubmitAutoBid}
               >

@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   useAddAProductToWatchList,
   useCheckAProductInWatchList,
@@ -5,8 +7,6 @@ import {
 } from "@/hooks/watch-list-hooks";
 import { Button } from "@/components/ui/button.tsx";
 import type { CardItemInformation } from "@/types/CardItem";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 
 function ProductItemCard({
   data,
@@ -49,7 +49,7 @@ function ProductItemCard({
   }, [isAddedToWatchList.data]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-sm">
       <div
         className="bg-muted relative block"
         style={{ height: `${height}px` }}
@@ -57,13 +57,13 @@ function ProductItemCard({
         <img
           src={data.productImage}
           alt="Image"
-          className="absolute inset-0 object-cover dark:brightness-[0.2] dark:grayscale"
+          className="absolute top-[50%] left-[50%] inset-0 object-cover translate-x-[-50%] translate-y-[-50%] dark:brightness-[0.2] dark:grayscale"
           style={{ height: `${height}px` }}
         />
       </div>
 
       <div className="flex flex-col justify-end text-left max-w-full mt-4">
-        <p className="text-2xl mb-4">{data.productName}</p>
+        <p className="text-2xl mb-4 min-h-16">{data.productName}</p>
         <div className="flex mb-4 justify-between">
           <p>Current Price: {data.currentPrice}</p>
           <p>Buy Now: {data.buyNowPrice}</p>

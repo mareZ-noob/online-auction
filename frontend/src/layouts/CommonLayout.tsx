@@ -82,10 +82,6 @@ function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
             Profile
           </DropdownMenuItem>
           <DropdownMenuItem className="flex items-center">
-            <WalletCards className="text-black" />
-            Billing
-          </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center">
             <Moon className="text-black" />
             Dark Mode
           </DropdownMenuItem>
@@ -190,6 +186,9 @@ function Category() {
 
   const { data: categories } = useFetchCategories();
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
+  const [activeSubCategory, setActiveSubCategory] = useState<number | null>(
+    null
+  );
   const cats = categories ?? [];
 
   const handleCategoryClick = (id: number) => {
@@ -198,6 +197,7 @@ function Category() {
 
   const handleResetCategory = () => {
     setActiveCategory(null);
+    setActiveSubCategory(null);
   };
 
   const handleSubCategoryClick = (
@@ -206,6 +206,7 @@ function Category() {
     subCategoryName: string,
     subCategoryId: number
   ) => {
+    setActiveSubCategory(subCategoryId);
     navigate(
       `/products?category=${categoryName}&subCategory=${subCategoryName}`,
       {
@@ -226,7 +227,7 @@ function Category() {
           {cats.map((cat) => (
             <button
               key={cat.id}
-              onMouseEnter={() => handleCategoryClick(cat.id)}
+              onClick={() => handleCategoryClick(cat.id)}
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary hover:cursor-pointer",
                 activeCategory === cat.id
@@ -242,15 +243,20 @@ function Category() {
 
       {activeCategory && (
         <div
-          className="absolute left-0 top-full w-full bg-white px-16 py-4 border-b border-[#ddd] flex gap-10 z-50"
-          onMouseEnter={() => setActiveCategory(activeCategory)}
-          onMouseLeave={handleResetCategory}
+          className="absolute left-0 top-full w-full bg-white px-16 py-4 border-b border-[#ddd] flex gap-10 z-1"
+          onClick={() => setActiveCategory(activeCategory)}
+          onBlur={handleResetCategory}
         >
           {activeData &&
             activeData?.children.map((subCategory) => (
               <p
                 key={subCategory.id}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer"
+                className={cn(
+                  "text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer",
+                  activeSubCategory === subCategory.id
+                    ? "text-black"
+                    : "text-muted-foreground"
+                )}
                 onClick={() =>
                   handleSubCategoryClick(
                     activeData.name,

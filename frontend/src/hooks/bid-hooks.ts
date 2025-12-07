@@ -28,15 +28,15 @@ export const usePlaceABid = () => {
     Error,
     {
       productId: number;
-      amount: number;
-      maxAutoBidAmount: number;
+      amount: number | null;
+      maxAutoBidAmount: number | null;
     }
   >({
     mutationKey: ["placeABid"],
     mutationFn: async (credentials: {
       productId: number;
-      amount: number;
-      maxAutoBidAmount: number;
+      amount: number | null;
+      maxAutoBidAmount: number | null;
     }) => {
       const response = await apiClient.post<PLACE_A_BID_RESPONSE>(
         API_ENDPOINTS.PLACE_A_BID,
