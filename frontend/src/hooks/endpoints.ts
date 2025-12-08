@@ -31,6 +31,8 @@ export const API_ENDPOINTS = {
   USER_BY_ID: (id: string | number) => `/user/${id}`,
   UPDATE_USER_PROFILE: "/user/profile",
   UPDATE_USER_PASSWORD: "/user/change-password",
+  USER_RATINGS: (userId: string | number, page: number, size: number) =>
+    `/user/${userId}/ratings?page=${page}&size=${size}`,
 
   // Watch List
   ADD_A_PRODUCT_TO_WATCHLIST: (productId: string | number) =>
@@ -50,6 +52,8 @@ export const API_ENDPOINTS = {
   // Bidder
   GET_MY_BID_HISTORY: "/bidder/bids",
   GET_MY_PURCHASES: "/bidder/purchases",
-  GET_PRODUCTS_WON: "/bidder/products/won",
-  GET_CURRENT_BIDS: "/bidder/products/bidding",
+  GET_PRODUCTS_WON: (page: number, size: number) =>
+    `/bidder/products/won?page=${page}&size=${size}`,
+  GET_CURRENT_BIDS: (page: number, size: number) =>
+    `/bidder/products/bidding?page=${page}&size=${size}`,
 };

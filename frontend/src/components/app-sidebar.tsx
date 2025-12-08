@@ -1,5 +1,6 @@
 import * as React from "react";
-import { User, Star, PackageOpen, Box, Mail } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { User, PackageOpen, Box, Mail } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import {
@@ -14,29 +15,23 @@ import {
 } from "@/components/ui/sidebar";
 import { useFetchUser } from "@/hooks/user-hooks";
 import { useUserStore } from "@/store/user-store";
-import { useNavigate } from "react-router-dom";
 
 const data = {
   navMain: [
     {
       title: "Personal Infomation",
-      url: "personal-information",
+      url: "/profile/personal-information",
       icon: User,
       isActive: true,
     },
     {
-      title: "Ratings & Reviews",
-      url: "ratings",
-      icon: Star,
-    },
-    {
       title: "Bidding Products",
-      url: "bidding-products",
+      url: "/profile/bidding-products",
       icon: PackageOpen,
     },
     {
       title: "Won Products",
-      url: "won-products",
+      url: "/profile/won-products",
       icon: Box,
     },
   ],

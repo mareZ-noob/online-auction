@@ -4,10 +4,12 @@ import type {
   CHANGE_PASSWORD_RESPONSE,
   UPDATE_USER_PROFILE_RESPONSE,
   USER_BY_ID_RESPONSE,
+  USER_RATINGS_RESPONSE,
 } from "@/types/User";
 import { API_ENDPOINTS } from "./endpoints";
 import { queryClient } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
+import type { PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE } from "@/types/Product";
 
 export const useFetchUser = (id: number) => {
   return useQuery<USER_BY_ID_RESPONSE["data"]>({
@@ -68,6 +70,53 @@ export const useChangePassword = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user", id] });
+    },
+  });
+};
+
+export const useFetchUserRatings = (page: number = 0, size: number = 20) => {
+  const userId = useUserStore((state) => state.id ?? 0);
+
+  return useQuery<USER_RATINGS_RESPONSE["data"]>({
+    queryKey: ["user-ratings", userId, page, size],
+    queryFn: async () => {
+      const { data } = await apiClient.get<USER_RATINGS_RESPONSE>(
+        API_ENDPOINTS.USER_RATINGS(userId, page, size)
+      );
+      return data.data;
+    },
+  });
+};
+
+export const useFetchBiddingProducts = (
+  page: number = 0,
+  size: number = 20
+) => {
+  const userId = useUserStore((state) => state.id ?? 0);
+
+  return useQuery<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE["data"]>({
+    queryKey: ["user-bidding-products", userId, page, size],
+    queryFn: async () => {
+      const { data } =
+        await apiClient.get<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE>(
+          API_ENDPOINTS.GET_CURRENT_BIDS(page, size)
+        );
+      return data.data;
+    },
+  });
+};
+
+export const useFetchWonProducts = (page: number = 0, size: number = 20) => {
+  const userId = useUserStore((state) => state.id ?? 0);
+
+  return useQuery<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE["data"]>({
+    queryKey: ["user-won-products", userId, page, size],
+    queryFn: async () => {
+      const { data } =
+        await apiClient.get<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE>(
+          API_ENDPOINTS.GET_PRODUCTS_WON(page, size)
+        );
+      return data.data;
     },
   });
 };

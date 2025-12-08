@@ -17,7 +17,12 @@ function ProfilePage({
   const [tabName, setTabName] = useState("Personal Infomation");
 
   return (
-    <ProfileContext.Provider value={{ tabName, setTabName }}>
+    <ProfileContext.Provider
+      value={{
+        tabName,
+        setTabName,
+      }}
+    >
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>

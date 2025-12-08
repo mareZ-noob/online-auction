@@ -24,6 +24,7 @@ export type PRODUCTS_BY_SUB_CATEGORY_ID = {
   currentPrice: number;
   buyNowPrice: number;
   thumbnailImage: string;
+  currentBidderName: string;
   endTime: string;
   timeRemaining: string;
   bidCount: number;

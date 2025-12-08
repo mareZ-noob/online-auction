@@ -17,7 +17,7 @@ export function CardItemInformationMapper(
     currentPrice: data.currentPrice,
     buyNowPrice: data.buyNowPrice,
     productImage: data.thumbnailImage,
-    bidderName: "",
+    bidderName: data.currentBidderName,
     bidderPrice: 0,
     publishedDate: data.createdAt,
     remainingTime: data.timeRemaining,

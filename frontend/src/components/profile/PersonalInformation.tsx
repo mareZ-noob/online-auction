@@ -20,6 +20,7 @@ import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toastError, toastSuccess } from "../toast/toast-ui";
+import Ratings from "./Ratings";
 
 const emailSchema = z
   .string()
@@ -277,6 +278,7 @@ function PersonalInformation() {
           </CardContent>
         </Card>
       </div>
+      <Ratings />
     </ProfilePage>
   );
 }

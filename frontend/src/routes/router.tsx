@@ -28,6 +28,10 @@ const WatchListPage = lazy(
 const PersonalInformation = lazy(
   () => import("@/components/profile/PersonalInformation.tsx")
 );
+const BiddingProducts = lazy(
+  () => import("@/components/profile/BiddingProducts.tsx")
+);
+const WonProducts = lazy(() => import("@/components/profile/WonProducts.tsx"));
 const CommonLayout = lazy(() => import("@/layouts/CommonLayout"));
 const OAuth2RedirectHandler = lazy(
   () => import("@/components/auth-page/OAuth2RedirectHandler")
@@ -71,6 +75,22 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingPage />}>
             <PersonalInformation />
+          </Suspense>
+        ),
+      },
+      {
+        path: "bidding-products",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <BiddingProducts />
+          </Suspense>
+        ),
+      },
+      {
+        path: "won-products",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <WonProducts />
           </Suspense>
         ),
       },

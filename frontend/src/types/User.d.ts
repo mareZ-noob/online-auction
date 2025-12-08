@@ -1,4 +1,4 @@
-import type { ApiResponse } from "./ApiResponse";
+import type { ApiResponse, Pagination } from "./ApiResponse";
 
 export type USER_BY_ID = {
   id: number;
@@ -36,3 +36,18 @@ export type UPDATE_USER_PROFILE = {
 export type UPDATE_USER_PROFILE_RESPONSE = ApiResponse<UPDATE_USER_PROFILE>;
 
 export type CHANGE_PASSWORD_RESPONSE = ApiResponse<string>;
+
+export type USER_RATINGS = {
+  id: number;
+  userId: number;
+  userName: string;
+  ratedById: number;
+  ratedByName: string;
+  productId: number;
+  productName: string;
+  isPositive: boolean;
+  comment: string;
+  createdAt: string;
+};
+
+export type USER_RATINGS_RESPONSE = ApiResponse<Pagination<USER_RATINGS>>;
