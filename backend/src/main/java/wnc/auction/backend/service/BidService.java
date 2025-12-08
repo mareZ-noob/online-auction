@@ -386,4 +386,24 @@ public class BidService {
             productRepository.save(product);
         }
     }
+
+    public PageResponse<BidHistoryDto> getBidRanking(Long productId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Bid> bidPage = bidRepository.findByProductOrderByAmountDesc(productId, pageable);
+
+        // Page<Bid> bidPage = bidRepository.findBidRankingByProduct(productId, pageable);
+
+        List<BidHistoryDto> content =
+                bidPage.getContent().stream().map(BidMapper::toHistoryDto).toList();
+
+        return PageResponse.<BidHistoryDto>builder()
+                .content(content)
+                .page(bidPage.getNumber())
+                .size(bidPage.getSize())
+                .totalElements(bidPage.getTotalElements())
+                .totalPages(bidPage.getTotalPages())
+                .last(bidPage.isLast())
+                .build();
+    }
 }

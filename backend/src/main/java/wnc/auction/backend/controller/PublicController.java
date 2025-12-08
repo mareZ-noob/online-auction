@@ -9,13 +9,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wnc.auction.backend.dto.model.CategoryDto;
-import wnc.auction.backend.dto.model.ProductDto;
-import wnc.auction.backend.dto.model.ProductListDto;
-import wnc.auction.backend.dto.model.QuestionDto;
+import wnc.auction.backend.dto.model.*;
 import wnc.auction.backend.dto.request.SearchRequest;
 import wnc.auction.backend.dto.response.ApiResponse;
 import wnc.auction.backend.dto.response.PageResponse;
+import wnc.auction.backend.service.BidService;
 import wnc.auction.backend.service.CategoryService;
 import wnc.auction.backend.service.ProductService;
 import wnc.auction.backend.service.QuestionService;
@@ -29,6 +27,7 @@ public class PublicController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final QuestionService questionService;
+    private final BidService bidService;
 
     @GetMapping("/products/top/ending-soon")
     @Operation(summary = "Get top 5 products ending soon")
@@ -69,10 +68,14 @@ public class PublicController {
     }
 
     @GetMapping("/products/{id}/comments")
-    @Operation(summary = "Get comments (questions) for a product")
-    public ResponseEntity<ApiResponse<List<QuestionDto>>> getProductComments(
-            @Parameter(description = "Product ID", example = "1") @PathVariable Long id) {
-        List<QuestionDto> comments = questionService.getProductQuestions(id);
+    @Operation(summary = "Get comments (questions) for a product with pagination")
+    public ResponseEntity<ApiResponse<PageResponse<QuestionDto>>> getProductComments(
+            @Parameter(description = "Product ID", example = "1") @PathVariable Long id,
+            @Parameter(description = "Page number", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size", example = "20") @RequestParam(defaultValue = "20") int size) {
+
+        PageResponse<QuestionDto> comments = questionService.getProductQuestions(id, page, size);
+
         return ResponseEntity.ok(ApiResponse.success(comments));
     }
 
@@ -142,5 +145,16 @@ public class PublicController {
             @Parameter(description = "Parent Category ID", example = "1") @PathVariable Long id) {
         List<CategoryDto> categories = categoryService.getSubCategories(id);
         return ResponseEntity.ok(ApiResponse.success(categories));
+    }
+
+    @GetMapping("/products/{id}/bid-ranking")
+    @Operation(summary = "Get paginated bid ranking for a product")
+    public ResponseEntity<ApiResponse<PageResponse<BidHistoryDto>>> getBidRanking(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PageResponse<BidHistoryDto> ranking = bidService.getBidRanking(id, page, size);
+        return ResponseEntity.ok(ApiResponse.success(ranking));
     }
 }

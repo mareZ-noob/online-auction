@@ -15,6 +15,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query("SELECT q FROM Question q WHERE q.product.id = :productId " + "ORDER BY q.createdAt DESC")
     List<Question> findByProductId(@Param("productId") Long productId);
 
+    Page<Question> findByProductId(Long productId, Pageable pageable);
+
     @Query("SELECT q FROM Question q WHERE q.user.id = :userId " + "ORDER BY q.createdAt DESC")
     Page<Question> findByUserId(@Param("userId") Long userId, Pageable pageable);
 

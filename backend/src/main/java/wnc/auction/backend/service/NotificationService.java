@@ -9,12 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import wnc.auction.backend.dto.model.BidHistoryDto;
+import wnc.auction.backend.mapper.BidMapper;
+import wnc.auction.backend.model.Bid;
+import wnc.auction.backend.repository.BidRepository;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class NotificationService {
 
     // Store SSE emitters by user ID
@@ -23,9 +30,9 @@ public class NotificationService {
     // Store SSE emitters by product ID for real-time bid updates
     private final Map<Long, List<SseEmitter>> productEmitters = new ConcurrentHashMap<>();
 
-    /**
-     * Create SSE connection for user notifications
-     */
+    private final BidRepository bidRepository;
+
+    // Create SSE connection for user notifications
     public SseEmitter createUserConnection(Long userId) {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
 
@@ -46,9 +53,7 @@ public class NotificationService {
         return emitter;
     }
 
-    /**
-     * Create SSE connection for product bid updates
-     */
+    // Create SSE connection for product bid updates
     public SseEmitter createProductConnection(Long productId) {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
 
@@ -71,9 +76,7 @@ public class NotificationService {
         return emitter;
     }
 
-    /**
-     * Send bid update to all clients watching a product
-     */
+    // Send bid update to all clients watching a product
     public void sendBidUpdate(Long productId, BigDecimal amount, String bidderName) {
         List<SseEmitter> emitters = productEmitters.get(productId);
         if (emitters == null || emitters.isEmpty()) {
@@ -86,11 +89,26 @@ public class NotificationService {
         data.put("bidderName", maskUserName(bidderName));
         data.put("timestamp", LocalDateTime.now().toString());
 
+        // Fetch top 10 Leaderboard
+        List<Bid> topBids = bidRepository.findHighestBidForProduct(productId, PageRequest.of(0, 10));
+
+        // Page<Bid> topBidsPage = bidRepository.findBidRankingByProduct(productId, PageRequest.of(0, 10));
+
+        // Map to DTO
+        List<BidHistoryDto> leaderboard =
+                topBids.stream().map(BidMapper::toHistoryDto).toList();
+
+        // Prepare payload containing both latest bid and the new leaderboard
+        Map<String, Object> eventData = new HashMap<>();
+        eventData.put("latestBid", data);
+        eventData.put("leaderboard", leaderboard);
+
         List<SseEmitter> deadEmitters = new ArrayList<>();
 
         for (SseEmitter emitter : emitters) {
             try {
-                emitter.send(SseEmitter.event().name("bid_update").data(data));
+                // Send event named 'leaderboard_update'
+                emitter.send(SseEmitter.event().name("leaderboard_update").data(eventData));
             } catch (IOException e) {
                 deadEmitters.add(emitter);
             }
@@ -102,9 +120,7 @@ public class NotificationService {
         log.info("Sent bid update for product {} to {} clients", productId, emitters.size());
     }
 
-    /**
-     * Send notification to user
-     */
+    // Send notification to user
     public void sendUserNotification(Long userId, String type, Object data) {
         List<SseEmitter> emitters = userEmitters.get(userId);
         if (emitters == null || emitters.isEmpty()) {
@@ -127,18 +143,14 @@ public class NotificationService {
         log.info("Sent {} notification to user {} ({} clients)", type, userId, emitters.size());
     }
 
-    /**
-     * Send notification to multiple users
-     */
+    // Send notification to multiple users
     public void sendBulkNotification(List<Long> userIds, String type, Object data) {
         for (Long userId : userIds) {
             sendUserNotification(userId, type, data);
         }
     }
 
-    /**
-     * Notify user they were outbid
-     */
+    // Notify user they were outbid
     public void notifyOutbid(Long userId, Long productId, String productName, BigDecimal newAmount) {
         Map<String, Object> data = new HashMap<>();
         data.put("productId", productId);
@@ -149,9 +161,7 @@ public class NotificationService {
         sendUserNotification(userId, "outbid", data);
     }
 
-    /**
-     * Notify seller of new bid
-     */
+    // Notify seller of new bid
     public void notifyNewBid(Long sellerId, Long productId, String productName, BigDecimal amount, String bidderName) {
         Map<String, Object> data = new HashMap<>();
         data.put("productId", productId);
@@ -163,9 +173,7 @@ public class NotificationService {
         sendUserNotification(sellerId, "new_bid", data);
     }
 
-    /**
-     * Notify auction ended
-     */
+    // Notify auction ended
     public void notifyAuctionEnded(
             Long userId, Long productId, String productName, boolean isWinner, BigDecimal finalAmount) {
         Map<String, Object> data = new HashMap<>();
@@ -178,9 +186,7 @@ public class NotificationService {
         sendUserNotification(userId, "auction_ended", data);
     }
 
-    /**
-     * Notify new question
-     */
+    // Notify new question
     public void notifyNewQuestion(
             Long sellerId, Long productId, String productName, String question, String askerName) {
         Map<String, Object> data = new HashMap<>();
@@ -193,9 +199,7 @@ public class NotificationService {
         sendUserNotification(sellerId, "new_question", data);
     }
 
-    /**
-     * Notify question answered
-     */
+    // Notify question answered
     public void notifyQuestionAnswered(Long userId, Long productId, String productName, String answer) {
         Map<String, Object> data = new HashMap<>();
         data.put("productId", productId);
@@ -206,9 +210,7 @@ public class NotificationService {
         sendUserNotification(userId, "question_answered", data);
     }
 
-    /**
-     * Broadcast system message to all connected users
-     */
+    // Broadcast system message to all connected users
     public void broadcastSystemMessage(String message) {
         Map<String, Object> data = new HashMap<>();
         data.put("message", message);
@@ -252,9 +254,7 @@ public class NotificationService {
         return "****" + lastName;
     }
 
-    /**
-     * Get statistics about active connections
-     */
+    // Get statistics about active connections
     public Map<String, Integer> getConnectionStats() {
         int userConnections =
                 userEmitters.values().stream().mapToInt(List::size).sum();

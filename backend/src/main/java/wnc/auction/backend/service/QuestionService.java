@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wnc.auction.backend.dto.model.QuestionDto;
@@ -98,6 +99,28 @@ public class QuestionService {
         List<Question> questions = questionRepository.findByProductId(productId);
 
         return questions.stream().map(QuestionMapper::toDto).toList();
+    }
+
+    public PageResponse<QuestionDto> getProductQuestions(Long productId, int page, int size) {
+        // Create Pageable with default sorting by createdAt descending
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        // Fetch paginated data
+        Page<Question> questionPage = questionRepository.findByProductId(productId, pageable);
+
+        // Map content to DTOs
+        List<QuestionDto> content =
+                questionPage.getContent().stream().map(QuestionMapper::toDto).toList();
+
+        // Build PageResponse
+        return PageResponse.<QuestionDto>builder()
+                .content(content)
+                .page(questionPage.getNumber())
+                .size(questionPage.getSize())
+                .totalElements(questionPage.getTotalElements())
+                .totalPages(questionPage.getTotalPages())
+                .last(questionPage.isLast())
+                .build();
     }
 
     public PageResponse<QuestionDto> getMyQuestions(int page, int size) {
