@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import {
   useChangePassword,
   useChangeProfile,
+  useFetchRequestsToBecomeSeller,
   useFetchUser,
+  useUpgradeToSeller,
 } from "@/hooks/user-hooks";
 import { useUserStore } from "@/store/user-store";
 import ProfilePage from "./ProfilePage";
@@ -22,30 +24,35 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toastError, toastSuccess } from "../toast/toast-ui";
 import Ratings from "./Ratings";
 
-const emailSchema = z
+const email_schema = z
   .string()
   .optional()
   .refine((value) => !value || z.email().safeParse(value).success, {
     message: "Invalid email address",
   });
 
-const passwordSchema = z
+const password_schema = z
   .string()
   .optional()
   .refine((value) => !value || value.length >= 8, {
     message: "Password must be at least 8 characters",
   });
 
+const upgrade_to_seller_schema = z.object({
+  reason: z.string().min(10, "Reason must be at least 10 characters"),
+});
+
 const personal_information_schema = z.object({
   fullName: z.string().optional(),
   address: z.string().optional(),
   dateOfBirth: z.string().optional(),
-  email: emailSchema,
-  oldPassword: passwordSchema,
-  newPassword: passwordSchema,
+  email: email_schema,
+  oldPassword: password_schema,
+  newPassword: password_schema,
 });
 
 type PersonalInformationFormData = z.infer<typeof personal_information_schema>;
+type UpgradeToSellerFormData = z.infer<typeof upgrade_to_seller_schema>;
 
 function PersonalInformation() {
   const [isEditMode, setIsEditMode] = useState(false);
@@ -67,6 +74,18 @@ function PersonalInformation() {
       dateOfBirth: "",
       oldPassword: "",
       newPassword: "",
+    },
+  });
+
+  const {
+    register: registerUpgradeToSeller,
+    handleSubmit: handleSubmitUpgradeToSeller,
+    reset: resetUpgradeToSeller,
+    formState: { errors: errorsUpgradeToSeller },
+  } = useForm<UpgradeToSellerFormData>({
+    resolver: zodResolver(upgrade_to_seller_schema),
+    defaultValues: {
+      reason: "",
     },
   });
 
@@ -139,6 +158,37 @@ function PersonalInformation() {
       );
     }
   };
+
+  const [upgradeTpSellerStatus, setUpgradeToSellerStatus] =
+    useState<boolean>(false);
+  const { data: requestsToBecomeSeller } = useFetchRequestsToBecomeSeller();
+  const { mutate: upgradeToSeller } = useUpgradeToSeller();
+
+  const onSubmitUpgradeToSeller = (data: UpgradeToSellerFormData) => {
+    upgradeToSeller(
+      {
+        reason: data.reason,
+      },
+      {
+        onSuccess: (result) => {
+          resetUpgradeToSeller();
+          toastSuccess(result.message);
+        },
+        onError: (error) => {
+          toastError(error);
+        },
+      }
+    );
+  };
+
+  useEffect(() => {
+    if (requestsToBecomeSeller && data) {
+      const existingRequest = requestsToBecomeSeller.find(
+        (request) => request.userId === data.id
+      );
+      setUpgradeToSellerStatus(!!existingRequest);
+    }
+  }, [requestsToBecomeSeller, data]);
 
   return (
     <ProfilePage className="flex flex-col gap-12 ">
@@ -249,9 +299,22 @@ function PersonalInformation() {
             </form>
           </CardContent>
         </Card>
-        <Card className="w-1/3">
+        <Card className="w-1/2">
           <CardHeader>
-            <CardTitle>Seller Upgrade</CardTitle>
+            <CardTitle>
+              <div className="flex items-center">
+                <p>Seller Upgrade</p>
+                {upgradeTpSellerStatus ? (
+                  <p className="ml-2 px-2 py-1 bg-black text-white rounded-sm font-normal text-sm">
+                    Pending
+                  </p>
+                ) : (
+                  <p className="ml-2 px-2 py-1 bg-black text-white rounded-sm font-normal text-sm">
+                    None
+                  </p>
+                )}
+              </div>
+            </CardTitle>
             <CardDescription>
               Become a seller to start auctioning your products. And the
               Administrator will review your request soon.
@@ -259,22 +322,39 @@ function PersonalInformation() {
           </CardHeader>
           <CardContent className="h-full relative">
             <div className="border border-gray-100 mb-4" />
-            <div className="flex items-center gap-2 mb-2">
-              <p className="text-md">Positive Ratings:</p>
-              <p className="text-md px-3 py-1 rounded-sm bg-black text-white">
-                {data?.positiveRatings}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <p className="text-md">Negative Ratings:</p>
-              <p className="text-md px-3 py-1 rounded-sm bg-black text-white">
-                {data?.negativeRatings}
-              </p>
+            <div className="flex flex-row gap-8 items-center">
+              <div className="flex items-center gap-2">
+                <p className="text-sm whitespace-nowrap">Positive Ratings:</p>
+                <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
+                  {data?.positiveRatings}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm whitespace-nowrap">Negative Ratings:</p>
+                <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
+                  {data?.negativeRatings}
+                </p>
+              </div>
             </div>
             <div className="border border-gray-100 mt-4" />
-            <Button className="absolute bottom-0 right-4">
-              Request to be a Seller
-            </Button>
+            <form
+              onSubmit={handleSubmitUpgradeToSeller(onSubmitUpgradeToSeller)}
+            >
+              <div className="flex flex-col gap-2 mt-4">
+                <Label className="text-sm font-medium leading-none mb-1">
+                  Your Reason
+                </Label>
+                <Input {...registerUpgradeToSeller("reason")} />
+                {errorsUpgradeToSeller.reason && (
+                  <p className="text-destructive text-xs">
+                    {errorsUpgradeToSeller.reason.message}
+                  </p>
+                )}
+              </div>
+              <Button className="absolute bottom-0 right-4" type="submit">
+                Request to be a Seller
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>

@@ -1,6 +1,7 @@
+import { AxiosError } from "axios";
 import { toast } from "sonner";
 
-type ToastData = {
+export type ToastData = {
   message: string;
   response?: { data: { message: string } };
 };
@@ -9,15 +10,19 @@ export function toastSuccess(message: string) {
   toast.success(message);
 }
 
-export function toastError(error: ToastData | Error) {
-  if (error instanceof Error) {
-    const message = error.message || "Something went wrong";
+export function toastError(error: unknown) {
+  if (error instanceof AxiosError) {
+    const message =
+      error.response?.data?.message || error.message || "Something went wrong";
+
     toast.error(message);
     return;
   }
 
-  const message =
-    error?.response?.data?.message || error?.message || "Something went wrong";
+  if (error instanceof Error) {
+    toast.error(error.message || "Something went wrong");
+    return;
+  }
 
-  toast.error(message);
+  toast.error("Something went wrong");
 }

@@ -13,3 +13,9 @@ export type Pagination<T> = {
   totalPages: number;
   last: boolean;
 };
+
+export type ApiResponseError = {
+  success: false;
+  message: string;
+  timestamp: string;
+};

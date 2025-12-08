@@ -52,6 +52,32 @@ export type USER_RATINGS = {
 
 export type USER_RATINGS_RESPONSE = ApiResponse<Pagination<USER_RATINGS>>;
 
+// Upgrade to seller
+
+export type USER_UPGRADE_TO_SELLER_PAYLOAD = {
+  reason: string;
+};
+
+export type USER_UPGRADE_TO_SELLER = {
+  id: number;
+  userId: number;
+  userName: string;
+  userEmail: string;
+  status: string;
+  reason: string;
+  reviewedById: number;
+  reviewedByName: string;
+  reviewedAt: string;
+  createdAt: string;
+};
+
+export type USER_UPGRADE_TO_SELLER_RESPONSE =
+  ApiResponse<USER_UPGRADE_TO_SELLER>;
+
+export type USER_UPGRADE_TO_SELLER_REQUESTS_RESPONSE = ApiResponse<
+  USER_UPGRADE_TO_SELLER[]
+>;
+
 // Questions asked by user about products
 
 export type USER_QUESTIONS_PAYLOAD = {
