@@ -15,8 +15,8 @@ interface ProductState {
 
 export const useProductStore = create<ProductState>((set) => ({
   page: 0,
-  size: 10,
-  totalPages: 10,
+  size: 9,
+  totalPages: 1,
   categoryId: null,
   subCategoryId: null,
 

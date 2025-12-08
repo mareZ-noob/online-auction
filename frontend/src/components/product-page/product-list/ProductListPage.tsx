@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ProductyContainer from "./ProductContainer";
 import ProductyFilter from "./ProductFilter";
 import {
@@ -9,7 +9,16 @@ import {
 import ProductPagination from "./ProductPagination";
 import { useProductStore } from "@/store/product-store";
 
+import { ProductListContext } from "@/store/context/product-list-context";
+
 function ProductListPage() {
+  const [filterWithEndTime, setFilterWithEndTime] = useState<"desc" | "asc">(
+    "asc"
+  );
+  const [filterWithPrice, setFilterWithPrice] = useState<"desc" | "asc">("asc");
+  const [filterWithNewPublish, setFilterWithNewPublish] =
+    useState<boolean>(false);
+
   const setCategoryId = useProductStore((state) => state.setCategoryId);
   const setSubCategoryId = useProductStore((state) => state.setSubCategoryId);
   const page = useProductStore((state) => state.page);
@@ -70,30 +79,41 @@ function ProductListPage() {
   }, [searchQuery, searchData, subData, setTotalPages]);
 
   return (
-    <div className="grid grid-cols-4 mt-20">
-      <ProductyFilter />
+    <ProductListContext.Provider
+      value={{
+        enndtime: filterWithEndTime,
+        setEndtime: setFilterWithEndTime,
+        price: filterWithPrice,
+        setPrice: setFilterWithPrice,
+        newPublish: filterWithNewPublish,
+        setNewPublish: setFilterWithNewPublish,
+      }}
+    >
+      <div className="grid grid-cols-4 mt-20">
+        <ProductyFilter />
 
-      <div className="col-span-3 flex flex-col gap-4">
-        {products && <ProductyContainer data={products} />}
+        <div className="col-span-3 flex flex-col gap-4">
+          {products && <ProductyContainer data={products} />}
 
-        {products && products.length > 0 && (
-          <div className="mt-12 flex justify-center">
-            <ProductPagination
-              page={page}
-              totalPages={
-                searchQuery
-                  ? searchData?.totalPages ?? 0
-                  : subData?.totalPages ?? 0
-              }
-              onPageChange={(newPage) => {
-                // Update the page in the store
-                useProductStore.getState().setPage(newPage);
-              }}
-            />
-          </div>
-        )}
+          {products && products.length > 0 && (
+            <div className="mt-12 flex justify-center">
+              <ProductPagination
+                page={page}
+                totalPages={
+                  searchQuery
+                    ? searchData?.totalPages ?? 0
+                    : subData?.totalPages ?? 0
+                }
+                onPageChange={(newPage) => {
+                  // Update the page in the store
+                  useProductStore.getState().setPage(newPage);
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </ProductListContext.Provider>
   );
 }
 

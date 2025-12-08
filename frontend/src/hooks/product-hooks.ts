@@ -187,3 +187,21 @@ export const useFetchComments = (page: number = 0, size: number = 10) => {
     staleTime: 0,
   });
 };
+
+export const useFetchCommentsOfAProduct = (
+  productId: number,
+  page: number = 0,
+  size: number = 10
+) => {
+  return useQuery<USER_QUESTIONS_RESPONSE["data"] | undefined>({
+    queryKey: ["get_questions_of_a_product", productId, page, size],
+    queryFn: async () => {
+      const { data } = await apiClient.get<USER_QUESTIONS_RESPONSE>(
+        API_ENDPOINTS.GET_QUESTIONS_OF_A_PRODUCT(productId, page, size)
+      );
+      return data.data;
+    },
+    enabled: !!productId,
+    staleTime: 0,
+  });
+};

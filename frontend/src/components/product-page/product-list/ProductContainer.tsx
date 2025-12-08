@@ -1,11 +1,21 @@
 import ProductItemCard from "@/components/dashboard-page/ProductItemCard";
-import { CardItemInformationMapper } from "@/lib/utils";
+import { CardItemInformationMapper, filterAndSortProducts } from "@/lib/utils";
 import type { CardItemInformation } from "@/types/CardItem";
 import type { PRODUCTS_BY_SUB_CATEGORY_ID } from "@/types/Product";
 import ProductListFallback from "./ProductListFallback";
+import { useContext } from "react";
+import { ProductListContext } from "@/store/context/product-list-context";
 
 function ProductContainer({ data }: { data: PRODUCTS_BY_SUB_CATEGORY_ID[] }) {
-  const items = data.map((product) =>
+  const { enndtime, price, newPublish } = useContext(ProductListContext);
+
+  const filtered = filterAndSortProducts(data, {
+    enndtime,
+    price,
+    newPublish,
+  });
+
+  const items = filtered.map((product) =>
     CardItemInformationMapper(product)
   ) as CardItemInformation[];
 

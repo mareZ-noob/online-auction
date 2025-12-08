@@ -48,6 +48,11 @@ export const API_ENDPOINTS = {
   POST_QUESTION_ON_A_PRODUCT: "bidder/questions",
   GET_QUESTIONS: (page: number, size: number) =>
     `/bidder/questions?page=${page}&size=${size}`,
+  GET_QUESTIONS_OF_A_PRODUCT: (
+    productId: string | number,
+    page: number,
+    size: number
+  ) => `/public/products/${productId}/comments?page=${page}&size=${size}`,
 
   // Bid
   PLACE_A_BID: "/bidder/bids",

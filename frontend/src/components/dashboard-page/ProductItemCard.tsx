@@ -63,7 +63,9 @@ function ProductItemCard({
       </div>
 
       <div className="flex flex-col justify-end text-left max-w-full mt-4">
-        <p className="text-2xl mb-4 min-h-16">{data.productName}</p>
+        <p className="line-clamp-2 text-2xl mb-4 min-h-16 ">
+          {data.productName}
+        </p>
         <div className="flex mb-4 justify-between">
           <p>Current Price: {data.currentPrice}</p>
           <p>Buy Now: {data.buyNowPrice}</p>

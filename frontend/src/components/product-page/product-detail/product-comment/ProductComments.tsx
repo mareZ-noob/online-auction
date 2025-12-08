@@ -1,9 +1,11 @@
-import { usePostCommentOnAProduct } from "@/hooks/product-hooks";
+import {
+  useFetchCommentsOfAProduct,
+  usePostCommentOnAProduct,
+} from "@/hooks/product-hooks";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { toastError, toastSuccess } from "@/components/toast/toast-ui";
 import { useEffect, useState } from "react";
-import { useFetchComments } from "@/hooks/product-hooks";
 import type { USER_QUESTIONS } from "@/types/User";
 import ProductPagination from "../../product-list/ProductPagination";
 
@@ -87,7 +89,7 @@ function ProductComments({ productId }: { productId: number }) {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const { data } = useFetchComments(page);
+  const { data } = useFetchCommentsOfAProduct(productId, page);
 
   useEffect(() => {
     if (data) {
@@ -95,6 +97,7 @@ function ProductComments({ productId }: { productId: number }) {
       setTotalPages(data.totalPages);
     }
   }, [data]);
+  console.log(data);
 
   if (!data || data.content.length === 0) {
     return <div>No comments available.</div>;

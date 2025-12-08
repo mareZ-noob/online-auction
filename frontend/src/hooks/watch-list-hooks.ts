@@ -5,7 +5,7 @@ import type { PRODUCTS_IN_WATCHLIST } from "@/types/Product";
 import { API_ENDPOINTS } from "./endpoints";
 import { queryClient } from "@/lib/utils";
 
-export const useFetchMyWatchList = (page: number = 0, size: number = 20) => {
+export const useFetchMyWatchList = (page: number = 0, size: number = 9) => {
   return useQuery<PRODUCTS_IN_WATCHLIST["data"]>({
     queryKey: ["my-watchlist", page, size],
     queryFn: async () => {

@@ -27,3 +27,44 @@ export function CardItemInformationMapper(
 }
 
 export const queryClient = new QueryClient();
+
+export type ProductFilterCriteria = {
+  enndtime?: "desc" | "asc";
+  price?: "desc" | "asc";
+  newPublish?: boolean | null;
+};
+
+/**
+ * Filter and sort products client-side according to given criteria.
+ * - `newPublish` filters by `isNew` when provided (true => only new; false => only non-new).
+ * - sorts primarily by `endTime` according to `enndtime`, and secondarily by `currentPrice` according to `price`.
+ */
+export function filterAndSortProducts(
+  products: PRODUCTS_BY_SUB_CATEGORY_ID[] | undefined,
+  criteria: ProductFilterCriteria
+): PRODUCTS_BY_SUB_CATEGORY_ID[] {
+  if (!products) return [];
+
+  let result = products.slice();
+
+  if (criteria.newPublish !== null && criteria.newPublish !== undefined) {
+    result = result.filter((p) => p.isNew === criteria.newPublish);
+  }
+
+  const ennd = criteria.enndtime ?? "asc";
+  const pr = criteria.price ?? "asc";
+
+  result.sort((a, b) => {
+    const endA = Date.parse(a.endTime ?? "");
+    const endB = Date.parse(b.endTime ?? "");
+    if (!Number.isNaN(endA) && !Number.isNaN(endB) && endA !== endB) {
+      return ennd === "asc" ? endA - endB : endB - endA;
+    }
+
+    // Fallback / tie-break: price
+    const priceDiff = a.currentPrice - b.currentPrice;
+    return pr === "asc" ? priceDiff : -priceDiff;
+  });
+
+  return result;
+}

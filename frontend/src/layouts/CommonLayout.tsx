@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import {
   GalleryVerticalEnd,
   Heart,
@@ -8,7 +8,7 @@ import {
   SearchIcon,
   User,
   UserPen,
-  WalletCards,
+  ChartBarStacked,
 } from "lucide-react";
 import {
   InputGroup,
@@ -32,6 +32,7 @@ import { useSignOut } from "@/hooks/auth-hooks.ts";
 import { useFetchCategories } from "@/hooks/product-hooks";
 import { useUserStore } from "@/store/user-store";
 import { useFetchUser } from "@/hooks/user-hooks";
+import { CommonLayoutContext } from "@/store/context/common-layout-context";
 
 function WatchList() {
   const navigate = useNavigate();
@@ -96,6 +97,23 @@ function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
   );
 }
 
+function ToggleCategory() {
+  const { setIsActiveFilter, isActiveFilter } = useContext(CommonLayoutContext);
+
+  const handleToggle = () => {
+    setIsActiveFilter(!isActiveFilter);
+  };
+
+  return (
+    <Button
+      variant={isActiveFilter ? "default" : "secondary"}
+      onClick={handleToggle}
+    >
+      <ChartBarStacked />
+    </Button>
+  );
+}
+
 function SearchBar() {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
@@ -120,7 +138,10 @@ function SearchBar() {
           <SearchIcon />
         </InputGroupAddon>
       </InputGroup>
-      <Button onClick={onSearch}>Search</Button>
+      <div className="flex gap-2 items-center">
+        <Button onClick={onSearch}>Search</Button>
+        <ToggleCategory />
+      </div>
     </>
   );
 }
@@ -184,6 +205,8 @@ function Header() {
 function Category() {
   const navigate = useNavigate();
 
+  const { isActiveFilter } = useContext(CommonLayoutContext);
+
   const { data: categories } = useFetchCategories();
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [activeSubCategory, setActiveSubCategory] = useState<number | null>(
@@ -206,7 +229,6 @@ function Category() {
     subCategoryName: string,
     subCategoryId: number
   ) => {
-    setActiveSubCategory(subCategoryId);
     navigate(
       `/products?category=${categoryName}&subCategory=${subCategoryName}`,
       {
@@ -222,24 +244,26 @@ function Category() {
 
   return (
     <div className="w-full flex flex-col relative">
-      <div className="flex items-center justify-between w-full border-b border-[#ddd] px-16">
-        <div>
-          {cats.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => handleCategoryClick(cat.id)}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary hover:cursor-pointer",
-                activeCategory === cat.id
-                  ? "border-b-2 border-black text-black"
-                  : "text-muted-foreground"
-              )}
-            >
-              <p className="py-4 pr-16">{cat.name}</p>
-            </button>
-          ))}
+      {isActiveFilter && (
+        <div className="flex items-center justify-between w-full border-b border-[#ddd] px-16">
+          <div>
+            {cats.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary hover:cursor-pointer",
+                  activeCategory === cat.id
+                    ? "border-b-2 border-black text-black"
+                    : "text-muted-foreground"
+                )}
+              >
+                <p className="py-4 pr-16">{cat.name}</p>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {activeCategory && (
         <div
@@ -290,8 +314,15 @@ function Footer() {
 }
 
 function CommonLayout() {
+  const [isActiveFilter, setIsActiveFilter] = useState(true);
+
+  const commonLayoutContextValue = {
+    isActiveFilter,
+    setIsActiveFilter,
+  };
+
   return (
-    <div>
+    <CommonLayoutContext.Provider value={commonLayoutContextValue}>
       <div>
         <Header />
         <Category />
@@ -300,7 +331,7 @@ function CommonLayout() {
         <Outlet />
       </main>
       <Footer />
-    </div>
+    </CommonLayoutContext.Provider>
   );
 }
 
