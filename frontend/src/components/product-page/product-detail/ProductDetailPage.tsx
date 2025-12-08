@@ -2,7 +2,7 @@ import ProductGallery from "@/components/product-page/product-detail/ProductGall
 import ProductInfo from "@/components/product-page/product-detail/ProductInformation";
 import { CarouselPlugin } from "@/components/dashboard-page/CarouselPlugin.tsx";
 import RelatedProductItemCard from "@/components/product-page/product-detail/RelatedProductItemCard.tsx";
-import ProductComments from "@/components/product-page/product-detail/ProductComments.tsx";
+import ProductComments from "@/components/product-page/product-detail/product-comment/ProductComments";
 import {
   useFetchProductDetailsById,
   useFetchRelatedProducts,
@@ -55,7 +55,7 @@ function ProductDetailPage() {
       <div className="my-8 border-b border-gray-200" />
       <section>
         <p className="text-xl mb-4">Comments</p>
-        <ProductComments />
+        <ProductComments productId={Number(productId)} />
       </section>
       <div className="my-8 border-b border-gray-200" />
       <section>

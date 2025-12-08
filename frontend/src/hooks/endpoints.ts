@@ -44,6 +44,11 @@ export const API_ENDPOINTS = {
   CHECK_A_PRODUCT_IN_WATCHLIST: (productId: string | number) =>
     `bidder/watchlist/check/${productId}`,
 
+  // Comment
+  POST_QUESTION_ON_A_PRODUCT: "bidder/questions",
+  GET_QUESTIONS: (page: number, size: number) =>
+    `/bidder/questions?page=${page}&size=${size}`,
+
   // Bid
   PLACE_A_BID: "/bidder/bids",
   GET_BID_HISTORY_OF_A_PRODUCT: (productId: string | number) =>

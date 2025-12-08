@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import apiClient from "@/query/api-client";
 import type {
   CATEGORY,
@@ -8,6 +8,11 @@ import type {
   TOP_PRODUCTS_BY_CONDITION,
 } from "@/types/Product";
 import { API_ENDPOINTS } from "./endpoints";
+import type {
+  USER_QUESTIONS_PAYLOAD,
+  USER_QUESTIONS_RESPONSE,
+} from "@/types/User";
+import { queryClient } from "@/lib/utils";
 
 export const useFetchCategories = () => {
   return useQuery<CATEGORY[]>({
@@ -150,6 +155,35 @@ export const useSearchProdutcs = (
       return data.data;
     },
     enabled: !!keyword,
+    staleTime: 0,
+  });
+};
+
+export const usePostCommentOnAProduct = () => {
+  return useMutation<USER_QUESTIONS_RESPONSE, Error, USER_QUESTIONS_PAYLOAD>({
+    mutationKey: ["post_question_on_a_product"],
+    mutationFn: async (credentials: USER_QUESTIONS_PAYLOAD) => {
+      const { data } = await apiClient.post<USER_QUESTIONS_RESPONSE>(
+        API_ENDPOINTS.POST_QUESTION_ON_A_PRODUCT,
+        credentials
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get_questions"] });
+    },
+  });
+};
+
+export const useFetchComments = (page: number = 0, size: number = 10) => {
+  return useQuery<USER_QUESTIONS_RESPONSE["data"] | undefined>({
+    queryKey: ["get_questions", page, size],
+    queryFn: async () => {
+      const { data } = await apiClient.get<USER_QUESTIONS_RESPONSE>(
+        API_ENDPOINTS.GET_QUESTIONS(page, size)
+      );
+      return data.data;
+    },
     staleTime: 0,
   });
 };
