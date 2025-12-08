@@ -51,3 +51,24 @@ export type USER_RATINGS = {
 };
 
 export type USER_RATINGS_RESPONSE = ApiResponse<Pagination<USER_RATINGS>>;
+
+// Questions asked by user about products
+
+export type USER_QUESTIONS_PAYLOAD = {
+  productId: number;
+  question: string;
+};
+
+export type USER_QUESTIONS = {
+  id: number;
+  productId: number;
+  productName: string;
+  userId: number;
+  userName: string;
+  question: string;
+  answer: string;
+  answeredAt: string;
+  createdAt: string;
+};
+
+export type USER_QUESTIONS_RESPONSE = ApiResponse<Pagination<USER_QUESTIONS>>;

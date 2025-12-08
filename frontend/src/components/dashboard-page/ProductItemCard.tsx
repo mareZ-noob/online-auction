@@ -76,7 +76,7 @@ function ProductItemCard({
         <p className="mb-4">Remaining Time: {data.remainingTime}</p>
         <p>Current Bid Count: {data.bidCount}</p>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-end">
           {isWatchList ? (
             <Button
               variant="outline"
@@ -94,18 +94,13 @@ function ProductItemCard({
               {watchListButton}
             </Button>
           )}
-          <div className="ml-auto">
-            <Button
-              variant="outline"
-              className=" mt-4 size-12 px-12 mr-4"
-              onClick={() => handleViewDetails(data.id)}
-            >
-              View details
-            </Button>
-            <Button variant="default" className=" mt-4 size-12 px-12">
-              Bid
-            </Button>
-          </div>
+          <Button
+            variant="default"
+            className=" mt-4 size-12 px-12"
+            onClick={() => handleViewDetails(data.id)}
+          >
+            View details
+          </Button>
         </div>
       </div>
     </div>

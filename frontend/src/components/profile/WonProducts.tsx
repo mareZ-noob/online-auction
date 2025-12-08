@@ -39,46 +39,52 @@ function WonProducts() {
         <TableCaption>A list of your recent ratings.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">Product Name</TableHead>
+            <TableHead>#</TableHead>
+            <TableHead>Product Name</TableHead>
             <TableHead>Product Description</TableHead>
-            <TableHead>Current Price</TableHead>
-            <TableHead>Buy Now Price</TableHead>
             <TableHead>End Time</TableHead>
-            <TableHead>Remaining Time</TableHead>
             <TableHead>Bid Count</TableHead>
             <TableHead>Category Name</TableHead>
             <TableHead>Created At</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {wonProducts?.content.map((product) => (
+          {wonProducts?.content.map((product, index) => (
             <TableRow key={product.id}>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.name}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word text-gray-400">
+                  {index + 1 + page * wonProducts.size}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.description}
+              <TableCell className="max-w-sm">
+                <p className="line-clamp-2 font-light whitespace-normal wrap-break-word">
+                  {product.name}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.currentPrice}
+              <TableCell className="max-w-sm ">
+                <p className="line-clamp-2 font-light whitespace-normal wrap-break-word">
+                  {product.description}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.buyNowPrice}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word">
+                  {product.endTime}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.endTime}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word">
+                  {product.bidCount}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.timeRemaining}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word">
+                  {product.categoryName}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.bidCount}
-              </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.categoryName}
-              </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.createdAt}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word">
+                  {product.createdAt}
+                </p>
               </TableCell>
             </TableRow>
           ))}

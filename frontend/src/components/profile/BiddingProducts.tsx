@@ -1,4 +1,6 @@
+import { Eye } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -13,6 +15,8 @@ import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
 
 function BiddingProducts() {
+  const navigate = useNavigate();
+
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -33,52 +37,83 @@ function BiddingProducts() {
     );
   }
 
+  const handleViewDetails = (productId: number) => {
+    navigate(`/products/${productId}`);
+  };
+
   return (
     <ProfilePage>
       <Table>
         <TableCaption>A list of your recent ratings.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">Product Name</TableHead>
+            <TableHead>#</TableHead>
+            <TableHead>Product Name</TableHead>
             <TableHead>Product Description</TableHead>
-            <TableHead>Current Price</TableHead>
-            <TableHead>Buy Now Price</TableHead>
-            <TableHead>End Time</TableHead>
-            <TableHead>Remaining Time</TableHead>
             <TableHead>Bid Count</TableHead>
             <TableHead>Category Name</TableHead>
+            <TableHead>Current Price</TableHead>
+            <TableHead>End Time</TableHead>
+            <TableHead>Remaining Time</TableHead>
             <TableHead>Created At</TableHead>
+            <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {biddingProducts?.content.map((product) => (
+          {biddingProducts?.content.map((product, index) => (
             <TableRow key={product.id}>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.name}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word text-gray-400">
+                  {index + 1 + page * biddingProducts.size}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.description}
+              <TableCell className="max-w-sm">
+                <p className="line-clamp-2 font-light whitespace-normal wrap-break-word">
+                  {product.name}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.currentPrice}
+              <TableCell className="max-w-sm ">
+                <p className="line-clamp-2 font-light whitespace-normal wrap-break-word">
+                  {product.description}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.buyNowPrice}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word">
+                  {product.bidCount}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.endTime}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word">
+                  {product.categoryName}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.timeRemaining}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word">
+                  {product.currentPrice}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.bidCount}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word">
+                  {product.endTime}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.categoryName}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word">
+                  {product.timeRemaining}
+                </p>
               </TableCell>
-              <TableCell className="font-normal max-w-sm whitespace-normal wrap-break-word">
-                {product.createdAt}
+              <TableCell className="max-w-sm">
+                <p className="font-light whitespace-normal wrap-break-word">
+                  {product.createdAt}
+                </p>
+              </TableCell>
+              <TableCell className="max-w-sm">
+                <div
+                  className="p-1 rounded-md bg-black"
+                  onClick={() => handleViewDetails(product.id)}
+                >
+                  <Eye className="text-white" size={16} />
+                </div>
               </TableCell>
             </TableRow>
           ))}

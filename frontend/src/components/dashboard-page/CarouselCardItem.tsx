@@ -40,9 +40,9 @@ function CarouselCardItem({ data }: { data: CardItemInformation }) {
                     >
                       View details
                     </Button>
-                    <Button variant="default" className=" mt-4 size-12 px-12">
+                    {/* <Button variant="default" className=" mt-4 size-12 px-12">
                       Bid
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
                 <div className="bg-muted relative block">
