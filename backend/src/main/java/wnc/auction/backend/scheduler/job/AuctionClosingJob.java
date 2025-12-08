@@ -66,15 +66,17 @@ public class AuctionClosingJob extends QuartzJobBean {
             Long winnerId = product.getCurrentBidder().getId();
 
             // Notify Winner
-            emailService.sendAuctionEndedNotification(winnerId, productName, true, finalPrice.toString());
+            emailService.sendAuctionEndedNotification(
+                    winnerId, product.getId(), productName, true, finalPrice.toString());
             notificationService.notifyAuctionEnded(winnerId, product.getId(), productName, true, finalPrice);
 
             // Notify Seller (Success)
-            emailService.sendAuctionEndedNotification(sellerId, productName, false, finalPrice.toString());
+            emailService.sendAuctionEndedNotification(
+                    sellerId, product.getId(), productName, false, finalPrice.toString());
             notificationService.notifyAuctionEnded(sellerId, product.getId(), productName, false, finalPrice);
         } else {
             // Notify Seller (Fail - No bids)
-            emailService.sendAuctionEndedNotification(sellerId, productName, false, "0");
+            emailService.sendAuctionEndedNotification(sellerId, product.getId(), productName, false, "0");
             notificationService.notifyAuctionEnded(sellerId, product.getId(), productName, false, BigDecimal.ZERO);
         }
     }

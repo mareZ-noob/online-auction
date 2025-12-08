@@ -96,7 +96,7 @@
 
         <div th:if="${isWinner}">
             <div style="text-align: center;">
-                <a href="#" class="btn" th:text="#{email.auction.winner.payment}">Proceed to Payment</a>
+                <a th:href="${productUrl}" class="btn" th:text="#{email.auction.winner.payment}">Proceed to Payment</a>
             </div>
         </div>
 

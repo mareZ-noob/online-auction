@@ -57,7 +57,11 @@ public class QuestionService {
 
         // Send email notification to seller
         emailService.sendQuestionNotification(
-                product.getSeller().getId(), product.getName(), request.getQuestion(), user.getFullName());
+                product.getSeller().getId(),
+                product.getId(),
+                product.getName(),
+                request.getQuestion(),
+                user.getFullName());
 
         log.info("Question asked on product: {} by user: {}", product.getId(), userId);
 

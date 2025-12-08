@@ -33,55 +33,45 @@ public class EmailService {
     @Value("${app.mail.from-address}")
     private String fromAddress;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     public void sendOtpEmail(Long userId, String code, String purpose) {
         Locale locale = localeService.getLocaleByUserId(userId);
         sendOtpEmailWithLocale(getUserEmail(userId), code, purpose, locale);
     }
 
-    public void sendBidNotification(Long userId, String productName, String bidderName, String amount) {
+    public void sendBidNotification(Long userId, Long productId, String productName, String bidderName, String amount) {
         Locale locale = localeService.getLocaleByUserId(userId);
-        sendBidNotificationWithLocale(getUserEmail(userId), productName, bidderName, amount, locale);
+        String productUrl = String.format("%s/products/%d", frontendUrl, productId);
+        sendBidNotificationWithLocale(getUserEmail(userId), productName, bidderName, amount, productUrl, locale);
     }
 
-    public void sendOutbidNotification(Long userId, String productName, String amount) {
+    public void sendOutbidNotification(Long userId, Long productId, String productName, String amount) {
         Locale locale = localeService.getLocaleByUserId(userId);
-        sendOutbidNotificationWithLocale(getUserEmail(userId), productName, amount, locale);
+        String productUrl = String.format("%s/products/%d", frontendUrl, productId);
+        sendOutbidNotificationWithLocale(getUserEmail(userId), productName, amount, productUrl, locale);
     }
 
-    public void sendAuctionEndedNotification(Long userId, String productName, boolean isWinner, String finalAmount) {
+    public void sendAuctionEndedNotification(
+            Long userId, Long productId, String productName, boolean isWinner, String finalAmount) {
         Locale locale = localeService.getLocaleByUserId(userId);
-        sendAuctionEndedNotificationWithLocale(getUserEmail(userId), productName, isWinner, finalAmount, locale);
+        String productUrl = String.format("%s/products/%d", frontendUrl, productId);
+        sendAuctionEndedNotificationWithLocale(
+                getUserEmail(userId), productName, isWinner, finalAmount, productUrl, locale);
     }
 
-    public void sendQuestionNotification(Long userId, String productName, String question, String askerName) {
+    public void sendQuestionNotification(
+            Long userId, Long productId, String productName, String question, String askerName) {
         Locale locale = localeService.getLocaleByUserId(userId);
-        sendQuestionNotificationWithLocale(getUserEmail(userId), productName, question, askerName, locale);
+        String productUrl = String.format("%s/products/%d", frontendUrl, productId);
+        sendQuestionNotificationWithLocale(getUserEmail(userId), productName, question, askerName, productUrl, locale);
     }
 
+    // Overloaded methods for direct email sending (optional, if needed)
     public void sendOtpEmailByEmail(String email, String code, String purpose) {
         Locale locale = localeService.getLocaleByEmail(email);
         sendOtpEmailWithLocale(email, code, purpose, locale);
-    }
-
-    public void sendBidNotificationByEmail(String email, String productName, String bidderName, String amount) {
-        Locale locale = localeService.getLocaleByEmail(email);
-        sendBidNotificationWithLocale(email, productName, bidderName, amount, locale);
-    }
-
-    public void sendOutbidNotificationByEmail(String email, String productName, String amount) {
-        Locale locale = localeService.getLocaleByEmail(email);
-        sendOutbidNotificationWithLocale(email, productName, amount, locale);
-    }
-
-    public void sendAuctionEndedNotificationByEmail(
-            String email, String productName, boolean isWinner, String finalAmount) {
-        Locale locale = localeService.getLocaleByEmail(email);
-        sendAuctionEndedNotificationWithLocale(email, productName, isWinner, finalAmount, locale);
-    }
-
-    public void sendQuestionNotificationByEmail(String email, String productName, String question, String askerName) {
-        Locale locale = localeService.getLocaleByEmail(email);
-        sendQuestionNotificationWithLocale(email, productName, question, askerName, locale);
     }
 
     private void sendOtpEmailWithLocale(String to, String code, String purpose, Locale locale) {
@@ -102,12 +92,13 @@ public class EmailService {
     }
 
     private void sendBidNotificationWithLocale(
-            String to, String productName, String bidderName, String amount, Locale locale) {
+            String to, String productName, String bidderName, String amount, String productUrl, Locale locale) {
         try {
             Context context = new Context(locale);
             context.setVariable("productName", productName);
             context.setVariable("bidderName", bidderName);
             context.setVariable("amount", amount);
+            context.setVariable("productUrl", productUrl);
 
             String htmlContent = templateEngine.process("bid-notification", context);
             String subject = messageSource.getMessage("email.bid.subject", new Object[] {productName}, locale);
@@ -119,11 +110,13 @@ public class EmailService {
         }
     }
 
-    private void sendOutbidNotificationWithLocale(String to, String productName, String amount, Locale locale) {
+    private void sendOutbidNotificationWithLocale(
+            String to, String productName, String amount, String productUrl, Locale locale) {
         try {
             Context context = new Context(locale);
             context.setVariable("productName", productName);
             context.setVariable("amount", amount);
+            context.setVariable("productUrl", productUrl);
 
             String htmlContent = templateEngine.process("outbid-notification", context);
             String subject = messageSource.getMessage("email.outbid.subject", new Object[] {productName}, locale);
@@ -136,12 +129,13 @@ public class EmailService {
     }
 
     private void sendAuctionEndedNotificationWithLocale(
-            String to, String productName, boolean isWinner, String finalAmount, Locale locale) {
+            String to, String productName, boolean isWinner, String finalAmount, String productUrl, Locale locale) {
         try {
             Context context = new Context(locale);
             context.setVariable("productName", productName);
             context.setVariable("finalAmount", finalAmount);
             context.setVariable("isWinner", isWinner);
+            context.setVariable("productUrl", productUrl);
 
             String htmlContent = templateEngine.process("auction-ended", context);
 
@@ -156,12 +150,13 @@ public class EmailService {
     }
 
     private void sendQuestionNotificationWithLocale(
-            String to, String productName, String question, String askerName, Locale locale) {
+            String to, String productName, String question, String askerName, String productUrl, Locale locale) {
         try {
             Context context = new Context(locale);
             context.setVariable("productName", productName);
             context.setVariable("question", question);
             context.setVariable("askerName", askerName);
+            context.setVariable("productUrl", productUrl);
 
             String htmlContent = templateEngine.process("question-notification", context);
             String subject = messageSource.getMessage("email.question.subject", new Object[] {productName}, locale);

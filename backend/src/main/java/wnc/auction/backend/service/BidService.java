@@ -213,7 +213,8 @@ public class BidService {
 
             // Notify the loser (The one who was just outbid)
             User loser = (winner.getId().equals(currentUser.getId())) ? competitor : currentUser;
-            emailService.sendOutbidNotification(loser.getId(), product.getName(), finalPrice.toString());
+            emailService.sendOutbidNotification(
+                    loser.getId(), product.getId(), product.getName(), finalPrice.toString());
         }
     }
 
@@ -308,10 +309,15 @@ public class BidService {
 
     private void sendBidNotifications(Product product, User newBidder, User previousBidder, BigDecimal amount) {
         emailService.sendBidNotification(
-                product.getSeller().getId(), product.getName(), newBidder.getFullName(), amount.toString());
+                product.getSeller().getId(),
+                product.getId(),
+                product.getName(),
+                newBidder.getFullName(),
+                amount.toString());
 
         if (previousBidder != null) {
-            emailService.sendOutbidNotification(previousBidder.getId(), product.getName(), amount.toString());
+            emailService.sendOutbidNotification(
+                    previousBidder.getId(), product.getId(), product.getName(), amount.toString());
         }
     }
 

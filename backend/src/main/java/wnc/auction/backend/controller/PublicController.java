@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import wnc.auction.backend.dto.model.CategoryDto;
 import wnc.auction.backend.dto.model.ProductDto;
 import wnc.auction.backend.dto.model.ProductListDto;
+import wnc.auction.backend.dto.model.QuestionDto;
 import wnc.auction.backend.dto.request.SearchRequest;
 import wnc.auction.backend.dto.response.ApiResponse;
 import wnc.auction.backend.dto.response.PageResponse;
 import wnc.auction.backend.service.CategoryService;
 import wnc.auction.backend.service.ProductService;
+import wnc.auction.backend.service.QuestionService;
 
 @RestController
 @RequestMapping("/api/public")
@@ -26,6 +28,7 @@ public class PublicController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
+    private final QuestionService questionService;
 
     @GetMapping("/products/top/ending-soon")
     @Operation(summary = "Get top 5 products ending soon")
@@ -63,6 +66,14 @@ public class PublicController {
             @Parameter(description = "Product ID", example = "1") @PathVariable Long id) {
         ProductDto product = productService.getProductById(id);
         return ResponseEntity.ok(ApiResponse.success(product));
+    }
+
+    @GetMapping("/products/{id}/comments")
+    @Operation(summary = "Get comments (questions) for a product")
+    public ResponseEntity<ApiResponse<List<QuestionDto>>> getProductComments(
+            @Parameter(description = "Product ID", example = "1") @PathVariable Long id) {
+        List<QuestionDto> comments = questionService.getProductQuestions(id);
+        return ResponseEntity.ok(ApiResponse.success(comments));
     }
 
     @GetMapping("/products/category/{categoryId}")
