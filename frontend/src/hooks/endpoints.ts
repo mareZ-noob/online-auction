@@ -71,4 +71,8 @@ export const API_ENDPOINTS = {
 
   // Seller
   CREATE_NEW_PRODUCT: "/seller/products",
+  GET_MY_PRODUCTS: (page: number, size: number) =>
+    `/seller/products?page=${page}&size=${size}`,
+  UPDATE_PRODUCT_DESCRIPTION: (id: string | number) =>
+    `/seller/products/${id}/description`,
 };

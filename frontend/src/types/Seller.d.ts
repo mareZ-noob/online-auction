@@ -43,3 +43,10 @@ export type CREATE_PRODUCT_DATA = {
 };
 
 export type CREATE_PRODUCT_RESPONSE = ApiResponse<CREATE_PRODUCT_DATA>;
+
+export type UPDATE_PRODUCT_DESCRIPTION_PAYLOAD = {
+  additionalDescription: string;
+};
+
+export type UPDATE_PRODUCT_DESCRIPTION_RESPONSE =
+  ApiResponse<CREATE_PRODUCT_DATA>;

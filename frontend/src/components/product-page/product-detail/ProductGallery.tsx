@@ -42,39 +42,39 @@ import MyReactImageMagnify from "@/components/product-page/product-detail/MyReac
 // };
 
 const ProductGallery = ({
-  mainImage,
-  subImages,
+	mainImage,
+	subImages,
 }: {
-  mainImage: string;
-  subImages: string[];
+	mainImage: string;
+	subImages: string[];
 }) => {
-  const [activeImg, setActiveImg] = useState(mainImage);
+	const [activeImg, setActiveImg] = useState(mainImage);
 
-  return (
-    <div className="col-span-2 flex gap-4">
-      <div className="flex flex-col gap-4 h-[600px] overflow-y-scroll">
-        {subImages.map((item, index) => (
-          <button
-            key={index}
-            onClick={() => setActiveImg(item)}
-            className={`
+	return (
+		<div className="col-span-2 flex gap-4">
+			<div className="flex flex-col gap-4 h-[600px] overflow-y-scroll">
+				{subImages.map((item, index) => (
+					<button
+						key={index}
+						onClick={() => setActiveImg(item)}
+						className={`
                      shrink-0 min-w-[100px] h-[100px] border-2 overflow-hidden
                      ${
-                       activeImg === item
-                         ? "border-2 border-black"
-                         : "border-transparent"
-                     }
+												activeImg === item
+													? "border-2 border-black"
+													: "border-transparent"
+											}
                    `}
-          >
-            <img src={item} className="w-full h-full object-cover" />
-          </button>
-        ))}
-      </div>
-      <div className="w-[800px] h-[600px] bg-white relative z-10 flex items-center justify-center border border-gray-100">
-        <MyReactImageMagnify imageObj={{ url: activeImg, alt: "" }} />
-      </div>
-    </div>
-  );
+					>
+						<img src={item} className="w-full h-full object-cover" />
+					</button>
+				))}
+			</div>
+			<div className="w-[800px] h-[600px] bg-white relative z-10 flex items-center justify-center border border-gray-100">
+				<MyReactImageMagnify imageObj={{ url: activeImg, alt: "" }} />
+			</div>
+		</div>
+	);
 };
 
 export default ProductGallery;

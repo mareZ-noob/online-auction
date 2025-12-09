@@ -1,103 +1,103 @@
 import { useEffect, useState } from "react";
 import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+	Table,
+	TableBody,
+	TableCaption,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
 } from "@/components/ui/table";
 import { useFetchWonProducts } from "@/hooks/user-hooks";
 import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
 
 function WonProducts() {
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+	const [page, setPage] = useState(0);
+	const [totalPages, setTotalPages] = useState(0);
 
-  const { data: wonProducts } = useFetchWonProducts(page);
+	const { data: wonProducts } = useFetchWonProducts(page);
 
-  useEffect(() => {
-    if (wonProducts) {
-      setPage(wonProducts.page);
-      setTotalPages(wonProducts.totalPages);
-    }
-  }, [wonProducts]);
+	useEffect(() => {
+		if (wonProducts) {
+			setPage(wonProducts.page);
+			setTotalPages(wonProducts.totalPages);
+		}
+	}, [wonProducts]);
 
-  if (!wonProducts || wonProducts.content.length === 0) {
-    return (
-      <ProfilePage>
-        <div>You haven't won any products.</div>
-      </ProfilePage>
-    );
-  }
+	if (!wonProducts || wonProducts.content.length === 0) {
+		return (
+			<ProfilePage>
+				<div>You haven't won any products.</div>
+			</ProfilePage>
+		);
+	}
 
-  return (
-    <ProfilePage>
-      <Table>
-        <TableCaption>A list of your recent ratings.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>#</TableHead>
-            <TableHead>Product Name</TableHead>
-            <TableHead>Product Description</TableHead>
-            <TableHead>End Time</TableHead>
-            <TableHead>Bid Count</TableHead>
-            <TableHead>Category Name</TableHead>
-            <TableHead>Created At</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {wonProducts?.content.map((product, index) => (
-            <TableRow key={product.id}>
-              <TableCell className="max-w-sm">
-                <p className="font-light whitespace-normal wrap-break-word text-gray-400">
-                  {index + 1 + page * wonProducts.size}
-                </p>
-              </TableCell>
-              <TableCell className="max-w-sm">
-                <p className="line-clamp-2 font-light whitespace-normal wrap-break-word">
-                  {product.name}
-                </p>
-              </TableCell>
-              <TableCell className="max-w-sm ">
-                <p className="line-clamp-2 font-light whitespace-normal wrap-break-word">
-                  {product.description}
-                </p>
-              </TableCell>
-              <TableCell className="max-w-sm">
-                <p className="font-light whitespace-normal wrap-break-word">
-                  {product.endTime}
-                </p>
-              </TableCell>
-              <TableCell className="max-w-sm">
-                <p className="font-light whitespace-normal wrap-break-word">
-                  {product.bidCount}
-                </p>
-              </TableCell>
-              <TableCell className="max-w-sm">
-                <p className="font-light whitespace-normal wrap-break-word">
-                  {product.categoryName}
-                </p>
-              </TableCell>
-              <TableCell className="max-w-sm">
-                <p className="font-light whitespace-normal wrap-break-word">
-                  {product.createdAt}
-                </p>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <ProductPagination
-        className="mt-12"
-        page={page}
-        totalPages={totalPages}
-        onPageChange={(newPage) => setPage(newPage)}
-      />
-    </ProfilePage>
-  );
+	return (
+		<ProfilePage>
+			<Table>
+				<TableCaption>A list of your recent ratings.</TableCaption>
+				<TableHeader>
+					<TableRow>
+						<TableHead>#</TableHead>
+						<TableHead>Product Name</TableHead>
+						<TableHead>Product Description</TableHead>
+						<TableHead>End Time</TableHead>
+						<TableHead>Bid Count</TableHead>
+						<TableHead>Category Name</TableHead>
+						<TableHead>Created At</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{wonProducts?.content.map((product, index) => (
+						<TableRow key={product.id}>
+							<TableCell className="max-w-sm">
+								<p className="font-light whitespace-normal wrap-break-word text-gray-400">
+									{index + 1 + page * wonProducts.size}
+								</p>
+							</TableCell>
+							<TableCell className="max-w-sm">
+								<p className="line-clamp-2 font-light whitespace-normal wrap-break-word">
+									{product.name}
+								</p>
+							</TableCell>
+							<TableCell className="max-w-sm ">
+								<p className="line-clamp-2 font-light whitespace-normal wrap-break-word">
+									{product.description}
+								</p>
+							</TableCell>
+							<TableCell className="max-w-sm">
+								<p className="font-light whitespace-normal wrap-break-word">
+									{product.endTime}
+								</p>
+							</TableCell>
+							<TableCell className="max-w-sm">
+								<p className="font-light whitespace-normal wrap-break-word">
+									{product.bidCount}
+								</p>
+							</TableCell>
+							<TableCell className="max-w-sm">
+								<p className="font-light whitespace-normal wrap-break-word">
+									{product.categoryName}
+								</p>
+							</TableCell>
+							<TableCell className="max-w-sm">
+								<p className="font-light whitespace-normal wrap-break-word">
+									{product.createdAt}
+								</p>
+							</TableCell>
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
+			<ProductPagination
+				className="mt-12"
+				page={page}
+				totalPages={totalPages}
+				onPageChange={(newPage) => setPage(newPage)}
+			/>
+		</ProfilePage>
+	);
 }
 
 export default WonProducts;

@@ -1,21 +1,21 @@
 import { ApiResponse } from "./ApiResponse";
 
 export type LoginData = {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: number;
-    email: string;
-    fullName: string;
-    address: string;
-    dateOfBirth: string;
-    role: string;
-    linkedProviders: string[];
-    emailVerified: boolean;
-    positiveRatings: number;
-    negativeRatings: number;
-    createdAt: string;
-  };
+	accessToken: string;
+	refreshToken: string;
+	user: {
+		id: number;
+		email: string;
+		fullName: string;
+		address: string;
+		dateOfBirth: string;
+		role: string;
+		linkedProviders: string[];
+		emailVerified: boolean;
+		positiveRatings: number;
+		negativeRatings: number;
+		createdAt: string;
+	};
 };
 
 // export type SignupData = {
@@ -37,10 +37,10 @@ export type LoginData = {
 // };
 
 export type AccessTokenPayload = {
-  sub: number;
-  email: string;
-  role: string;
-  exp: number;
+	sub: number;
+	email: string;
+	role: string;
+	exp: number;
 };
 
 export type LoginResponse = ApiResponse<LoginData>;

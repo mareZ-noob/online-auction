@@ -1,3 +1,4 @@
+import type { AxiosError } from "axios";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import apiClient from "@/query/api-client";
 import type {
@@ -13,7 +14,6 @@ import type {
   USER_QUESTIONS_RESPONSE,
 } from "@/types/User";
 import { queryClient } from "@/lib/utils";
-import type { AxiosError } from "axios";
 import type { ApiResponseError } from "@/types/ApiResponse";
 
 export const useFetchCategories = () => {

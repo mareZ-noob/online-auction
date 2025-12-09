@@ -1,28 +1,28 @@
 import { create } from "zustand";
 
 interface ProductState {
-  page: number;
-  size: number;
-  totalPages: number;
-  categoryId: number | null;
-  subCategoryId: number | null;
-  setPage: (page: number) => void;
-  setSize: (size: number) => void;
-  setTotalPages: (totalPages: number) => void;
-  setCategoryId: (categoryId: number | null) => void;
-  setSubCategoryId: (subCategoryId: number | null) => void;
+	page: number;
+	size: number;
+	totalPages: number;
+	categoryId: number | null;
+	subCategoryId: number | null;
+	setPage: (page: number) => void;
+	setSize: (size: number) => void;
+	setTotalPages: (totalPages: number) => void;
+	setCategoryId: (categoryId: number | null) => void;
+	setSubCategoryId: (subCategoryId: number | null) => void;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
-  page: 0,
-  size: 9,
-  totalPages: 1,
-  categoryId: null,
-  subCategoryId: null,
+	page: 0,
+	size: 9,
+	totalPages: 1,
+	categoryId: null,
+	subCategoryId: null,
 
-  setPage: (page: number) => set({ page }),
-  setSize: (size: number) => set({ size }),
-  setTotalPages: (totalPages: number) => set({ totalPages }),
-  setCategoryId: (categoryId: number | null) => set({ categoryId }),
-  setSubCategoryId: (subCategoryId: number | null) => set({ subCategoryId }),
+	setPage: (page: number) => set({ page }),
+	setSize: (size: number) => set({ size }),
+	setTotalPages: (totalPages: number) => set({ totalPages }),
+	setCategoryId: (categoryId: number | null) => set({ categoryId }),
+	setSubCategoryId: (subCategoryId: number | null) => set({ subCategoryId }),
 }));

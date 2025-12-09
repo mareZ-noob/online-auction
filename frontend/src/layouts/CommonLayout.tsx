@@ -1,29 +1,29 @@
 import { useContext, useState } from "react";
 import {
-  GalleryVerticalEnd,
-  Heart,
-  LogOut,
-  Mail,
-  Moon,
-  SearchIcon,
-  User,
-  UserPen,
-  ChartBarStacked,
-  SquarePlus,
+	GalleryVerticalEnd,
+	Heart,
+	LogOut,
+	Mail,
+	Moon,
+	SearchIcon,
+	User,
+	UserPen,
+	ChartBarStacked,
+	SquarePlus,
 } from "lucide-react";
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
 } from "@/components/ui/input-group";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button.tsx";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -36,320 +36,320 @@ import { useFetchUser } from "@/hooks/user-hooks";
 import { CommonLayoutContext } from "@/store/context/common-layout-context";
 
 function WatchList() {
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  const goToWatchList = () => {
-    navigate("/watch-list");
-  };
+	const goToWatchList = () => {
+		navigate("/watch-list");
+	};
 
-  return (
-    <Button
-      variant="outline"
-      className="flex items-center justify-center"
-      onClick={goToWatchList}
-    >
-      <Heart />
-      <p>Watchlist</p>
-    </Button>
-  );
+	return (
+		<Button
+			variant="outline"
+			className="flex items-center justify-center"
+			onClick={goToWatchList}
+		>
+			<Heart />
+			<p>Watchlist</p>
+		</Button>
+	);
 }
 
 function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  const id = useUserStore((state) => state.id);
-  const isSeller = useUserStore((state) => state.isSeller);
+	const id = useUserStore((state) => state.id);
+	const isSeller = useUserStore((state) => state.isSeller);
 
-  const { data } = useFetchUser(id ?? 0);
+	const { data } = useFetchUser(id ?? 0);
 
-  const goToProfile = () => {
-    navigate("/profile");
-  };
+	const goToProfile = () => {
+		navigate("/profile");
+	};
 
-  const goToPublishProduct = () => {
-    if (isSeller) {
-      navigate("/products/publish");
-    }
-  };
+	const goToPublishProduct = () => {
+		if (isSeller) {
+			navigate("/products/publish");
+		}
+	};
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center justify-center">
-          <User />
-          <p>{data?.fullName}</p>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64" align="end">
-        <DropdownMenuLabel className="flex items-center gap-2 text-gray-500">
-          <Mail size={16} />
-          <p className="font-light">{data?.email}</p>
-        </DropdownMenuLabel>
-        <DropdownMenuGroup>
-          <DropdownMenuItem className="flex items-center" onClick={goToProfile}>
-            <UserPen className="text-black" />
-            Profile
-          </DropdownMenuItem>
-          {isSeller && (
-            <DropdownMenuItem
-              className="flex items-center"
-              onClick={goToPublishProduct}
-            >
-              <SquarePlus className="text-black" />
-              Publish New Product
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem className="flex items-center">
-            <Moon className="text-black" />
-            Dark Mode
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut} className="flex items-center">
-          <LogOut className="text-black" />
-          Log out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button variant="outline" className="flex items-center justify-center">
+					<User />
+					<p>{data?.fullName}</p>
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent className="w-64" align="end">
+				<DropdownMenuLabel className="flex items-center gap-2 text-gray-500">
+					<Mail size={16} />
+					<p className="font-light">{data?.email}</p>
+				</DropdownMenuLabel>
+				<DropdownMenuGroup>
+					<DropdownMenuItem className="flex items-center" onClick={goToProfile}>
+						<UserPen className="text-black" />
+						Profile
+					</DropdownMenuItem>
+					{isSeller && (
+						<DropdownMenuItem
+							className="flex items-center"
+							onClick={goToPublishProduct}
+						>
+							<SquarePlus className="text-black" />
+							Publish New Product
+						</DropdownMenuItem>
+					)}
+					<DropdownMenuItem className="flex items-center">
+						<Moon className="text-black" />
+						Dark Mode
+					</DropdownMenuItem>
+				</DropdownMenuGroup>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem onClick={handleSignOut} className="flex items-center">
+					<LogOut className="text-black" />
+					Log out
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
 }
 
 function ToggleCategory() {
-  const { setIsActiveFilter, isActiveFilter } = useContext(CommonLayoutContext);
+	const { setIsActiveFilter, isActiveFilter } = useContext(CommonLayoutContext);
 
-  const handleToggle = () => {
-    setIsActiveFilter(!isActiveFilter);
-  };
+	const handleToggle = () => {
+		setIsActiveFilter(!isActiveFilter);
+	};
 
-  return (
-    <Button
-      variant={isActiveFilter ? "default" : "secondary"}
-      onClick={handleToggle}
-    >
-      <ChartBarStacked />
-    </Button>
-  );
+	return (
+		<Button
+			variant={isActiveFilter ? "default" : "secondary"}
+			onClick={handleToggle}
+		>
+			<ChartBarStacked />
+		</Button>
+	);
 }
 
 function SearchBar() {
-  const navigate = useNavigate();
-  const [inputValue, setInputValue] = useState("");
+	const navigate = useNavigate();
+	const [inputValue, setInputValue] = useState("");
 
-  const onSearch = () => {
-    // navigate to Product list page and pass the search query
-    if (inputValue && inputValue.trim().length > 0) {
-      navigate(`/products?search=${encodeURIComponent(inputValue.trim())}`, {
-        state: { searchQuery: inputValue.trim() },
-      });
-    }
-  };
+	const onSearch = () => {
+		// navigate to Product list page and pass the search query
+		if (inputValue && inputValue.trim().length > 0) {
+			navigate(`/products?search=${encodeURIComponent(inputValue.trim())}`, {
+				state: { searchQuery: inputValue.trim() },
+			});
+		}
+	};
 
-  return (
-    <>
-      <InputGroup className="mx-4">
-        <InputGroupInput
-          placeholder="Search..."
-          onChange={(e) => setInputValue(e.target.value)}
-        />
-        <InputGroupAddon>
-          <SearchIcon />
-        </InputGroupAddon>
-      </InputGroup>
-      <div className="flex gap-2 items-center">
-        <Button onClick={onSearch}>Search</Button>
-        <ToggleCategory />
-      </div>
-    </>
-  );
+	return (
+		<>
+			<InputGroup className="mx-4">
+				<InputGroupInput
+					placeholder="Search..."
+					onChange={(e) => setInputValue(e.target.value)}
+				/>
+				<InputGroupAddon>
+					<SearchIcon />
+				</InputGroupAddon>
+			</InputGroup>
+			<div className="flex gap-2 items-center">
+				<Button onClick={onSearch}>Search</Button>
+				<ToggleCategory />
+			</div>
+		</>
+	);
 }
 
 function Header() {
-  const navigate = useNavigate();
-  const isTokenExpired = useAuthStore((state) => state.isTokenExpired);
+	const navigate = useNavigate();
+	const isTokenExpired = useAuthStore((state) => state.isTokenExpired);
 
-  const { mutate, isPending } = useSignOut();
+	const { mutate, isPending } = useSignOut();
 
-  const handleSignIn = () => {
-    navigate("/auth/sign-in");
-  };
+	const handleSignIn = () => {
+		navigate("/auth/sign-in");
+	};
 
-  const handleSignUp = () => {
-    navigate("/auth/sign-up");
-  };
+	const handleSignUp = () => {
+		navigate("/auth/sign-up");
+	};
 
-  const handleSignOut = () => {
-    mutate(undefined, {
-      onSuccess: () => {
-        navigate("/auth/sign-in");
-      },
-    });
-  };
+	const handleSignOut = () => {
+		mutate(undefined, {
+			onSuccess: () => {
+				navigate("/auth/sign-in");
+			},
+		});
+	};
 
-  return (
-    <div className="flex items-center justify-between w-full py-4 px-16 border-b-1 border-[#ddd]">
-      <div className="flex items-center w-[50%]">
-        <div className="flex justify-center gap-2 md:justify-start">
-          <a href="/me" className="flex items-center gap-2 font-medium">
-            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-4" />
-            </div>
-            <p className="text-nowrap">Online Auction</p>
-          </a>
-        </div>
-        <SearchBar />
-      </div>
-      <div>
-        {isTokenExpired() ? (
-          <div className="flex items-center justify-center">
-            <Button variant="outline" className="mr-4" onClick={handleSignIn}>
-              Login
-            </Button>
-            <Button onClick={handleSignUp}>Signup</Button>
-          </div>
-        ) : isPending ? (
-          <Button disabled>Logging out...</Button>
-        ) : (
-          <div className="flex items-center justify-center gap-2">
-            <WatchList />
-            <NavUser handleSignOut={handleSignOut} />
-          </div>
-        )}
-      </div>
-    </div>
-  );
+	return (
+		<div className="flex items-center justify-between w-full py-4 px-16 border-b-1 border-[#ddd]">
+			<div className="flex items-center w-[50%]">
+				<div className="flex justify-center gap-2 md:justify-start">
+					<a href="/me" className="flex items-center gap-2 font-medium">
+						<div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+							<GalleryVerticalEnd className="size-4" />
+						</div>
+						<p className="text-nowrap">Online Auction</p>
+					</a>
+				</div>
+				<SearchBar />
+			</div>
+			<div>
+				{isTokenExpired() ? (
+					<div className="flex items-center justify-center">
+						<Button variant="outline" className="mr-4" onClick={handleSignIn}>
+							Login
+						</Button>
+						<Button onClick={handleSignUp}>Signup</Button>
+					</div>
+				) : isPending ? (
+					<Button disabled>Logging out...</Button>
+				) : (
+					<div className="flex items-center justify-center gap-2">
+						<WatchList />
+						<NavUser handleSignOut={handleSignOut} />
+					</div>
+				)}
+			</div>
+		</div>
+	);
 }
 
 function Category() {
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  const { isActiveFilter } = useContext(CommonLayoutContext);
+	const { isActiveFilter } = useContext(CommonLayoutContext);
 
-  const { data: categories } = useFetchCategories();
-  const [activeCategory, setActiveCategory] = useState<number | null>(null);
-  const [activeSubCategory, setActiveSubCategory] = useState<number | null>(
-    null
-  );
-  const cats = categories ?? [];
+	const { data: categories } = useFetchCategories();
+	const [activeCategory, setActiveCategory] = useState<number | null>(null);
+	const [activeSubCategory, setActiveSubCategory] = useState<number | null>(
+		null,
+	);
+	const cats = categories ?? [];
 
-  const handleCategoryClick = (id: number) => {
-    setActiveCategory((prev) => (prev === id ? null : id));
-  };
+	const handleCategoryClick = (id: number) => {
+		setActiveCategory((prev) => (prev === id ? null : id));
+	};
 
-  const handleResetCategory = () => {
-    setActiveCategory(null);
-    setActiveSubCategory(null);
-  };
+	const handleResetCategory = () => {
+		setActiveCategory(null);
+		setActiveSubCategory(null);
+	};
 
-  const handleSubCategoryClick = (
-    categoryName: string,
-    categoryId: number,
-    subCategoryName: string,
-    subCategoryId: number
-  ) => {
-    navigate(
-      `/products?category=${categoryName}&subCategory=${subCategoryName}`,
-      {
-        state: {
-          categoryId: categoryId,
-          subCategoryId: subCategoryId,
-        },
-      }
-    );
-  };
+	const handleSubCategoryClick = (
+		categoryName: string,
+		categoryId: number,
+		subCategoryName: string,
+		subCategoryId: number,
+	) => {
+		navigate(
+			`/products?category=${categoryName}&subCategory=${subCategoryName}`,
+			{
+				state: {
+					categoryId: categoryId,
+					subCategoryId: subCategoryId,
+				},
+			},
+		);
+	};
 
-  const activeData = cats.find((c) => c.id === activeCategory);
+	const activeData = cats.find((c) => c.id === activeCategory);
 
-  return (
-    <div className="w-full flex flex-col relative">
-      {isActiveFilter && (
-        <div className="flex items-center justify-between w-full border-b border-[#ddd] px-16">
-          <div>
-            {cats.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryClick(cat.id)}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary hover:cursor-pointer",
-                  activeCategory === cat.id
-                    ? "border-b-2 border-black text-black"
-                    : "text-muted-foreground"
-                )}
-              >
-                <p className="py-4 pr-16">{cat.name}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+	return (
+		<div className="w-full flex flex-col relative">
+			{isActiveFilter && (
+				<div className="flex items-center justify-between w-full border-b border-[#ddd] px-16">
+					<div>
+						{cats.map((cat) => (
+							<button
+								key={cat.id}
+								onClick={() => handleCategoryClick(cat.id)}
+								className={cn(
+									"text-sm font-medium transition-colors hover:text-primary hover:cursor-pointer",
+									activeCategory === cat.id
+										? "border-b-2 border-black text-black"
+										: "text-muted-foreground",
+								)}
+							>
+								<p className="py-4 pr-16">{cat.name}</p>
+							</button>
+						))}
+					</div>
+				</div>
+			)}
 
-      {activeCategory && (
-        <div
-          className="absolute left-0 top-full w-full bg-white px-16 py-4 border-b border-[#ddd] flex gap-10 z-1"
-          onClick={() => setActiveCategory(activeCategory)}
-          onBlur={handleResetCategory}
-        >
-          {activeData &&
-            activeData?.children.map((subCategory) => (
-              <p
-                key={subCategory.id}
-                className={cn(
-                  "text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer",
-                  activeSubCategory === subCategory.id
-                    ? "text-black"
-                    : "text-muted-foreground"
-                )}
-                onClick={() =>
-                  handleSubCategoryClick(
-                    activeData.name,
-                    activeData.id,
-                    subCategory.name,
-                    subCategory.id
-                  )
-                }
-              >
-                {subCategory.name}
-              </p>
-            ))}
-        </div>
-      )}
-    </div>
-  );
+			{activeCategory && (
+				<div
+					className="absolute left-0 top-full w-full bg-white px-16 py-4 border-b border-[#ddd] flex gap-10 z-1"
+					onClick={() => setActiveCategory(activeCategory)}
+					onBlur={handleResetCategory}
+				>
+					{activeData &&
+						activeData?.children.map((subCategory) => (
+							<p
+								key={subCategory.id}
+								className={cn(
+									"text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer",
+									activeSubCategory === subCategory.id
+										? "text-black"
+										: "text-muted-foreground",
+								)}
+								onClick={() =>
+									handleSubCategoryClick(
+										activeData.name,
+										activeData.id,
+										subCategory.name,
+										subCategory.id,
+									)
+								}
+							>
+								{subCategory.name}
+							</p>
+						))}
+				</div>
+			)}
+		</div>
+	);
 }
 
 function Footer() {
-  return (
-    <div className="bg-[#173127] flex flex-col items-center justify-center text-white mt-32 py-16">
-      <div className="max-w-lg">
-        <p>© 2025 - Online Auction - Advanced Web Development - 22KTPM1</p>
-        <div className="flex justify-center gap-8">
-          <p>22127286 - Nguyễn Thanh Nam</p>
-          <p>22127441 - Thái Huyễn Tùng</p>
-        </div>
-      </div>
-    </div>
-  );
+	return (
+		<div className="bg-[#173127] flex flex-col items-center justify-center text-white mt-32 py-16">
+			<div className="max-w-lg">
+				<p>© 2025 - Online Auction - Advanced Web Development - 22KTPM1</p>
+				<div className="flex justify-center gap-8">
+					<p>22127286 - Nguyễn Thanh Nam</p>
+					<p>22127441 - Thái Huyễn Tùng</p>
+				</div>
+			</div>
+		</div>
+	);
 }
 
 function CommonLayout() {
-  const [isActiveFilter, setIsActiveFilter] = useState(true);
+	const [isActiveFilter, setIsActiveFilter] = useState(true);
 
-  const commonLayoutContextValue = {
-    isActiveFilter,
-    setIsActiveFilter,
-  };
+	const commonLayoutContextValue = {
+		isActiveFilter,
+		setIsActiveFilter,
+	};
 
-  return (
-    <CommonLayoutContext.Provider value={commonLayoutContextValue}>
-      <div>
-        <Header />
-        <Category />
-      </div>
-      <main className="px-16">
-        <Outlet />
-      </main>
-      <Footer />
-    </CommonLayoutContext.Provider>
-  );
+	return (
+		<CommonLayoutContext.Provider value={commonLayoutContextValue}>
+			<div>
+				<Header />
+				<Category />
+			</div>
+			<main className="px-16">
+				<Outlet />
+			</main>
+			<Footer />
+		</CommonLayoutContext.Provider>
+	);
 }
 
 export default CommonLayout;

@@ -40,8 +40,13 @@ const OAuth2RedirectHandler = lazy(
 );
 
 // Seller
+import { MyPublishedProductsLoader } from "@/components/profile/MyPublishedProducts";
+
 const PublishNewProduct = lazy(
   () => import("@/components/publish-new-product/PublishNewProduct.tsx")
+);
+const MyPublishedProducts = lazy(
+  () => import("@/components/profile/MyPublishedProducts.tsx")
 );
 
 const router = createBrowserRouter([
@@ -100,6 +105,15 @@ const router = createBrowserRouter([
             <WonProducts />
           </Suspense>
         ),
+      },
+      {
+        path: "published-products",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <MyPublishedProducts />
+          </Suspense>
+        ),
+        loader: MyPublishedProductsLoader,
       },
     ],
     loader: ProtectedRoute,
@@ -169,7 +183,15 @@ const router = createBrowserRouter([
         path: "publish",
         element: (
           <Suspense fallback={<LoadingPage />}>
-            <PublishNewProduct />
+            <PublishNewProduct mode="create" />
+          </Suspense>
+        ),
+      },
+      {
+        path: ":id/edit",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <PublishNewProduct mode="edit" />
           </Suspense>
         ),
       },
