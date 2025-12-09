@@ -13,6 +13,8 @@ import { API_ENDPOINTS } from "./endpoints";
 import { queryClient } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import type { PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE } from "@/types/Product";
+import type { AxiosError } from "axios";
+import type { ApiResponseError } from "@/types/ApiResponse";
 
 export const useFetchUser = (id: number) => {
   return useQuery<USER_BY_ID_RESPONSE["data"]>({
@@ -31,7 +33,7 @@ export const useChangeProfile = () => {
 
   return useMutation<
     UPDATE_USER_PROFILE_RESPONSE,
-    Error,
+    AxiosError<ApiResponseError>,
     {
       fullName: string;
       address: string;
@@ -49,6 +51,15 @@ export const useChangeProfile = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user", id] });
     },
+    onError: (error) => {
+      const apiError = error.response?.data;
+
+      if (apiError) {
+        return Promise.reject(new Error(apiError.message));
+      } else {
+        console.error("Unexpected error:", error.message);
+      }
+    },
   });
 };
 
@@ -57,7 +68,7 @@ export const useChangePassword = () => {
 
   return useMutation<
     CHANGE_PASSWORD_RESPONSE,
-    Error,
+    AxiosError<ApiResponseError>,
     {
       oldPassword: string;
       newPassword: string;
@@ -73,6 +84,15 @@ export const useChangePassword = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user", id] });
+    },
+    onError: (error) => {
+      const apiError = error.response?.data;
+
+      if (apiError) {
+        return Promise.reject(new Error(apiError.message));
+      } else {
+        console.error("Unexpected error:", error.message);
+      }
     },
   });
 };
@@ -127,7 +147,7 @@ export const useFetchWonProducts = (page: number = 0, size: number = 20) => {
 export const useUpgradeToSeller = () => {
   return useMutation<
     USER_UPGRADE_TO_SELLER_RESPONSE,
-    Error,
+    AxiosError<ApiResponseError>,
     USER_UPGRADE_TO_SELLER_PAYLOAD
   >({
     mutationKey: ["upgrade-to-seller"],
@@ -137,6 +157,15 @@ export const useUpgradeToSeller = () => {
         payload
       );
       return data;
+    },
+    onError: (error) => {
+      const apiError = error.response?.data;
+
+      if (apiError) {
+        return Promise.reject(new Error(apiError.message));
+      } else {
+        console.error("Unexpected error:", error.message);
+      }
     },
   });
 };

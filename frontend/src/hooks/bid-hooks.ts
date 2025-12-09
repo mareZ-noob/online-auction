@@ -9,6 +9,8 @@ import type {
 
 import { API_ENDPOINTS } from "./endpoints";
 import { queryClient } from "@/lib/utils";
+import type { ApiResponseError } from "@/types/ApiResponse";
+import type { AxiosError } from "axios";
 
 export const useFetchMyBidHistory = () => {
   return useQuery<MY_BID_HISTORY_RESPONSE, Error>({
@@ -25,7 +27,7 @@ export const useFetchMyBidHistory = () => {
 export const usePlaceABid = () => {
   return useMutation<
     PLACE_A_BID_RESPONSE,
-    Error,
+    AxiosError<ApiResponseError>,
     {
       productId: number;
       amount: number | null;
@@ -46,6 +48,15 @@ export const usePlaceABid = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bidHistoryOfAProduct"] });
+    },
+    onError: (error) => {
+      const apiError = error.response?.data;
+
+      if (apiError) {
+        return Promise.reject(new Error(apiError.message));
+      } else {
+        console.error("Unexpected error:", error.message);
+      }
     },
   });
 };

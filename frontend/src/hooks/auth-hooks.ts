@@ -9,6 +9,8 @@ import type {
   LoginResponse,
   SignupResponse,
 } from "@/types/Auth";
+import type { ApiResponseError } from "@/types/ApiResponse";
+import type { AxiosError } from "axios";
 
 export const useLogin = () => {
   const setIsEmailVerified = useAuthStore((state) => state.setIsEmailVerified);
@@ -16,7 +18,11 @@ export const useLogin = () => {
   const setId = useUserStore((state) => state.setId);
   // const setUser = useUserStore((state) => state.setUser);
 
-  return useMutation({
+  return useMutation<
+    LoginResponse["data"],
+    AxiosError<ApiResponseError>,
+    { email: string; password: string }
+  >({
     mutationFn: async (credentials: { email: string; password: string }) => {
       const { data } = await apiClient.post<LoginResponse>(
         API_ENDPOINTS.LOGIN,
@@ -34,11 +40,30 @@ export const useLogin = () => {
       setAuth(data.accessToken, data.refreshToken, expireIn);
       setId(sub);
     },
+    onError: (error) => {
+      const apiError = error.response?.data;
+
+      if (apiError) {
+        return Promise.reject(new Error(apiError.message));
+      } else {
+        console.error("Unexpected error:", error.message);
+      }
+    },
   });
 };
 
 export const useRegister = () => {
-  return useMutation({
+  return useMutation<
+    SignupResponse["data"],
+    AxiosError<ApiResponseError>,
+    {
+      fullName: string;
+      address: string;
+      email: string;
+      password: string;
+      recaptchaToken: string;
+    }
+  >({
     mutationFn: async (credentials: {
       fullName: string;
       address: string;
@@ -51,6 +76,15 @@ export const useRegister = () => {
         credentials
       );
       return data.data;
+    },
+    onError: (error) => {
+      const apiError = error.response?.data;
+
+      if (apiError) {
+        return Promise.reject(new Error(apiError.message));
+      } else {
+        console.error("Unexpected error:", error.message);
+      }
     },
   });
 };

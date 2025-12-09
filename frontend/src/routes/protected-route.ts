@@ -1,14 +1,15 @@
 import { redirect, type LoaderFunctionArgs } from "react-router-dom";
 import { useAuthStore } from "@/store/auth-store.ts";
 
-export function ProtectedRoute({ request }: LoaderFunctionArgs) {
+export async function ProtectedRoute({ request }: LoaderFunctionArgs) {
   const token = useAuthStore.getState().token;
   const isTokenExpired = useAuthStore.getState().isTokenExpired;
+  console.log(isTokenExpired());
 
   // If token exists but is expired, try to refresh
   if (token && isTokenExpired()) {
     console.log("Token expired, attempting refresh...");
-    useAuthStore.getState().refreshUserToken();
+    await useAuthStore.getState().refreshUserToken();
   }
 
   // If we have a valid token, allow access (even if email not verified yet)

@@ -16,6 +16,7 @@ import { Link, useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import MyReCAPTCHA from "@/components/auth-page/ReCAPTCHA.tsx";
 import { useAuthStatus, useRegister } from "@/hooks/auth-hooks.ts";
+import { toastError } from "./toast/toast-ui";
 
 const signup_schema = z.object({
   fullName: z.string().min(3, {
@@ -67,7 +68,7 @@ export function SignupForm({
         });
       },
       onError: (error) => {
-        console.error("Registration failed:", error);
+        toastError(error);
       },
     });
 

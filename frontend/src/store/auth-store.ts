@@ -2,7 +2,7 @@ import apiClient from "@/query/api-client";
 import { jwtDecode } from "jwt-decode";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { AccessTokenPayload } from "@/hooks/auth-hooks";
+import type { AccessTokenPayload } from "@/types/Auth";
 
 interface AuthState {
   token: string | null;

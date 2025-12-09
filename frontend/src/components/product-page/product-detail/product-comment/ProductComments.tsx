@@ -25,6 +25,7 @@ function CreateComment({ productId }: { productId: number }) {
       },
       {
         onSuccess: (result) => {
+          setQuestionValue("");
           toastSuccess(result.message || "Comment posted successfully!");
         },
         onError: (error) => {
@@ -97,10 +98,14 @@ function ProductComments({ productId }: { productId: number }) {
       setTotalPages(data.totalPages);
     }
   }, [data]);
-  console.log(data);
 
   if (!data || data.content.length === 0) {
-    return <div>No comments available.</div>;
+    return (
+      <div>
+        <CreateComment productId={productId} />
+        <p className="mt-4 font-light text-gray-400">No comments available.</p>
+      </div>
+    );
   }
 
   return (

@@ -172,6 +172,7 @@ function PersonalInformation() {
       {
         onSuccess: (result) => {
           resetUpgradeToSeller();
+          setUpgradeToSellerStatus(true);
           toastSuccess(result.message);
         },
         onError: (error) => {
@@ -317,7 +318,7 @@ function PersonalInformation() {
             </CardTitle>
             <CardDescription>
               Become a seller to start auctioning your products. And the
-              Administrator will review your request soon.
+              Administrator will review your request soon (within 7 days).
             </CardDescription>
           </CardHeader>
           <CardContent className="h-full relative">

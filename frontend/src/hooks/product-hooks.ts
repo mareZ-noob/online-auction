@@ -13,6 +13,8 @@ import type {
   USER_QUESTIONS_RESPONSE,
 } from "@/types/User";
 import { queryClient } from "@/lib/utils";
+import type { AxiosError } from "axios";
+import type { ApiResponseError } from "@/types/ApiResponse";
 
 export const useFetchCategories = () => {
   return useQuery<CATEGORY[]>({
@@ -160,7 +162,11 @@ export const useSearchProdutcs = (
 };
 
 export const usePostCommentOnAProduct = () => {
-  return useMutation<USER_QUESTIONS_RESPONSE, Error, USER_QUESTIONS_PAYLOAD>({
+  return useMutation<
+    USER_QUESTIONS_RESPONSE,
+    AxiosError<ApiResponseError>,
+    USER_QUESTIONS_PAYLOAD
+  >({
     mutationKey: ["post_question_on_a_product"],
     mutationFn: async (credentials: USER_QUESTIONS_PAYLOAD) => {
       const { data } = await apiClient.post<USER_QUESTIONS_RESPONSE>(
@@ -170,7 +176,18 @@ export const usePostCommentOnAProduct = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get_questions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["get_questions_of_a_product"],
+      });
+    },
+    onError: (error) => {
+      const apiError = error.response?.data;
+
+      if (apiError) {
+        return Promise.reject(new Error(apiError.message));
+      } else {
+        console.error("Unexpected error:", error.message);
+      }
     },
   });
 };

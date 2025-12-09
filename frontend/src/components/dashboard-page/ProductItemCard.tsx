@@ -7,6 +7,7 @@ import {
 } from "@/hooks/watch-list-hooks";
 import { Button } from "@/components/ui/button.tsx";
 import type { CardItemInformation } from "@/types/CardItem";
+import { toastError, toastSuccess } from "../toast/toast-ui";
 
 function ProductItemCard({
   data,
@@ -33,7 +34,14 @@ function ProductItemCard({
 
   const handleAddToWatchList = () => {
     setWatchListButton("Following");
-    addToWatchList();
+    addToWatchList(undefined, {
+      onSuccess: (result) => {
+        toastSuccess(result.message);
+      },
+      onError: (error) => {
+        toastError(error);
+      },
+    });
   };
 
   const handleRemoveFromWatchList = () => {
