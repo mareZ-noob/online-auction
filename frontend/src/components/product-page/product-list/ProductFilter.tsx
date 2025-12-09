@@ -10,7 +10,7 @@ import { useContext } from "react";
 import { ProductListContext } from "@/store/context/product-list-context";
 
 function ProductFilter() {
-  const { enndtime, setEndtime, price, setPrice, newPublish, setNewPublish } =
+  const { endtime, setEndtime, price, setPrice, newPublish, setNewPublish } =
     useContext(ProductListContext);
 
   return (
@@ -24,7 +24,10 @@ function ProductFilter() {
           <p className="text-xl">End Time</p>
         </AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4 text-balance">
-          <RadioGroup value={enndtime} onValueChange={(v) => setEndtime(v as "desc" | "asc")}>
+          <RadioGroup
+            value={endtime}
+            onValueChange={(v) => setEndtime(v as "desc" | "asc")}
+          >
             <label className="flex items-center gap-3">
               <RadioGroupItem id="end-desc" value="desc" />
               <Label htmlFor="end-desc" className="font-light text-black-100">
@@ -46,7 +49,10 @@ function ProductFilter() {
           <p className="text-xl">Price</p>
         </AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4 text-balance">
-          <RadioGroup value={price} onValueChange={(v) => setPrice(v as "desc" | "asc")}>
+          <RadioGroup
+            value={price}
+            onValueChange={(v) => setPrice(v as "desc" | "asc")}
+          >
             <label className="flex items-center gap-3">
               <RadioGroupItem id="price-desc" value="desc" />
               <Label htmlFor="price-desc" className="font-light text-black-100">
@@ -68,7 +74,10 @@ function ProductFilter() {
           <p className="text-xl">Other</p>
         </AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4 text-balance">
-          <RadioGroup value={newPublish ? "true" : "false"} onValueChange={(v) => setNewPublish(v === "true")}>
+          <RadioGroup
+            value={newPublish ? "true" : "false"}
+            onValueChange={(v) => setNewPublish(v === "true")}
+          >
             <label className="flex items-center gap-3">
               <RadioGroupItem id="other-all" value="false" />
               <Label htmlFor="other-all" className="font-light text-black-100">

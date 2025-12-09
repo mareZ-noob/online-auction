@@ -25,7 +25,7 @@ function NumberInput({
 
     if (value === "" || !isNaN(Number(value))) {
       setInputValue(value);
-      if (value !== "" && Number(value) <= validBid) {
+      if (value !== "" && Number(value) < validBid) {
         setError(`The value must be greater than ${validBid}`);
       } else {
         setError("");

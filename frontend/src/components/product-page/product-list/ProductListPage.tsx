@@ -81,7 +81,7 @@ function ProductListPage() {
   return (
     <ProductListContext.Provider
       value={{
-        enndtime: filterWithEndTime,
+        endtime: filterWithEndTime,
         setEndtime: setFilterWithEndTime,
         price: filterWithPrice,
         setPrice: setFilterWithPrice,

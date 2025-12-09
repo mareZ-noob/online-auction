@@ -16,7 +16,7 @@ export const useLogin = () => {
   const setIsEmailVerified = useAuthStore((state) => state.setIsEmailVerified);
   const setAuth = useAuthStore((state) => state.setAuth);
   const setId = useUserStore((state) => state.setId);
-  // const setUser = useUserStore((state) => state.setUser);
+  const setIsSeller = useUserStore((state) => state.setIsSeller);
 
   return useMutation<
     LoginResponse["data"],
@@ -33,12 +33,14 @@ export const useLogin = () => {
     onSuccess: async (data) => {
       const decoded = jwtDecode<AccessTokenPayload>(data.accessToken);
       const sub = decoded.sub;
+      const isSeller = data.user.role === "SELLER";
       const expireIn = decoded.exp - Math.floor(Date.now() / 1000); // seconds left
 
       // store tokens and id in zustand stores
       setIsEmailVerified(data.user.emailVerified);
       setAuth(data.accessToken, data.refreshToken, expireIn);
       setId(sub);
+      setIsSeller(isSeller);
     },
     onError: (error) => {
       const apiError = error.response?.data;

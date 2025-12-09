@@ -6,6 +6,8 @@ import { ProtectedRoute } from "@/routes/protected-route.ts";
 
 const SignInPage = lazy(() => import("@/components/auth-page/SignInPage"));
 const SignUpPage = lazy(() => import("@/components/auth-page/SignUpPage.tsx"));
+
+// User | Bidder
 const DashboardPage = lazy(
   () => import("@/components/dashboard-page/DashboardPage.tsx")
 );
@@ -35,6 +37,11 @@ const WonProducts = lazy(() => import("@/components/profile/WonProducts.tsx"));
 const CommonLayout = lazy(() => import("@/layouts/CommonLayout"));
 const OAuth2RedirectHandler = lazy(
   () => import("@/components/auth-page/OAuth2RedirectHandler")
+);
+
+// Seller
+const PublishNewProduct = lazy(
+  () => import("@/components/publish-new-product/PublishNewProduct.tsx")
 );
 
 const router = createBrowserRouter([
@@ -155,6 +162,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingPage />}>
             <ProductListPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "publish",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <PublishNewProduct />
           </Suspense>
         ),
       },

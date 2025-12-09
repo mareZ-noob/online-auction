@@ -68,4 +68,7 @@ export const API_ENDPOINTS = {
     `/bidder/products/bidding?page=${page}&size=${size}`,
   UPGRADE_TO_SELLER: "/bidder/upgrade-request",
   GET_REQUESTS_TO_BECOME_SELLER: "/bidder/upgrade-requests",
+
+  // Seller
+  CREATE_NEW_PRODUCT: "/seller/products",
 };

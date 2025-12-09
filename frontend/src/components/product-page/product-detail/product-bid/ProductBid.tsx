@@ -30,7 +30,7 @@ type ProductBidProps = {
 function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
   const validBidPriceRange = useMemo(() => {
     const start = currentPrice + stepPrice;
-    return Array.from({ length: 10 }, (_, i) => start + (i + 1) * stepPrice);
+    return Array.from({ length: 11 }, (_, i) => start + i * stepPrice);
   }, [currentPrice, stepPrice]);
 
   const [selectedBidPrice, setSelectedBidPrice] = useState(

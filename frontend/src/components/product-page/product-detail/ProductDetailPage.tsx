@@ -11,6 +11,7 @@ import { CardItemInformationMapper } from "@/lib/utils";
 import { useParams } from "react-router-dom";
 import ProductDetailPageFallback from "./ProductDetailPageFallback";
 import ProductBidHistory from "./product-bid/ProductBidHistory";
+import DOMPurify from "dompurify";
 
 function ProductDetailPage() {
   const productId = useParams().id as string;
@@ -48,9 +49,12 @@ function ProductDetailPage() {
       <div className="my-8 border-b border-gray-200" />
       <section>
         <p className="text-xl mb-4">Additional Details</p>
-        <p className="font-light text-gray-500">
-          {productDetails?.description}
-        </p>
+        <div
+          className="prose prose-neutral max-w-none"
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(productDetails?.description ?? ""),
+          }}
+        />
       </section>
       <div className="my-8 border-b border-gray-200" />
       <section>

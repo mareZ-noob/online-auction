@@ -29,7 +29,7 @@ export function CardItemInformationMapper(
 export const queryClient = new QueryClient();
 
 export type ProductFilterCriteria = {
-  enndtime?: "desc" | "asc";
+  endtime?: "desc" | "asc";
   price?: "desc" | "asc";
   newPublish?: boolean | null;
 };
@@ -47,11 +47,13 @@ export function filterAndSortProducts(
 
   let result = products.slice();
 
-  if (criteria.newPublish !== null && criteria.newPublish !== undefined) {
-    result = result.filter((p) => p.isNew === criteria.newPublish);
+  // Only filter for new products when caller explicitly requests newPublish === true.
+  // Treat the default (false / undefined / null) as "no filtering": return all products.
+  if (criteria.newPublish === true) {
+    result = result.filter((p) => p.isNew === true);
   }
 
-  const ennd = criteria.enndtime ?? "asc";
+  const ennd = criteria.endtime ?? "asc";
   const pr = criteria.price ?? "asc";
 
   result.sort((a, b) => {

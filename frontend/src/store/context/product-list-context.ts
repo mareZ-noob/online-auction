@@ -10,7 +10,7 @@ export interface ProductListContextType {
 export const ProductListContext = createContext<
   ProductFilterCriteria & ProductListContextType
 >({
-  enndtime: "asc",
+  endtime: "asc",
   price: "asc",
   newPublish: false,
   setEndtime: () => {

@@ -3,48 +3,33 @@ import { persist } from "zustand/middleware";
 
 interface UserState {
   id: number | null;
-  email: string;
-  fullName: string;
-  address: string;
-  role: string;
-  linkedProviders: string[];
-  emailVerified: boolean;
-  positiveRatings: number;
-  negativeRatings: number;
-  createdAt: string;
+  isSeller: boolean;
 }
 
 interface UserAction {
-  setId: (id: number) => void;
-  setUser: (user: Partial<UserState> | null) => void;
+  setId: (id: number | null) => void;
+  setIsSeller: (isSeller: boolean) => void;
   clearUser: () => void;
 }
 
 export const useUserStore = create<UserState & UserAction>()(
   persist(
     (set) => ({
-      id: 0,
-      email: "",
-      fullName: "",
-      address: "",
-      role: "",
-      linkedProviders: [],
-      emailVerified: false,
-      positiveRatings: 0,
-      negativeRatings: 0,
-      createdAt: "",
-
+      id: null,
+      isSeller: false,
       setId: (id) => set(() => ({ id })),
-      setUser: (user) => set((prev) => ({ ...prev, ...(user ?? {}) })),
+      setIsSeller: (isSeller) => set(() => ({ isSeller })),
       clearUser: () =>
         set(() => ({
           id: null,
+          isSeller: false,
         })),
     }),
     {
       name: "user-storage",
       partialize: (state) => ({
         id: state.id,
+        isSeller: state.isSeller,
       }),
     }
   )

@@ -7,10 +7,10 @@ import { useContext } from "react";
 import { ProductListContext } from "@/store/context/product-list-context";
 
 function ProductContainer({ data }: { data: PRODUCTS_BY_SUB_CATEGORY_ID[] }) {
-  const { enndtime, price, newPublish } = useContext(ProductListContext);
+  const { endtime, price, newPublish } = useContext(ProductListContext);
 
   const filtered = filterAndSortProducts(data, {
-    enndtime,
+    endtime,
     price,
     newPublish,
   });

@@ -52,13 +52,13 @@ const ProductGallery = ({
 
   return (
     <div className="col-span-2 flex gap-4">
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 h-[600px] overflow-y-scroll">
         {subImages.map((item, index) => (
           <button
             key={index}
             onClick={() => setActiveImg(item)}
             className={`
-                     min-w-[100px] h-[100px] border-2 overflow-hidden
+                     shrink-0 min-w-[100px] h-[100px] border-2 overflow-hidden
                      ${
                        activeImg === item
                          ? "border-2 border-black"

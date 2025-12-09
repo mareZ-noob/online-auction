@@ -9,6 +9,7 @@ import {
   User,
   UserPen,
   ChartBarStacked,
+  SquarePlus,
 } from "lucide-react";
 import {
   InputGroup,
@@ -57,11 +58,18 @@ function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
   const navigate = useNavigate();
 
   const id = useUserStore((state) => state.id);
+  const isSeller = useUserStore((state) => state.isSeller);
 
   const { data } = useFetchUser(id ?? 0);
 
   const goToProfile = () => {
     navigate("/profile");
+  };
+
+  const goToPublishProduct = () => {
+    if (isSeller) {
+      navigate("/products/publish");
+    }
   };
 
   return (
@@ -82,6 +90,15 @@ function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
             <UserPen className="text-black" />
             Profile
           </DropdownMenuItem>
+          {isSeller && (
+            <DropdownMenuItem
+              className="flex items-center"
+              onClick={goToPublishProduct}
+            >
+              <SquarePlus className="text-black" />
+              Publish New Product
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem className="flex items-center">
             <Moon className="text-black" />
             Dark Mode
