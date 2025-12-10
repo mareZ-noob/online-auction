@@ -1,19 +1,19 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectLabel,
-	SelectTrigger,
-	SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@radix-ui/react-label";
@@ -22,149 +22,149 @@ import { usePlaceABid } from "@/hooks/bid-hooks";
 import { toastError, toastSuccess } from "@/components/toast/toast-ui";
 
 type ProductBidProps = {
-	productId: number;
-	currentPrice: number;
-	stepPrice: number;
+  productId: number;
+  currentPrice: number;
+  stepPrice: number;
 };
 
 function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
-	const validBidPriceRange = useMemo(() => {
-		const start = currentPrice + stepPrice;
-		return Array.from({ length: 11 }, (_, i) => start + i * stepPrice);
-	}, [currentPrice, stepPrice]);
+  const validBidPriceRange = useMemo(() => {
+    const start = currentPrice + stepPrice;
+    return Array.from({ length: 11 }, (_, i) => start + i * stepPrice);
+  }, [currentPrice, stepPrice]);
 
-	const [selectedBidPrice, setSelectedBidPrice] = useState(
-		validBidPriceRange[0],
-	);
-	const [autoBidPrice, setAutoBidPrice] = useState<number | null>(null);
-	const [maxAutoBidPrice, setMaxAutoBidPrice] = useState<number | null>(null);
+  const [selectedBidPrice, setSelectedBidPrice] = useState(
+    validBidPriceRange[0]
+  );
+  const [autoBidPrice, setAutoBidPrice] = useState<number | null>(null);
+  const [maxAutoBidPrice, setMaxAutoBidPrice] = useState<number | null>(null);
 
-	const [isCheckedAutoBid, setIsCheckedAutoBid] = useState(false);
+  const [isCheckedAutoBid, setIsCheckedAutoBid] = useState(false);
 
-	const { mutate, isPending, isError, error } = usePlaceABid();
+  const { mutate, isPending, isError, error } = usePlaceABid();
 
-	const handleToggleAutoBid = () => {
-		setIsCheckedAutoBid((prev) => !prev);
-	};
+  const handleToggleAutoBid = () => {
+    setIsCheckedAutoBid((prev) => !prev);
+  };
 
-	const handleSelectBidPrice = (value: string) => {
-		setSelectedBidPrice(Number(value));
-	};
+  const handleSelectBidPrice = (value: string) => {
+    setSelectedBidPrice(Number(value));
+  };
 
-	const handleSubmitBid = () => {
-		mutate(
-			{
-				productId: productId,
-				amount: selectedBidPrice,
-				maxAutoBidAmount: null,
-			},
-			{
-				onSuccess: (result) => {
-					toastSuccess(result.message);
-				},
-				onError: (error) => {
-					toastError(error);
-				},
-			},
-		);
-	};
+  const handleSubmitBid = () => {
+    mutate(
+      {
+        productId: productId,
+        amount: selectedBidPrice,
+        maxAutoBidAmount: null,
+      },
+      {
+        onSuccess: (result) => {
+          toastSuccess(result.message);
+        },
+        onError: (error) => {
+          toastError(error);
+        },
+      }
+    );
+  };
 
-	const handleSubmitAutoBid = () => {
-		mutate(
-			{
-				productId: productId,
-				amount: autoBidPrice || 0,
-				maxAutoBidAmount: maxAutoBidPrice || 0,
-			},
-			{
-				onSuccess: (result) => {
-					toastSuccess(result.message);
-				},
-				onError: (error) => {
-					toastError(error);
-				},
-			},
-		);
-	};
+  const handleSubmitAutoBid = () => {
+    mutate(
+      {
+        productId: productId,
+        amount: autoBidPrice || 0,
+        maxAutoBidAmount: maxAutoBidPrice || 0,
+      },
+      {
+        onSuccess: (result) => {
+          toastSuccess(result.message);
+        },
+        onError: (error) => {
+          toastError(error);
+        },
+      }
+    );
+  };
 
-	return (
-		<>
-			<div className="flex items-center justify-between mb-4">
-				<Select
-					defaultValue={String(validBidPriceRange[0])}
-					disabled={isCheckedAutoBid}
-					onValueChange={(value) => handleSelectBidPrice(value)}
-				>
-					<SelectTrigger className="w-full text-lg">
-						<SelectValue placeholder="Select Price" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectGroup>
-							<SelectLabel className="text-lg">Bid Prices</SelectLabel>
-							{validBidPriceRange.map((price) => (
-								<SelectItem
-									key={price}
-									value={String(price)}
-									className="text-lg"
-								>
-									{price}
-								</SelectItem>
-							))}
-						</SelectGroup>
-					</SelectContent>
-				</Select>
-				<Button
-					className="ml-4"
-					disabled={isCheckedAutoBid}
-					onClick={handleSubmitBid}
-				>
-					{isPending ? "Placing Bid..." : "Place Bid"}
-				</Button>
-			</div>
-			<Accordion type="single" collapsible className="w-full">
-				<AccordionItem value="item-1">
-					<AccordionTrigger className="text-left" onClick={handleToggleAutoBid}>
-						<div className="flex items-center gap-3">
-							<Checkbox id="terms" checked={isCheckedAutoBid} />
-							<Label
-								htmlFor="terms"
-								onClick={(e: React.MouseEvent<HTMLLabelElement>) =>
-									e.stopPropagation()
-								}
-								className="text-lg"
-							>
-								Activate Auto Bid
-							</Label>
-						</div>
-					</AccordionTrigger>
-					<AccordionContent>
-						<div className="flex flex-col items-end justify-between px-1">
-							<NumberInput
-								label={`Enter max auto-bid price (must be >= ${validBidPriceRange[0]})`}
-								placeholder={`e.g., ${validBidPriceRange[0]}`}
-								validBid={validBidPriceRange[0]}
-								onValidBid={setAutoBidPrice}
-							/>
-							<NumberInput
-								className="mt-4"
-								label="Enter your maximum budget"
-								placeholder={`e.g., ${validBidPriceRange[0]}`}
-								validBid={validBidPriceRange[0]}
-								onValidBid={setMaxAutoBidPrice}
-							/>
-							<Button
-								className="ml-4 mt-4"
-								disabled={!isCheckedAutoBid}
-								onClick={handleSubmitAutoBid}
-							>
-								{isPending ? "Placing Bid..." : "Place Bid"}
-							</Button>
-						</div>
-					</AccordionContent>
-				</AccordionItem>
-			</Accordion>
-		</>
-	);
+  return (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <Select
+          defaultValue={String(validBidPriceRange[0])}
+          disabled={isCheckedAutoBid}
+          onValueChange={(value) => handleSelectBidPrice(value)}
+        >
+          <SelectTrigger className="w-full text-lg">
+            <SelectValue placeholder="Select Price" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel className="text-lg">Bid Prices</SelectLabel>
+              {validBidPriceRange.map((price) => (
+                <SelectItem
+                  key={price}
+                  value={String(price)}
+                  className="text-lg"
+                >
+                  {price}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <Button
+          className="ml-4"
+          disabled={isCheckedAutoBid}
+          onClick={handleSubmitBid}
+        >
+          {isPending ? "Placing Bid..." : "Place Bid"}
+        </Button>
+      </div>
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="item-1">
+          <AccordionTrigger className="text-left" onClick={handleToggleAutoBid}>
+            <div className="flex items-center gap-3">
+              <Checkbox id="terms" checked={isCheckedAutoBid} />
+              <Label
+                htmlFor="terms"
+                onClick={(e: React.MouseEvent<HTMLLabelElement>) =>
+                  e.stopPropagation()
+                }
+                className="text-lg"
+              >
+                Activate Auto Bid
+              </Label>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="flex flex-col items-end justify-between px-1">
+              <NumberInput
+                label={`Enter max auto-bid price (must be >= ${validBidPriceRange[0]})`}
+                placeholder={`e.g., ${validBidPriceRange[0]}`}
+                validBid={validBidPriceRange[0]}
+                onValidBid={setAutoBidPrice}
+              />
+              <NumberInput
+                className="mt-4"
+                label="Enter your maximum budget"
+                placeholder={`e.g., ${validBidPriceRange[0]}`}
+                validBid={validBidPriceRange[0]}
+                onValidBid={setMaxAutoBidPrice}
+              />
+              <Button
+                className="ml-4 mt-4"
+                disabled={!isCheckedAutoBid}
+                onClick={handleSubmitAutoBid}
+              >
+                {isPending ? "Placing Bid..." : "Place Bid"}
+              </Button>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </>
+  );
 }
 
 export default ProductBid;

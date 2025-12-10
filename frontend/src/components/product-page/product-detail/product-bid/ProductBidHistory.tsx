@@ -1,3 +1,5 @@
+import { Ban } from "lucide-react";
+import { toastError, toastSuccess } from "@/components/toast/toast-ui";
 import {
   Table,
   TableBody,
@@ -9,25 +11,50 @@ import {
 } from "@/components/ui/table";
 import { useFetchBidHistoryOfAProduct } from "@/hooks/bid-hooks";
 import { formatDateTime } from "@/lib/utils";
+import { useBlockABidderFromAProduct } from "@/hooks/seller-hooks";
+import NotificationDialog from "@/components/dialog/NotificationDialog";
+import { useUserStore } from "@/store/user-store";
 
 function ProductBidHistory({ productId }: { productId: number }) {
+  const isSeller = useUserStore((state) => state.isSeller);
+
   const { data: bidHistoryList } = useFetchBidHistoryOfAProduct(productId);
+  const { mutate: blockABidderMutate } = useBlockABidderFromAProduct();
+
+  const handleBlockABidder = (bidderId: number) => {
+    blockABidderMutate(
+      { productId, bidderId },
+      {
+        onSuccess: (result) => {
+          toastSuccess(result.message);
+        },
+        onError: (error) => {
+          toastError(error);
+        },
+      }
+    );
+  };
 
   return (
-    <Table className="max-w-2xl">
+    <Table className="max-w-xl">
       <TableCaption>A list of bid history in this product.</TableCaption>
       <TableHeader>
         <TableRow>
+          <TableHead className="max-w-sm">#</TableHead>
           <TableHead className="w-1/3">Bid Time</TableHead>
           <TableHead className="w-1/3">Bidder's Name</TableHead>
           <TableHead className="text-right w-1/3">Amount</TableHead>
+          {isSeller && (
+            <TableHead className="text-right w-1/3">Block</TableHead>
+          )}
         </TableRow>
       </TableHeader>
       <TableBody>
         {bidHistoryList &&
           bidHistoryList.data &&
-          bidHistoryList.data.map((history) => (
+          bidHistoryList.data.map((history, index) => (
             <TableRow key={history.createdAt}>
+              <TableCell className="font-medium">{index + 1}</TableCell>
               <TableCell className="font-medium">
                 {formatDateTime(history.createdAt)}
               </TableCell>
@@ -37,6 +64,21 @@ function ProductBidHistory({ productId }: { productId: number }) {
               <TableCell className="font-medium text-right">
                 {history.amount}
               </TableCell>
+              {isSeller && (
+                <TableCell className="font-medium text-right">
+                  <NotificationDialog
+                    title="Block Bidder"
+                    description="Are you sure you want to block this bidder from bidding on this product?"
+                    actionText="Block"
+                    cancelText="Cancel"
+                    onAction={() => handleBlockABidder(history.userId)}
+                  >
+                    <div className="py-1 px-2 bg-black text-white rounded-sm">
+                      <Ban size={16} className="mx-auto" />
+                    </div>
+                  </NotificationDialog>
+                </TableCell>
+              )}
             </TableRow>
           ))}
       </TableBody>

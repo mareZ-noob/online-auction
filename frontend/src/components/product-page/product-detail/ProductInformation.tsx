@@ -1,11 +1,43 @@
 import type { PRODUCT_DETAILS } from "@/types/Product";
 import ProductBid from "./product-bid/ProductBid";
 import { formatDateTime } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { usePlaceABid } from "@/hooks/bid-hooks";
+import { toastError, toastSuccess } from "@/components/toast/toast-ui";
 
 const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
+  const { mutate, isPending } = usePlaceABid();
+
+  const handleSubmitBid = (productId: number, buyNowPrice: number) => {
+    mutate(
+      {
+        productId: productId,
+        amount: buyNowPrice,
+        maxAutoBidAmount: null,
+      },
+      {
+        onSuccess: (result) => {
+          toastSuccess(result.message);
+        },
+        onError: (error) => {
+          toastError(error);
+        },
+      }
+    );
+  };
+
   return (
     <div>
-      <p className="text-2xl">{data.name}</p>
+      <div className="flex justify-end">
+        <p className="text-2xl">{data.name}</p>
+        <Button
+          variant="default"
+          className="ml-auto"
+          onClick={() => handleSubmitBid(data.id, data.buyNowPrice)}
+        >
+          {isPending ? "Buying..." : "Buy Now"}
+        </Button>
+      </div>
       <div className="border-b border-gray-200 my-4" />
       <div className="flex justify-between mb-4 text-lg">
         <p>Current Price: {data.currentPrice}</p>

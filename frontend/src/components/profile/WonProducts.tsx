@@ -12,6 +12,7 @@ import { useFetchWonProducts } from "@/hooks/user-hooks";
 import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
 import { formatDateTime } from "@/lib/utils";
+import { CreditCard } from "lucide-react";
 
 function WonProducts() {
   const [page, setPage] = useState(0);
@@ -47,6 +48,7 @@ function WonProducts() {
             <TableHead>Bid Count</TableHead>
             <TableHead>Category Name</TableHead>
             <TableHead>Created At</TableHead>
+            <TableHead>Pay</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -86,6 +88,11 @@ function WonProducts() {
                 <p className="font-light whitespace-normal wrap-break-word">
                   {formatDateTime(product.createdAt)}
                 </p>
+              </TableCell>
+              <TableCell className="max-w-sm">
+                <div className="flex items-center justify-center py-1 rounded-md bg-black">
+                  <CreditCard className="text-white" size={16} />
+                </div>
               </TableCell>
             </TableRow>
           ))}

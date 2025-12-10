@@ -1,4 +1,4 @@
-import type { ApiResponse } from "./ApiResponse";
+import type { ApiResponse, Pagination } from "./ApiResponse";
 import type { USER_QUESTIONS } from "./User";
 
 export type CREATE_PRODUCT_PAYLOAD = {
@@ -57,4 +57,26 @@ export type POST_ANSWER_TO_QUESTION_PAYLOAD = {
   answer: string;
 };
 
+export type UNANSWERED_QUESTIONS = {
+  id: number;
+  productId: number;
+  productName: string;
+  userId: number;
+  userName: string;
+  question: string;
+  createdAt: string;
+};
+
 export type POST_ANSWER_TO_QUESTION_RESPONSE = ApiResponse<USER_QUESTIONS>;
+
+export type GET_UNANSWERED_QUESTIONS_RESPONSE = ApiResponse<
+  Pagination<UNANSWERED_QUESTIONS>
+>;
+
+// Block a bidder from a product
+export type BLOCK_A_BIDDER_FROM_A_PRODUCT_PAYLOAD = {
+  productId: number;
+  bidderId: number;
+};
+
+export type BLOCK_A_BIDDER_FROM_A_PRODUCT_RESPONSE = ApiResponse<string>;

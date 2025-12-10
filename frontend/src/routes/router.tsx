@@ -40,13 +40,16 @@ const OAuth2RedirectHandler = lazy(
 );
 
 // Seller
-import { MyPublishedProductsLoader } from "@/components/profile/MyPublishedProducts";
+import { CheckSellerRole } from "@/routes/protected-route.ts";
 
 const PublishNewProduct = lazy(
   () => import("@/components/publish-new-product/PublishNewProduct.tsx")
 );
 const MyPublishedProducts = lazy(
   () => import("@/components/profile/MyPublishedProducts.tsx")
+);
+const UnansweredQuestionList = lazy(
+  () => import("@/components/profile/UnansweredQuestionList.tsx")
 );
 
 const router = createBrowserRouter([
@@ -113,7 +116,16 @@ const router = createBrowserRouter([
             <MyPublishedProducts />
           </Suspense>
         ),
-        loader: MyPublishedProductsLoader,
+        loader: CheckSellerRole,
+      },
+      {
+        path: "unanswered-questions",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <UnansweredQuestionList />
+          </Suspense>
+        ),
+        loader: CheckSellerRole,
       },
     ],
     loader: ProtectedRoute,

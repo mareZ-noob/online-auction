@@ -3,8 +3,11 @@ import type { AxiosError } from "axios";
 import apiClient from "@/query/api-client";
 import type { ApiResponseError } from "@/types/ApiResponse";
 import type {
+  BLOCK_A_BIDDER_FROM_A_PRODUCT_PAYLOAD,
+  BLOCK_A_BIDDER_FROM_A_PRODUCT_RESPONSE,
   CREATE_PRODUCT_PAYLOAD,
   CREATE_PRODUCT_RESPONSE,
+  GET_UNANSWERED_QUESTIONS_RESPONSE,
   POST_ANSWER_TO_QUESTION_PAYLOAD,
   UPDATE_PRODUCT_DESCRIPTION_PAYLOAD,
   UPDATE_PRODUCT_DESCRIPTION_RESPONSE,
@@ -88,6 +91,46 @@ export const usePostAnswerToAQuestionProduct = (
       queryClient.invalidateQueries({
         queryKey: ["get_questions_of_a_product"],
       });
+    },
+  });
+};
+
+export const useBlockABidderFromAProduct = () => {
+  return useMutation<
+    BLOCK_A_BIDDER_FROM_A_PRODUCT_RESPONSE,
+    AxiosError<ApiResponseError>,
+    BLOCK_A_BIDDER_FROM_A_PRODUCT_PAYLOAD
+  >({
+    mutationKey: ["block_a_bidder_from_a_product"],
+    mutationFn: async (payload: BLOCK_A_BIDDER_FROM_A_PRODUCT_PAYLOAD) => {
+      const { data } =
+        await apiClient.post<BLOCK_A_BIDDER_FROM_A_PRODUCT_RESPONSE>(
+          API_ENDPOINTS.BLOCK_A_BIDDER_FROM_A_PRODUCT(
+            payload.productId,
+            payload.bidderId
+          )
+        );
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["bidHistoryOfAProduct", variables.productId],
+      });
+    },
+  });
+};
+
+export const useFetchUnansweredQuestions = (
+  page: number = 0,
+  size: number = 20
+) => {
+  return useQuery({
+    queryKey: ["unanswered-questions", page, size],
+    queryFn: async () => {
+      const { data } = await apiClient.get<GET_UNANSWERED_QUESTIONS_RESPONSE>(
+        API_ENDPOINTS.GET_UNANSWERED_QUESTIONS(page, size)
+      );
+      return data.data;
     },
   });
 };

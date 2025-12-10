@@ -77,4 +77,10 @@ export const API_ENDPOINTS = {
     `/seller/products/${id}/description`,
   ANSWER_A_QUESTION_ON_PRODUCT: (questionId: string | number) =>
     `/seller/questions/${questionId}/answer`,
+  BLOCK_A_BIDDER_FROM_A_PRODUCT: (
+    productId: string | number,
+    bidderId: string | number
+  ) => `/seller/products/${productId}/block-bidder/${bidderId}`,
+  GET_UNANSWERED_QUESTIONS: (page: number, size: number) =>
+    `/seller/questions/unanswered?page=${page}&size=${size}`,
 };

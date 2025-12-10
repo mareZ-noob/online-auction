@@ -11,7 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useFetchMyPublishedProducts } from "@/hooks/seller-hooks";
-import { useUserStore } from "@/store/user-store";
 import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
 import { formatDateTime } from "@/lib/utils";
@@ -138,15 +137,4 @@ function MyPublishedProducts() {
   );
 }
 
-function MyPublishedProductsLoader() {
-  const isSeller = useUserStore.getState().isSeller;
-
-  if (!isSeller) {
-    throw new Response("Forbidden", { status: 403 });
-  }
-
-  return null;
-}
-
 export default MyPublishedProducts;
-export { MyPublishedProductsLoader };
