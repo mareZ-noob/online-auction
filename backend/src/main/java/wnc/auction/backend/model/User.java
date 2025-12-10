@@ -94,6 +94,8 @@ public class User {
     @ToString.Exclude
     private List<WatchList> watchList = new ArrayList<>();
 
+    private LocalDateTime roleExpirationDate;
+
     public Double getRatingPercentage() {
         int total = positiveRatings + negativeRatings;
         if (total == 0) return null;
@@ -103,5 +105,11 @@ public class User {
     public boolean canBid() {
         Double rating = getRatingPercentage();
         return rating == null || rating >= 80.0;
+    }
+
+    // Helper method to check if seller rights are still valid
+    public boolean isSellerRightsValid() {
+        return this.role == UserRole.SELLER
+                && (this.roleExpirationDate == null || LocalDateTime.now().isBefore(this.roleExpirationDate));
     }
 }

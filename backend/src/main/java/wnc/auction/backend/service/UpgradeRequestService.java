@@ -34,6 +34,7 @@ public class UpgradeRequestService {
 
     private final UpgradeRequestRepository upgradeRequestRepository;
     private final UserRepository userRepository;
+    private final UserSchedulerService userSchedulerService;
 
     public UpgradeRequestDto createUpgradeRequest(CreateUpgradeRequest request) {
         Long userId = CurrentUser.getUserId();
@@ -103,6 +104,13 @@ public class UpgradeRequestService {
         if (request.getApproved()) {
             User user = upgradeRequest.getUser();
             user.setRole(UserRole.SELLER);
+            LocalDateTime expirationTime = LocalDateTime.now().plusDays(7);
+            user.setRoleExpirationDate(expirationTime);
+
+            // Schedule
+            userSchedulerService.scheduleSellerExpiration(user.getId(), expirationTime);
+
+            log.info("User {} upgraded to SELLER for 7 days until {}", user.getId(), expirationTime);
             userRepository.save(user);
         }
 

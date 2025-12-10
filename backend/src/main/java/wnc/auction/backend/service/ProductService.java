@@ -1,5 +1,6 @@
 package wnc.auction.backend.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final AuctionSchedulerService auctionSchedulerService;
+    private final NotificationService notificationService;
     private final WatchListRepository watchListRepository;
     private final BlockedBidderRepository blockedBidderRepository;
     private final BidRepository bidRepository;
@@ -56,6 +58,12 @@ public class ProductService {
 
         if (seller.getRole() != UserRole.SELLER && seller.getRole() != UserRole.ADMIN) {
             throw new ForbiddenException("Only sellers can create products");
+        }
+
+        if (seller.getRole() == UserRole.SELLER
+                && seller.getRoleExpirationDate() != null
+                && LocalDateTime.now().isAfter(seller.getRoleExpirationDate())) {
+            throw new ForbiddenException("Your seller privileges have expired.");
         }
 
         Category category = categoryRepository
@@ -293,5 +301,32 @@ public class ProductService {
                 .totalPages(productPage.getTotalPages())
                 .last(productPage.isLast())
                 .build();
+    }
+
+    @Transactional
+    public int cancelAllActiveProductsBySeller(Long sellerId) {
+        // Fetch all active products by this seller
+        List<Product> activeProducts = productRepository.findBySellerAndStatus(sellerId, ProductStatus.ACTIVE);
+
+        int count = 0;
+        for (Product product : activeProducts) {
+            product.setStatus(ProductStatus.CANCELLED);
+            product.setDescription(
+                    product.getDescription() + "\n\n[SYSTEM]: Auction cancelled due to seller privilege expiration.");
+            productRepository.save(product);
+
+            // Notify current bidder if exists
+            if (product.getCurrentBidder() != null) {
+                // Return money logic if integrated with payment gateway
+                notificationService.notifyOutbid(
+                        product.getCurrentBidder().getId(), product.getId(), product.getName(), BigDecimal.ZERO);
+            }
+
+            // Unschedule the closing job for this product since it's cancelled
+            auctionSchedulerService.unscheduleAuctionClose(product.getId());
+
+            count++;
+        }
+        return count;
     }
 }

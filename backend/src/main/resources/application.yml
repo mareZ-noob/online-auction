@@ -123,7 +123,7 @@ app:
     # Config: second minute hour day month day of week
     # 0 0 0 * * ?  => 12h each night
     # 0 0 */6 * * ? => every 6 hour
-    token_cleanup_cron: "0 0 0 * * ?"
+    token-cleanup-cron: "0 0 0 * * ?"
 
 springdoc:
   api-docs:

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import wnc.auction.backend.model.Product;
+import wnc.auction.backend.model.enumeration.ProductStatus;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -98,4 +99,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("productId") Long productId,
             @Param("now") LocalDateTime now,
             Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.seller.id = :sellerId AND p.status = 'ACTIVE'")
+    List<Product> findBySellerAndStatus(Long sellerId, ProductStatus status);
 }

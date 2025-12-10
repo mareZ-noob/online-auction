@@ -74,6 +74,11 @@ public class EmailService {
         sendOtpEmailWithLocale(email, code, purpose, locale);
     }
 
+    public void sendRoleExpirationEmail(Long userId) {
+        Locale locale = localeService.getLocaleByUserId(userId);
+        sendRoleExpirationEmailWithLocale(getUserEmail(userId), locale);
+    }
+
     private void sendOtpEmailWithLocale(String to, String code, String purpose, Locale locale) {
         try {
             Context context = new Context(locale);
@@ -165,6 +170,23 @@ public class EmailService {
             log.info("Question notification sent to: {} in locale: {}", to, locale);
         } catch (Exception e) {
             log.error("Failed to send question notification", e);
+        }
+    }
+
+    private void sendRoleExpirationEmailWithLocale(String to, Locale locale) {
+        try {
+            Context context = new Context(locale);
+
+            // Render template
+            String htmlContent = templateEngine.process("role-expiration", context);
+
+            // Get subject from properties
+            String subject = messageSource.getMessage("email.role.expiration.subject", null, locale);
+
+            sendHtmlEmail(to, subject, htmlContent);
+            log.info("Role expiration email sent to: {} in locale: {}", to, locale);
+        } catch (Exception e) {
+            log.error("Failed to send role expiration email", e);
         }
     }
 

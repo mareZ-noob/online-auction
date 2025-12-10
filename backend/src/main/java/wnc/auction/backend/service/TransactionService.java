@@ -158,7 +158,7 @@ public class TransactionService {
 
         Long userId = CurrentUser.getUserId();
         if (!transaction.getSeller().getId().equals(userId)) {
-            throw new ForbiddenException("Only seller can ship order");
+            throw new ForbiddenException("Only the seller of this transaction can ship order");
         }
 
         if (transaction.getStatus() != TransactionStatus.PAYMENT_CONFIRMED) {

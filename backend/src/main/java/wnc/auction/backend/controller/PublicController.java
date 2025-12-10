@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wnc.auction.backend.dto.model.*;
@@ -18,6 +19,7 @@ import wnc.auction.backend.service.CategoryService;
 import wnc.auction.backend.service.ProductService;
 import wnc.auction.backend.service.QuestionService;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/public")
 @RequiredArgsConstructor

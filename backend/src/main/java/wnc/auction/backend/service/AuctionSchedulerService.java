@@ -28,9 +28,7 @@ public class AuctionSchedulerService {
         }
     }
 
-    /**
-     * Reschedule the job (used for Auto-Extend feature)
-     */
+    // Reschedule the job (used for Auto-Extend feature)
     public void rescheduleAuctionClose(Long productId, LocalDateTime newEndTime) {
         try {
             TriggerKey triggerKey = TriggerKey.triggerKey("trigger_" + productId, "auction-triggers");
@@ -76,5 +74,24 @@ public class AuctionSchedulerService {
 
     private Date convertToDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    public void unscheduleAuctionClose(Long productId) {
+        try {
+            // Construct the JobKey using the same naming convention as in buildJobDetail()
+            // Group name must match "auction-jobs"
+            JobKey jobKey = JobKey.jobKey("auction_" + productId, "auction-jobs");
+
+            // deleteJob returns true if the job was found and deleted
+            boolean deleted = scheduler.deleteJob(jobKey);
+
+            if (deleted) {
+                log.info("Successfully unscheduled auction close job for product ID: {}", productId);
+            } else {
+                log.debug("No active auction job found to unschedule for product ID: {}", productId);
+            }
+        } catch (SchedulerException e) {
+            log.error("Failed to unschedule auction close job for product ID: {}", productId, e);
+        }
     }
 }
