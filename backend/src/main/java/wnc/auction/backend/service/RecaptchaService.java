@@ -41,11 +41,8 @@ public class RecaptchaService {
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-            RecaptchaResponse response = restTemplate.postForObject(
-                    recaptchaVerifyUrl,
-                    request,
-                    RecaptchaResponse.class
-            );
+            RecaptchaResponse response =
+                    restTemplate.postForObject(recaptchaVerifyUrl, request, RecaptchaResponse.class);
 
             if (response == null || !response.isSuccess()) {
                 log.error("reCAPTCHA validation failed. Response: {}", response);

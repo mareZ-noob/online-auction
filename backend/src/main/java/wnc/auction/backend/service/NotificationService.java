@@ -223,6 +223,37 @@ public class NotificationService {
         log.info("Broadcast system message to all users");
     }
 
+    public void broadcastAuctionEnded(Long productId, String productName, String winnerName, BigDecimal finalAmount) {
+        List<SseEmitter> emitters = productEmitters.get(productId);
+        if (emitters == null || emitters.isEmpty()) {
+            return;
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("productId", productId);
+        data.put("productName", productName);
+        data.put("winnerName", maskUserName(winnerName)); // Mask the winner's name for privacy
+        data.put("finalAmount", finalAmount);
+        data.put("timestamp", LocalDateTime.now().toString());
+        data.put("status", "COMPLETED"); // Signal frontend to disable bidding
+
+        List<SseEmitter> deadEmitters = new ArrayList<>();
+
+        for (SseEmitter emitter : emitters) {
+            try {
+                // Send event named 'auction_closed' to differentiate from personal 'auction_ended'
+                emitter.send(SseEmitter.event().name("auction_closed").data(data));
+            } catch (IOException e) {
+                deadEmitters.add(emitter);
+            }
+        }
+
+        // Remove dead emitters
+        emitters.removeAll(deadEmitters);
+
+        log.info("Broadcast auction ended for product {} to {} clients", productId, emitters.size());
+    }
+
     private void removeUserEmitter(Long userId, SseEmitter emitter) {
         List<SseEmitter> emitters = userEmitters.get(userId);
         if (emitters != null) {

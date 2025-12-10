@@ -70,6 +70,10 @@ public class BidService {
         boolean isAutoBid = request.getMaxAutoBidAmount() != null;
         BigDecimal bidAmount = request.getAmount();
 
+        if (product.getBuyNowPrice() != null && bidAmount.compareTo(product.getBuyNowPrice()) >= 0) {
+            return processBuyNow(product, bidder, bidAmount);
+        }
+
         // Calculate Minimum Requirement
         BigDecimal minBid = product.getCurrentPrice().add(product.getStepPrice());
         if (product.getBidCount() == 0) {
@@ -100,6 +104,44 @@ public class BidService {
         log.info("Bid placed: {} on product: {} by user: {}", bidAmount, product.getId(), bidderId);
 
         return BidMapper.toDto(bid);
+    }
+
+    private BidDto processBuyNow(Product product, User bidder, BigDecimal amount) {
+        // Create the winning bid
+        // We force isAutoBid = false because this is a direct buy action
+        Bid bid = createAndSaveBid(product, bidder, amount, null, false);
+
+        // Close the auction immediately
+        product.setStatus(ProductStatus.COMPLETED);
+        product.setEndTime(LocalDateTime.now()); // Update end time to now
+        productRepository.save(product);
+
+        // Unschedule the pending closing job (Important to avoid double processing)
+        auctionSchedulerService.unscheduleAuctionClose(product.getId());
+
+        // Send Immediate Notifications (Winner & Seller)
+        handleAuctionEndNotifications(product, bidder, amount);
+
+        log.info("Product {} sold via Buy Now to user {}", product.getId(), bidder.getId());
+
+        return BidMapper.toDto(bid);
+    }
+
+    private void handleAuctionEndNotifications(Product product, User winner, BigDecimal finalAmount) {
+        // Notify Winner
+        emailService.sendAuctionEndedNotification(
+                winner.getId(), product.getId(), product.getName(), true, finalAmount.toString());
+        notificationService.notifyAuctionEnded(winner.getId(), product.getId(), product.getName(), true, finalAmount);
+
+        // Notify Seller
+        emailService.sendAuctionEndedNotification(
+                product.getSeller().getId(), product.getId(), product.getName(), false, finalAmount.toString());
+        notificationService.notifyAuctionEnded(
+                product.getSeller().getId(), product.getId(), product.getName(), false, finalAmount);
+
+        // Broadcast to everyone watching the product (Public Product Stream)
+        notificationService.broadcastAuctionEnded(
+                product.getId(), product.getName(), winner.getFullName(), finalAmount);
     }
 
     private Bid createAndSaveBid(Product product, User bidder, BigDecimal amount, BigDecimal maxAuto, Boolean isAuto) {
@@ -324,7 +366,24 @@ public class BidService {
     public List<BidHistoryDto> getBidHistory(Long productId) {
         Pageable pageable = PageRequest.of(0, 100);
         Page<Bid> bids = bidRepository.findByProductOrderByCreatedAtDesc(productId, pageable);
-        return bids.getContent().stream().map(BidMapper::toHistoryDto).toList();
+
+        // Fetch list of blocked user IDs for this product
+        List<Long> blockedUserIds = blockedBidderRepository.findByProductId(productId).stream()
+                .map(blocked -> blocked.getBidder().getId())
+                .toList();
+
+        return bids.getContent().stream()
+                .map(bid -> {
+                    BidHistoryDto dto = BidMapper.toHistoryDto(bid);
+
+                    // Check if this bid belongs to a blocked user
+                    if (blockedUserIds.contains(bid.getUser().getId())) {
+                        dto.setBlocked(true);
+                    }
+
+                    return dto;
+                })
+                .toList();
     }
 
     public PageResponse<BidDto> getMyBids(int page, int size) {
@@ -372,19 +431,30 @@ public class BidService {
     }
 
     private void reassignHighestBidder(Product product) {
-        Pageable pageable = PageRequest.of(0, 2);
-        List<Bid> topBids = bidRepository.findTop2BidsForProduct(product.getId(), pageable);
+        List<Long> blockedBidderIds = blockedBidderRepository.findByProductId(product.getId()).stream()
+                .map(bb -> bb.getBidder().getId())
+                .toList();
 
-        if (topBids.size() > 1) {
-            Bid secondHighest = topBids.get(1);
-            product.setCurrentBidder(secondHighest.getUser());
-            product.setCurrentPrice(secondHighest.getAmount());
-            productRepository.save(product);
+        List<Bid> allBids = bidRepository.findByProductOrderByAmountDesc(product.getId());
+
+        // Find the highest bid where the user is not blocked
+        // This effectively skips 1st, 2nd, etc. if they are blocked
+        java.util.Optional<Bid> validWinnerBid = allBids.stream()
+                .filter(bid -> !blockedBidderIds.contains(bid.getUser().getId()))
+                .findFirst();
+
+        if (validWinnerBid.isPresent()) {
+            Bid winner = validWinnerBid.get();
+            // Set the new valid winner
+            product.setCurrentBidder(winner.getUser());
+            product.setCurrentPrice(winner.getAmount());
         } else {
+            // No valid bids left (all bidders blocked or no bids)
             product.setCurrentBidder(null);
             product.setCurrentPrice(product.getStartingPrice());
-            productRepository.save(product);
         }
+
+        productRepository.save(product);
     }
 
     public PageResponse<BidHistoryDto> getBidRanking(Long productId, int page, int size) {

@@ -103,14 +103,21 @@ public class ProductService {
         auctionSchedulerService.scheduleAuctionClose(product.getId(), product.getEndTime());
 
         log.info("Product created: {} by seller: {}", product.getId(), sellerId);
-        return ProductMapper.toDto(product, sellerId);
+        return ProductMapper.toDto(product, sellerId, false);
     }
 
     public ProductDto getProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found"));
 
         Long currentUserId = CurrentUser.getUserId();
-        return ProductMapper.toDto(product, currentUserId);
+
+        // Check if the current user is blocked from this product
+        boolean isBlocked = false;
+        if (currentUserId != null) {
+            isBlocked = blockedBidderRepository.existsByProductIdAndBidderId(id, currentUserId);
+        }
+
+        return ProductMapper.toDto(product, currentUserId, isBlocked);
     }
 
     public ProductDto updateProductDescription(Long id, UpdateProductDescriptionRequest request) {
@@ -135,7 +142,7 @@ public class ProductService {
         product = productRepository.save(product);
 
         log.info("Product description updated: {}", id);
-        return ProductMapper.toDto(product, sellerId);
+        return ProductMapper.toDto(product, sellerId, false);
     }
 
     public void deleteProduct(Long id) {

@@ -40,4 +40,5 @@ public class ProductDto {
     private Boolean isNew;
     private Boolean isWatched;
     private LocalDateTime createdAt;
+    private Boolean isCurrentUserBlocked;
 }

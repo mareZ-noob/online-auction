@@ -21,6 +21,7 @@ import wnc.auction.backend.mapper.QuestionMapper;
 import wnc.auction.backend.model.Product;
 import wnc.auction.backend.model.Question;
 import wnc.auction.backend.model.User;
+import wnc.auction.backend.repository.BlockedBidderRepository;
 import wnc.auction.backend.repository.ProductRepository;
 import wnc.auction.backend.repository.QuestionRepository;
 import wnc.auction.backend.repository.UserRepository;
@@ -37,6 +38,7 @@ public class QuestionService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final BlockedBidderRepository blockedBidderRepository;
 
     public QuestionDto askQuestion(AskQuestionRequest request) {
         Long userId = CurrentUser.getUserId();
@@ -47,6 +49,10 @@ public class QuestionService {
         Product product = productRepository
                 .findById(request.getProductId())
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND));
+
+        if (blockedBidderRepository.existsByProductIdAndBidderId(product.getId(), userId)) {
+            throw new ForbiddenException("You have been blocked by the seller and cannot ask questions.");
+        }
 
         Question question = Question.builder()
                 .product(product)

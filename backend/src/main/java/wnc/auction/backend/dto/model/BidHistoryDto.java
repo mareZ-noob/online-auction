@@ -17,4 +17,5 @@ public class BidHistoryDto {
     private String maskedUserName;
     private BigDecimal amount;
     private LocalDateTime createdAt;
+    private boolean isBlocked;
 }
