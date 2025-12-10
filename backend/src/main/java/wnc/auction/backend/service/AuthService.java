@@ -51,6 +51,7 @@ public class AuthService {
     private final TokenBlacklistRepository tokenBlacklistRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
+    private final RecaptchaService recaptchaService;
 
     @Value("${app.otp.expiration-minutes}")
     private int otpExpirationMinutes;
@@ -59,7 +60,8 @@ public class AuthService {
     private long refreshTokenDurationMs;
 
     public void register(RegisterRequest request) {
-        // Validate reCAPTCHA (implement actual validation)
+        // Validate reCAPTCHA
+        // recaptchaService.validateToken(request.getRecaptchaToken());
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("Email already exists");

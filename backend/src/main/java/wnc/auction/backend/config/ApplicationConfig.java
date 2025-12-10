@@ -1,7 +1,9 @@
 package wnc.auction.backend.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class ApplicationConfig {
@@ -9,11 +11,8 @@ public class ApplicationConfig {
     @Value("${app.file.upload-dir}")
     private String uploadDir;
 
-    // @Bean
-    // public void createUploadDirectory() {
-    //     File uploadDirectory = new File(uploadDir);
-    //     if (!uploadDirectory.exists()) {
-    //         uploadDirectory.mkdirs();
-    //     }
-    // }
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 }
