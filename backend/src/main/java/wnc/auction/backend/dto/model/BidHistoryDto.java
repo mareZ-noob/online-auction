@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BidHistoryDto {
 
+    private Long userId;
     private String maskedUserName;
     private BigDecimal amount;
     private LocalDateTime createdAt;

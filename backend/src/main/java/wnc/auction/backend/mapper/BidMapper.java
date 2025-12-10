@@ -23,6 +23,7 @@ public class BidMapper {
 
     public static BidHistoryDto toHistoryDto(Bid bid) {
         return BidHistoryDto.builder()
+                .userId(bid.getUser().getId())
                 .maskedUserName(maskUserName(bid.getUser().getFullName()))
                 .amount(bid.getAmount())
                 .createdAt(bid.getCreatedAt())
