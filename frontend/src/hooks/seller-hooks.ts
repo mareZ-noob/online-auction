@@ -5,12 +5,14 @@ import type { ApiResponseError } from "@/types/ApiResponse";
 import type {
   CREATE_PRODUCT_PAYLOAD,
   CREATE_PRODUCT_RESPONSE,
+  POST_ANSWER_TO_QUESTION_PAYLOAD,
   UPDATE_PRODUCT_DESCRIPTION_PAYLOAD,
   UPDATE_PRODUCT_DESCRIPTION_RESPONSE,
 } from "@/types/Seller";
 import { API_ENDPOINTS } from "./endpoints";
 import type { SELLER_PUBLISHED_PRODUCTS } from "@/types/Product";
 import { queryClient } from "@/lib/utils";
+import type { POST_ANSWER_TO_QUESTION_RESPONSE } from "@/types/Seller";
 
 export const usePublishNewProduct = () => {
   return useMutation<
@@ -61,6 +63,30 @@ export const useUpdateProductDescription = (id: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["product_details", id],
+      });
+    },
+  });
+};
+
+export const usePostAnswerToAQuestionProduct = (
+  questionId: number | string
+) => {
+  return useMutation<
+    POST_ANSWER_TO_QUESTION_RESPONSE,
+    AxiosError<ApiResponseError>,
+    POST_ANSWER_TO_QUESTION_PAYLOAD
+  >({
+    mutationKey: ["post_answer_to_a_question_product", questionId],
+    mutationFn: async (payload: POST_ANSWER_TO_QUESTION_PAYLOAD) => {
+      const { data } = await apiClient.post<POST_ANSWER_TO_QUESTION_RESPONSE>(
+        API_ENDPOINTS.ANSWER_A_QUESTION_ON_PRODUCT(questionId),
+        payload
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["get_questions_of_a_product"],
       });
     },
   });

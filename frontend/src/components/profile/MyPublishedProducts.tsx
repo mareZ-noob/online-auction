@@ -14,6 +14,7 @@ import { useFetchMyPublishedProducts } from "@/hooks/seller-hooks";
 import { useUserStore } from "@/store/user-store";
 import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
+import { formatDateTime } from "@/lib/utils";
 
 function MyPublishedProducts() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ function MyPublishedProducts() {
   return (
     <ProfilePage>
       <Table>
-        <TableCaption>A list of your recent ratings.</TableCaption>
+        <TableCaption>A list of your recent publsihed products.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>#</TableHead>
@@ -94,7 +95,7 @@ function MyPublishedProducts() {
               </TableCell>
               <TableCell className="max-w-sm">
                 <p className="font-light whitespace-normal wrap-break-word">
-                  {product.endTime}
+                  {formatDateTime(product.endTime)}
                 </p>
               </TableCell>
               <TableCell className="max-w-sm">
@@ -104,7 +105,7 @@ function MyPublishedProducts() {
               </TableCell>
               <TableCell className="max-w-sm">
                 <p className="font-light whitespace-normal wrap-break-word">
-                  {product.createdAt}
+                  {formatDateTime(product.createdAt)}
                 </p>
               </TableCell>
               <TableCell className="max-w-8">

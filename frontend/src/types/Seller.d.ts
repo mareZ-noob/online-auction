@@ -1,4 +1,5 @@
 import type { ApiResponse } from "./ApiResponse";
+import type { USER_QUESTIONS } from "./User";
 
 export type CREATE_PRODUCT_PAYLOAD = {
   name: string;
@@ -50,3 +51,10 @@ export type UPDATE_PRODUCT_DESCRIPTION_PAYLOAD = {
 
 export type UPDATE_PRODUCT_DESCRIPTION_RESPONSE =
   ApiResponse<CREATE_PRODUCT_DATA>;
+
+// Answer a question about a product
+export type POST_ANSWER_TO_QUESTION_PAYLOAD = {
+  answer: string;
+};
+
+export type POST_ANSWER_TO_QUESTION_RESPONSE = ApiResponse<USER_QUESTIONS>;

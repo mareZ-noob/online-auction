@@ -7,14 +7,12 @@ import { cn } from "@/lib/utils";
 const blankParagraph = "<p></p>";
 
 type RichTextEditorProps = {
-  value: string;
   onChange: (value: string) => void;
   onBlur: () => void;
   error?: boolean;
 };
 
 export default function RichTextEditor({
-  value,
   onChange,
   onBlur,
   error,
@@ -27,7 +25,7 @@ export default function RichTextEditor({
         },
       }),
     ],
-    content: value || blankParagraph,
+    content: blankParagraph,
     editorProps: {
       attributes: {
         class:
@@ -62,14 +60,14 @@ export default function RichTextEditor({
     }
 
     const currentHTML = editor.getHTML();
-    const nextHTML = value || blankParagraph;
+    const nextHTML = blankParagraph;
 
     if (currentHTML === nextHTML) {
       return;
     }
 
     editor.commands.setContent(nextHTML, { emitUpdate: false });
-  }, [editor, value]);
+  }, [editor]);
 
   const toolbarButtons = editor
     ? [

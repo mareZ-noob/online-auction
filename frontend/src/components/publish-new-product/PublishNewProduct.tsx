@@ -579,7 +579,7 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
                   {mode === "edit" && "Additional Product Description"}
                 </FieldLabel>
                 <RichTextEditor
-                  value={field.value}
+                  // value={field.value}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   error={!!fieldState.error}

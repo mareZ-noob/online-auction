@@ -75,4 +75,6 @@ export const API_ENDPOINTS = {
     `/seller/products?page=${page}&size=${size}`,
   UPDATE_PRODUCT_DESCRIPTION: (id: string | number) =>
     `/seller/products/${id}/description`,
+  ANSWER_A_QUESTION_ON_PRODUCT: (questionId: string | number) =>
+    `/seller/questions/${questionId}/answer`,
 };
