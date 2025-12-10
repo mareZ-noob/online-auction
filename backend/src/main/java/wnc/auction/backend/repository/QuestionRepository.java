@@ -23,4 +23,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query("SELECT q FROM Question q WHERE q.product.seller.id = :sellerId " + "AND q.answer IS NULL "
             + "ORDER BY q.createdAt DESC")
     List<Question> findUnansweredQuestionsBySeller(@Param("sellerId") Long sellerId);
+
+    @Query("SELECT q FROM Question q WHERE q.product.seller.id = :sellerId AND q.answer IS NULL")
+    Page<Question> findUnansweredQuestionsBySeller(@Param("sellerId") Long sellerId, Pageable pageable);
 }

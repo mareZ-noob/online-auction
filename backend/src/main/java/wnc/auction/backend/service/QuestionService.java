@@ -147,10 +147,24 @@ public class QuestionService {
                 .build();
     }
 
-    public List<QuestionDto> getUnansweredQuestions() {
+    public PageResponse<QuestionDto> getUnansweredQuestions(int page, int size) {
         Long sellerId = CurrentUser.getUserId();
-        List<Question> questions = questionRepository.findUnansweredQuestionsBySeller(sellerId);
 
-        return questions.stream().map(QuestionMapper::toDto).toList();
+        // Sort by createdAt descending by default
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<Question> questionPage = questionRepository.findUnansweredQuestionsBySeller(sellerId, pageable);
+
+        List<QuestionDto> content =
+                questionPage.getContent().stream().map(QuestionMapper::toDto).toList();
+
+        return PageResponse.<QuestionDto>builder()
+                .content(content)
+                .page(questionPage.getNumber())
+                .size(questionPage.getSize())
+                .totalElements(questionPage.getTotalElements())
+                .totalPages(questionPage.getTotalPages())
+                .last(questionPage.isLast())
+                .build();
     }
 }

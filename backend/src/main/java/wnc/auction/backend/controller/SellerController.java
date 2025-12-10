@@ -75,9 +75,11 @@ public class SellerController {
     }
 
     @GetMapping("/questions/unanswered")
-    @Operation(summary = "Get unanswered questions")
-    public ResponseEntity<ApiResponse<java.util.List<QuestionDto>>> getUnansweredQuestions() {
-        java.util.List<QuestionDto> questions = questionService.getUnansweredQuestions();
+    @Operation(summary = "Get unanswered questions with pagination")
+    public ResponseEntity<ApiResponse<PageResponse<QuestionDto>>> getUnansweredQuestions(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+
+        PageResponse<QuestionDto> questions = questionService.getUnansweredQuestions(page, size);
         return ResponseEntity.ok(ApiResponse.success(questions));
     }
 
