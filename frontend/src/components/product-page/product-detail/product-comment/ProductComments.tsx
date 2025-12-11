@@ -12,9 +12,15 @@ import { useUserStore } from "@/store/user-store";
 import { usePostAnswerToAQuestionProduct } from "@/hooks/seller-hooks";
 import { formatDateTime } from "@/lib/utils";
 
-function CreateComment({ productId }: { productId: number }) {
+function CreateComment({
+  productId,
+  page,
+}: {
+  productId: number;
+  page: number;
+}) {
   const [questionValue, setQuestionValue] = useState("");
-  const { mutate } = usePostCommentOnAProduct();
+  const { mutate } = usePostCommentOnAProduct(page);
 
   const handleQuestionInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setQuestionValue(e.target.value);
@@ -173,7 +179,7 @@ function ProductComments({ productId }: { productId: number }) {
   if (!data || data.content.length === 0) {
     return (
       <div>
-        {!isSeller && <CreateComment productId={productId} />}
+        {!isSeller && <CreateComment productId={productId} page={page} />}
         <p className="mt-4 font-light text-gray-400">No comments available.</p>
       </div>
     );
@@ -181,7 +187,7 @@ function ProductComments({ productId }: { productId: number }) {
 
   return (
     <div>
-      {!isSeller && <CreateComment productId={productId} />}
+      {!isSeller && <CreateComment productId={productId} page={page} />}
       <QuestionComment questions={data?.content} />
       <ProductPagination
         className="mt-12"

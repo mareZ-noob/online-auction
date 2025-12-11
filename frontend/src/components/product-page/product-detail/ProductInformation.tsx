@@ -1,11 +1,12 @@
-import type { PRODUCT_DETAILS } from "@/types/Product";
+import type { PRODUCT_DETAILS_STATUS, PRODUCT_DETAILS } from "@/types/Product";
 import ProductBid from "./product-bid/ProductBid";
-import { formatDateTime } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { usePlaceABid } from "@/hooks/bid-hooks";
 import { toastError, toastSuccess } from "@/components/toast/toast-ui";
 
 const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
+  const productStatus: PRODUCT_DETAILS_STATUS = data.status;
   const { mutate, isPending } = usePlaceABid();
 
   const handleSubmitBid = (productId: number, buyNowPrice: number) => {
@@ -28,15 +29,26 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
 
   return (
     <div>
-      <div className="flex justify-end">
-        <p className="text-2xl">{data.name}</p>
-        <Button
-          variant="default"
-          className="ml-auto"
-          onClick={() => handleSubmitBid(data.id, data.buyNowPrice)}
-        >
-          {isPending ? "Buying..." : "Buy Now"}
-        </Button>
+      <div className="flex">
+        <p className="text-2xl mr-auto">{data.name}</p>
+        <div className="flex items-center">
+          <p
+            className={cn(
+              "mr-4 py-2 px-4 rounded-md",
+              productStatus === "COMPLETED"
+                ? "bg-[#50C878] text-white"
+                : "bg-[#E30B5C] text-white"
+            )}
+          >
+            {productStatus}
+          </p>
+          <Button
+            variant="default"
+            onClick={() => handleSubmitBid(data.id, data.buyNowPrice)}
+          >
+            {isPending ? "Buying..." : "Buy Now"}
+          </Button>
+        </div>
       </div>
       <div className="border-b border-gray-200 my-4" />
       <div className="flex justify-between mb-4 text-lg">
@@ -59,13 +71,17 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
       <p className="mb-4 text-lg">End Time: {formatDateTime(data.endTime)}</p>
       <p className="mb-4 text-lg">Time Remaining: {data.timeRemaining}</p>
 
-      <div className="border-b border-gray-200 my-4" />
-      <p className="mb-4 text-lg">Step Price: {data.stepPrice}</p>
-      <ProductBid
-        productId={data.id}
-        currentPrice={data.currentPrice}
-        stepPrice={data.stepPrice}
-      />
+      {productStatus !== "COMPLETED" && (
+        <>
+          <div className="border-b border-gray-200 my-4" />
+          <p className="mb-4 text-lg">Step Price: {data.stepPrice}</p>
+          <ProductBid
+            productId={data.id}
+            currentPrice={data.currentPrice}
+            stepPrice={data.stepPrice}
+          />
+        </>
+      )}
       <div className="border-b border-gray-200 my-4" />
 
       <p className="mb-4 text-lg">Seller Name: {data.sellerName}</p>

@@ -51,6 +51,9 @@ const MyPublishedProducts = lazy(
 const UnansweredQuestionList = lazy(
   () => import("@/components/profile/UnansweredQuestionList.tsx")
 );
+const WonPublishedProducts = lazy(
+  () => import("@/components/profile/WonPublishedProducts.tsx")
+);
 
 const router = createBrowserRouter([
   {
@@ -123,6 +126,15 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingPage />}>
             <UnansweredQuestionList />
+          </Suspense>
+        ),
+        loader: CheckSellerRole,
+      },
+      {
+        path: "won-published-products",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <WonPublishedProducts />
           </Suspense>
         ),
         loader: CheckSellerRole,

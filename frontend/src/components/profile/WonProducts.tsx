@@ -12,9 +12,12 @@ import { useFetchWonProducts } from "@/hooks/user-hooks";
 import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
 import { formatDateTime } from "@/lib/utils";
-import { CreditCard } from "lucide-react";
+import { CreditCard, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 function WonProducts() {
+  const navigate = useNavigate();
+
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -35,6 +38,10 @@ function WonProducts() {
     );
   }
 
+  const handleViewDetails = (productId: number) => {
+    navigate(`/products/${productId}`);
+  };
+
   return (
     <ProfilePage>
       <Table>
@@ -48,6 +55,7 @@ function WonProducts() {
             <TableHead>Bid Count</TableHead>
             <TableHead>Category Name</TableHead>
             <TableHead>Created At</TableHead>
+            <TableHead>Details</TableHead>
             <TableHead>Pay</TableHead>
           </TableRow>
         </TableHeader>
@@ -90,7 +98,15 @@ function WonProducts() {
                 </p>
               </TableCell>
               <TableCell className="max-w-sm">
-                <div className="flex items-center justify-center py-1 rounded-md bg-black">
+                <div
+                  className="max-w-8 flex items-center justify-center py-1 rounded-md bg-black"
+                  onClick={() => handleViewDetails(product.id)}
+                >
+                  <Eye className="text-white" size={16} />
+                </div>
+              </TableCell>
+              <TableCell className="max-w-sm">
+                <div className="max-w-8 flex items-center justify-center py-1 rounded-md bg-black">
                   <CreditCard className="text-white" size={16} />
                 </div>
               </TableCell>

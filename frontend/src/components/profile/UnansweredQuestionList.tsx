@@ -76,9 +76,9 @@ function UnansweredQuestionList() {
                   {formatDateTime(question.createdAt)}
                 </p>
               </TableCell>
-              <TableCell className="max-w-4">
+              <TableCell className="max-w-sm">
                 <div
-                  className="flex items-center justify-center p-1 rounded-md bg-black"
+                  className="max-w-8 flex items-center justify-center p-1 rounded-md bg-black"
                   onClick={() => handleViewDetails(question.productId)}
                 >
                   <Eye className="text-white" size={16} />

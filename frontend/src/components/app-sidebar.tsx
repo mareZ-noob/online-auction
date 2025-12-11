@@ -7,6 +7,7 @@ import {
   Mail,
   ShoppingBag,
   MessageCircleQuestionMark,
+  CircleCheckBig,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -45,6 +46,12 @@ const data = {
       title: "My Published Products",
       url: "/profile/published-products",
       icon: ShoppingBag,
+      isSeller: true,
+    },
+    {
+      title: "Won Published Products",
+      url: "/profile/won-published-products",
+      icon: CircleCheckBig,
       isSeller: true,
     },
     {

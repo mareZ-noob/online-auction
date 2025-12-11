@@ -161,23 +161,23 @@ export const useSearchProdutcs = (
   });
 };
 
-export const usePostCommentOnAProduct = () => {
+export const usePostCommentOnAProduct = (page: number) => {
   return useMutation<
     USER_QUESTIONS_RESPONSE,
     AxiosError<ApiResponseError>,
     USER_QUESTIONS_PAYLOAD
   >({
     mutationKey: ["post_question_on_a_product"],
-    mutationFn: async (credentials: USER_QUESTIONS_PAYLOAD) => {
+    mutationFn: async (payload: USER_QUESTIONS_PAYLOAD) => {
       const { data } = await apiClient.post<USER_QUESTIONS_RESPONSE>(
         API_ENDPOINTS.POST_QUESTION_ON_A_PRODUCT,
-        credentials
+        payload
       );
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_data, _variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["get_questions_of_a_product"],
+        queryKey: ["get_questions_of_a_product", _variables.productId, page],
       });
     },
     onError: (error) => {
@@ -192,7 +192,9 @@ export const usePostCommentOnAProduct = () => {
   });
 };
 
-export const useFetchComments = (page: number = 0, size: number = 10) => {
+export const useFetchComments = (page: number = 0, size?: number) => {
+  if (!size || isNaN(size)) size = 10;
+
   return useQuery<USER_QUESTIONS_RESPONSE["data"] | undefined>({
     queryKey: ["get_questions", page, size],
     queryFn: async () => {
@@ -208,10 +210,12 @@ export const useFetchComments = (page: number = 0, size: number = 10) => {
 export const useFetchCommentsOfAProduct = (
   productId: number,
   page: number = 0,
-  size: number = 10
+  size?: number
 ) => {
+  if (!size || isNaN(size)) size = 10;
+
   return useQuery<USER_QUESTIONS_RESPONSE["data"] | undefined>({
-    queryKey: ["get_questions_of_a_product", productId, page, size],
+    queryKey: ["get_questions_of_a_product", productId, page],
     queryFn: async () => {
       const { data } = await apiClient.get<USER_QUESTIONS_RESPONSE>(
         API_ENDPOINTS.GET_QUESTIONS_OF_A_PRODUCT(productId, page, size)
