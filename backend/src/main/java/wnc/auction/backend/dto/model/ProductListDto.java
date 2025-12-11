@@ -26,4 +26,6 @@ public class ProductListDto {
     private Boolean isNew;
     private String categoryName;
     private LocalDateTime createdAt;
+    private Long sellerId;
+    private String sellerName;
 }

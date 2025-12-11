@@ -54,6 +54,8 @@ public class ProductMapper {
                 .isWatched(isWatched)
                 .isCurrentUserBlocked(isBlocked)
                 .createdAt(product.getCreatedAt())
+                .sellerId(product.getSeller().getId())
+                .sellerName(product.getSeller().getFullName())
                 .build();
     }
 
