@@ -15,6 +15,7 @@ import wnc.auction.backend.model.enumeration.ProductStatus;
 import wnc.auction.backend.repository.ProductRepository;
 import wnc.auction.backend.service.EmailService;
 import wnc.auction.backend.service.NotificationService;
+import wnc.auction.backend.service.TransactionService;
 
 @Component
 @Slf4j
@@ -24,6 +25,7 @@ public class AuctionClosingJob extends QuartzJobBean {
     private final ProductRepository productRepository;
     private final EmailService emailService;
     private final NotificationService notificationService;
+    private final TransactionService transactionService;
 
     @Override
     @Transactional
@@ -50,6 +52,16 @@ public class AuctionClosingJob extends QuartzJobBean {
         // Close the auction
         product.setStatus(ProductStatus.COMPLETED);
         productRepository.save(product);
+
+        // If win then create transaction
+        if (product.getCurrentBidder() != null) {
+            try {
+                transactionService.createTransaction(product.getId());
+                log.info("Transaction created for product {}", productId);
+            } catch (Exception e) {
+                log.error("Failed to create transaction for product {}", productId, e);
+            }
+        }
 
         // Notify Logic
         handleNotifications(product);

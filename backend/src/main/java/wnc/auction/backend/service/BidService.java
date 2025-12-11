@@ -45,6 +45,7 @@ public class BidService {
     private final EmailService emailService;
     private final NotificationService notificationService;
     private final AuctionSchedulerService auctionSchedulerService;
+    private final TransactionService transactionService;
 
     @Value("${app.auction.auto-extend-threshold-minutes:5}")
     private int autoExtendThresholdMinutes;
@@ -115,6 +116,9 @@ public class BidService {
         product.setStatus(ProductStatus.COMPLETED);
         product.setEndTime(LocalDateTime.now()); // Update end time to now
         productRepository.save(product);
+
+        // If win then create transaction
+        transactionService.createTransaction(product.getId());
 
         // Unschedule the pending closing job (Important to avoid double processing)
         auctionSchedulerService.unscheduleAuctionClose(product.getId());

@@ -67,7 +67,7 @@ public class ProductMapper {
                 .thumbnailImage(
                         product.getImages().isEmpty()
                                 ? null
-                                : product.getImages().get(0))
+                                : product.getImages().getFirst())
                 .currentBidderName(
                         product.getCurrentBidder() != null
                                 ? maskUserName(product.getCurrentBidder().getFullName())
