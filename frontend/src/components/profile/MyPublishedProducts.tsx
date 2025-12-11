@@ -60,8 +60,8 @@ function MyPublishedProducts() {
             <TableHead>End Time</TableHead>
             <TableHead>Remaining Time</TableHead>
             <TableHead>Created At</TableHead>
-            <TableHead></TableHead>
-            <TableHead></TableHead>
+            <TableHead className="text-center">Details</TableHead>
+            <TableHead className="text-center">Edit</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -107,17 +107,17 @@ function MyPublishedProducts() {
                   {formatDateTime(product.createdAt)}
                 </p>
               </TableCell>
-              <TableCell className="max-w-8">
+              <TableCell>
                 <div
-                  className="flex items-center justify-center p-1 rounded-md bg-black"
+                  className="max-w-8 flex items-center justify-center p-1 rounded-md bg-black mx-auto"
                   onClick={() => handleViewDetails(product.id)}
                 >
                   <Eye className="text-white" size={16} />
                 </div>
               </TableCell>
-              <TableCell className="max-w-8">
+              <TableCell>
                 <div
-                  className="flex items-center justify-center p-1 rounded-md bg-black"
+                  className="max-w-8 flex items-center justify-center p-1 rounded-md bg-black mx-auto"
                   onClick={() => handleEditProduct(product.id)}
                 >
                   <SquarePen className="text-white" size={16} />

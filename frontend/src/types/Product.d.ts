@@ -31,6 +31,8 @@ export type PRODUCTS_BY_SUB_CATEGORY_ID = {
   isNew: boolean;
   categoryName: string;
   createdAt: string;
+  sellerId: number;
+  sellerName: string;
 };
 
 export type PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE = ApiResponse<

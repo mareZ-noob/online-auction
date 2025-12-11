@@ -68,6 +68,9 @@ export const API_ENDPOINTS = {
     `/bidder/products/bidding?page=${page}&size=${size}`,
   UPGRADE_TO_SELLER: "/bidder/upgrade-request",
   GET_REQUESTS_TO_BECOME_SELLER: "/bidder/upgrade-requests",
+  RATE_A_SELLER: "/bidder/ratings",
+  CHECK_RATED_SELLER_ON_A_PRODUCT: (productId: string | number) =>
+    `/bidder/ratings/check/${productId}`,
 
   // Seller
   CREATE_NEW_PRODUCT: "/seller/products",
@@ -83,4 +86,6 @@ export const API_ENDPOINTS = {
   ) => `/seller/products/${productId}/block-bidder/${bidderId}`,
   GET_UNANSWERED_QUESTIONS: (page: number, size: number) =>
     `/seller/questions/unanswered?page=${page}&size=${size}`,
+  GET_ALL_SALES: (page: number, size: number) =>
+    `/seller/sales?page=${page}&size=${size}`,
 };

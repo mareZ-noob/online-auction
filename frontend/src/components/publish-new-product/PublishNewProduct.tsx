@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -18,19 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  usePublishNewProduct,
-  useUpdateProductDescription,
-} from "@/hooks/seller-hooks";
-import {
-  useFetchCategories,
-  useFetchProductDetailsById,
-} from "@/hooks/product-hooks";
+import { usePublishNewProduct } from "@/hooks/seller-hooks";
+import { useFetchCategories } from "@/hooks/product-hooks";
 import { toastError, toastSuccess } from "@/components/toast/toast-ui";
 import type { CREATE_PRODUCT_PAYLOAD } from "@/types/Seller";
 import type { CATEGORY, SUB_CATEGORY } from "@/types/Product";
 import RichTextEditor from "./PublishNewProductDescription.tsx";
-import { useParams } from "react-router-dom";
 
 const MIN_IMAGES = 3;
 const blankParagraph = "<p></p>";
@@ -41,7 +33,7 @@ const stripHtml = (value: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
-const publish_new_product_schema = z
+const publishNewProductSchema = z
   .object({
     name: z.string().trim().min(1, { message: "Product name is required" }),
     startingPrice: z.coerce
@@ -93,14 +85,8 @@ const publish_new_product_schema = z
     }
   });
 
-type PublishNewProductFormValues = z.input<typeof publish_new_product_schema>;
-type PublishNewProductSubmitValues = z.output<
-  typeof publish_new_product_schema
->;
-
-type PublishNewProdutcProps = {
-  mode: "create" | "edit";
-};
+type PublishNewProductFormValues = z.input<typeof publishNewProductSchema>;
+type PublishNewProductSubmitValues = z.output<typeof publishNewProductSchema>;
 
 const createDefaultValues = (): Partial<PublishNewProductFormValues> => ({
   name: "",
@@ -113,45 +99,8 @@ const createDefaultValues = (): Partial<PublishNewProductFormValues> => ({
   allowUnratedBidders: true,
 });
 
-function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
-  const productId = useParams().id as string;
-
-  let defaultValues = useMemo(() => createDefaultValues(), []);
-
-  const { data: currentProduct } = useFetchProductDetailsById(
-    Number(productId)
-  );
-
-  const {
-    data: categories = [],
-    isLoading: categoriesLoading,
-    isError: categoriesError,
-  } = useFetchCategories();
-
-  if (mode === "edit" && currentProduct) {
-    defaultValues = {
-      name: currentProduct.name ?? "",
-      startingPrice: currentProduct.startingPrice ?? 0,
-      stepPrice: currentProduct.stepPrice ?? 0,
-      buyNowPrice: currentProduct.buyNowPrice ?? 0,
-      parentCategoryId:
-        categories?.find((category) =>
-          category.children.some(
-            (subCategory) => subCategory.id === currentProduct.categoryId
-          )
-        )?.id ?? 0,
-      categoryId: currentProduct.categoryId ?? 0,
-      endTime: currentProduct
-        ? new Date(currentProduct.endTime).toISOString().slice(0, 16)
-        : "",
-      images: currentProduct.images.length
-        ? currentProduct.images
-        : Array.from({ length: MIN_IMAGES }, () => ""),
-      description: currentProduct.description ?? blankParagraph,
-      autoExtend: currentProduct.autoExtend ?? true,
-      allowUnratedBidders: currentProduct.allowUnratedBidders ?? true,
-    };
-  }
+function PublishNewProduct() {
+  const defaultValues = useMemo(() => createDefaultValues(), []);
 
   const {
     control,
@@ -163,7 +112,7 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
     watch,
     formState: { errors },
   } = useForm<PublishNewProductFormValues>({
-    resolver: zodResolver(publish_new_product_schema),
+    resolver: zodResolver(publishNewProductSchema),
     defaultValues,
   });
 
@@ -171,6 +120,12 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
   const [imageKeys, setImageKeys] = useState<number[]>(() =>
     Array.from({ length: MIN_IMAGES }, (_, index) => index)
   );
+
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+  } = useFetchCategories();
 
   const autoExtendValue = watch("autoExtend");
   const allowUnratedBiddersValue = watch("allowUnratedBidders");
@@ -182,16 +137,6 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
       return [] as SUB_CATEGORY[];
     }
 
-    if (mode === "edit" && currentProduct) {
-      const currentSubCategory = categories
-        .flatMap((category) => category.children)
-        .find((subCategory) => subCategory.id === currentProduct.categoryId);
-
-      if (currentSubCategory) {
-        return [currentSubCategory];
-      }
-    }
-
     const parentCategory = categories.find(
       (category: CATEGORY) => category.id === parentCategoryId
     );
@@ -200,51 +145,20 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
   }, [categories, parentCategoryId]);
 
   useEffect(() => {
-    let subCateId = selectedSubCategoryId;
-
-    if (mode === "create" && !subCateId) {
+    if (!selectedSubCategoryId) {
       return;
     }
 
-    if (mode === "edit" && currentProduct) {
-      subCateId = currentProduct.categoryId;
-    }
-
     const stillExists = availableSubCategories.some(
-      (subCategory) => subCategory.id === subCateId
+      (subCategory) => subCategory.id === selectedSubCategoryId
     );
 
     if (!stillExists) {
       setValue("categoryId", 0, { shouldDirty: true, shouldValidate: true });
-    } else {
-      setValue("categoryId", subCateId, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
     }
   }, [availableSubCategories, selectedSubCategoryId, setValue]);
 
-  useEffect(() => {
-    if (mode === "edit" && currentProduct) {
-      setImageKeys(
-        currentProduct.images.length > 0
-          ? currentProduct.images.map((_, index) => index)
-          : Array.from({ length: MIN_IMAGES }, (_, index) => index)
-      );
-      imageKeyCounter.current =
-        (currentProduct.images.length > 0
-          ? currentProduct.images.length
-          : MIN_IMAGES) - 1;
-
-      reset(defaultValues);
-    }
-  }, [mode, currentProduct]);
-
   const { mutate, isPending } = usePublishNewProduct();
-  const {
-    mutate: updateProductDescription,
-    isPending: isUpdatingProductDescription,
-  } = useUpdateProductDescription(currentProduct ? currentProduct.id : 0);
 
   const resetFormState = () => {
     reset(createDefaultValues());
@@ -254,25 +168,7 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
 
   const onSubmit = (values: PublishNewProductFormValues) => {
     const parsedValues: PublishNewProductSubmitValues =
-      publish_new_product_schema.parse(values);
-
-    if (mode === "edit" && currentProduct) {
-      // In edit mode, only allow updating the description
-      if (parsedValues.description !== currentProduct.description) {
-        updateProductDescription(
-          { additionalDescription: parsedValues.description },
-          {
-            onSuccess: () => {
-              toastSuccess("Product description updated successfully");
-            },
-            onError: (error) => {
-              toastError(error);
-            },
-          }
-        );
-      }
-      return;
-    }
+      publishNewProductSchema.parse(values);
 
     const payload: CREATE_PRODUCT_PAYLOAD = {
       name: parsedValues.name,
@@ -353,7 +249,6 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
               placeholder="Vintage wristwatch"
               {...register("name")}
               aria-invalid={errors.name ? "true" : "false"}
-              readOnly={mode === "edit"}
             />
             <FieldError errors={errors.name ? [errors.name] : []} />
           </Field>
@@ -369,7 +264,6 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
                 placeholder="100"
                 {...register("startingPrice")}
                 aria-invalid={errors.startingPrice ? "true" : "false"}
-                readOnly={mode === "edit"}
               />
               <FieldError
                 errors={errors.startingPrice ? [errors.startingPrice] : []}
@@ -386,7 +280,6 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
                 placeholder="10"
                 {...register("stepPrice")}
                 aria-invalid={errors.stepPrice ? "true" : "false"}
-                readOnly={mode === "edit"}
               />
               <FieldError errors={errors.stepPrice ? [errors.stepPrice] : []} />
             </Field>
@@ -401,7 +294,6 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
                 placeholder="250"
                 {...register("buyNowPrice")}
                 aria-invalid={errors.buyNowPrice ? "true" : "false"}
-                readOnly={mode === "edit"}
               />
               <FieldError
                 errors={errors.buyNowPrice ? [errors.buyNowPrice] : []}
@@ -419,9 +311,7 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
                   <Select
                     value={field.value ? String(field.value) : undefined}
                     onValueChange={(value) => field.onChange(Number(value))}
-                    disabled={
-                      categoriesLoading || categoriesError || mode === "edit"
-                    }
+                    disabled={categoriesLoading || categoriesError}
                   >
                     <SelectTrigger
                       aria-invalid={errors.parentCategoryId ? "true" : "false"}
@@ -463,7 +353,7 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
                   <Select
                     value={field.value ? String(field.value) : undefined}
                     onValueChange={(value) => field.onChange(Number(value))}
-                    disabled={!availableSubCategories.length || mode === "edit"}
+                    disabled={!availableSubCategories.length}
                   >
                     <SelectTrigger
                       aria-invalid={errors.categoryId ? "true" : "false"}
@@ -497,7 +387,6 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
               min={minEndTime}
               {...register("endTime")}
               aria-invalid={errors.endTime ? "true" : "false"}
-              readOnly={mode === "edit"}
             />
             <FieldError errors={errors.endTime ? [errors.endTime] : []} />
           </Field>
@@ -510,7 +399,6 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
                 variant="outline"
                 size="sm"
                 onClick={appendImageField}
-                disabled={mode === "edit"}
               >
                 Add Image
               </Button>
@@ -530,16 +418,13 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
                       aria-invalid={
                         imageFieldErrors?.[index] ? "true" : "false"
                       }
-                      readOnly={mode === "edit"}
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       className="md:w-auto"
                       onClick={() => removeImageField(index)}
-                      disabled={
-                        imageKeys.length <= MIN_IMAGES || mode === "edit"
-                      }
+                      disabled={imageKeys.length <= MIN_IMAGES}
                     >
                       Remove
                     </Button>
@@ -557,29 +442,16 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
             )}
           </div>
 
-          {mode === "edit" && currentProduct && (
-            <Field>
-              <FieldLabel>Product Description</FieldLabel>
-              <div
-                className="prose prose-neutral max-w-none border rounded-md p-4 bg-gray-50"
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(currentProduct.description ?? ""),
-                }}
-              />
-            </Field>
-          )}
-
           <Controller
             control={control}
             name="description"
             render={({ field, fieldState }) => (
               <Field>
                 <FieldLabel htmlFor="description">
-                  {mode === "create" && "Product Description"}
-                  {mode === "edit" && "Additional Product Description"}
+                  Product Description
                 </FieldLabel>
                 <RichTextEditor
-                  // value={field.value}
+                  value={field.value}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   error={!!fieldState.error}
@@ -604,7 +476,6 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
                     shouldValidate: true,
                   })
                 }
-                disabled={mode === "edit"}
               >
                 {autoExtendValue ? "Auto Extend: On" : "Auto Extend: Off"}
               </Button>
@@ -618,7 +489,6 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
                     shouldValidate: true,
                   })
                 }
-                disabled={mode === "edit"}
               >
                 {allowUnratedBiddersValue
                   ? "Allow Unrated Bidders: On"
@@ -628,24 +498,9 @@ function PublishNewProduct({ mode = "create" }: PublishNewProdutcProps) {
           </Field>
         </FieldGroup>
 
-        {mode === "create" && (
-          <Button
-            type="submit"
-            disabled={isPending}
-            className="w-full md:w-auto"
-          >
-            {isPending ? "Publishing..." : "Publish Product"}
-          </Button>
-        )}
-        {mode === "edit" && (
-          <Button
-            type="submit"
-            disabled={isUpdatingProductDescription}
-            className="w-full md:w-auto"
-          >
-            {isUpdatingProductDescription ? "Updating..." : "Update Product"}
-          </Button>
-        )}
+        <Button type="submit" disabled={isPending} className="w-full md:w-auto">
+          {isPending ? "Publishing..." : "Publish Product"}
+        </Button>
       </form>
     </div>
   );

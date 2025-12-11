@@ -80,3 +80,26 @@ export type BLOCK_A_BIDDER_FROM_A_PRODUCT_PAYLOAD = {
 };
 
 export type BLOCK_A_BIDDER_FROM_A_PRODUCT_RESPONSE = ApiResponse<string>;
+
+// Get all sales
+export type SELLER_SALES = {
+  id: number;
+  productId: number;
+  productName: string;
+  buyerId: number;
+  buyerName: string;
+  sellerId: number;
+  sellerName: string;
+  amount: number;
+  status: string;
+  shippingAddress: string;
+  trackingNumber: string;
+  paidAt: string;
+  shippedAt: string;
+  deliveredAt: string;
+  cancelled: boolean;
+  cancellationReason: string;
+  createdAt: string;
+};
+
+export type SELLER_SALES_RESPONSE = ApiResponse<Pagination<SELLER_SALES>>;

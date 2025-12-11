@@ -98,3 +98,29 @@ export type USER_QUESTIONS = {
 };
 
 export type USER_QUESTIONS_RESPONSE = ApiResponse<Pagination<USER_QUESTIONS>>;
+
+// Rate a seller
+export type RATE_A_SELLER_PAYLOAD = {
+  userId: number;
+  productId: number;
+  isPositive: boolean;
+  comment: string;
+};
+
+export type RATE_A_SELLER = {
+  id: number;
+  userId: number;
+  userName: string;
+  ratedById: number;
+  ratedByName: string;
+  productId: number;
+  productName: string;
+  isPositive: boolean;
+  comment: string;
+  createdAt: string;
+};
+
+export type RATE_A_SELLER_RESPONSE = ApiResponse<RATE_A_SELLER>;
+
+export type CHECK_A_RATED_SELLER_ON_A_PRODUCT_RESPONSE =
+  ApiResponse<RATE_A_SELLER>;

@@ -9,6 +9,7 @@ import type {
   CREATE_PRODUCT_RESPONSE,
   GET_UNANSWERED_QUESTIONS_RESPONSE,
   POST_ANSWER_TO_QUESTION_PAYLOAD,
+  SELLER_SALES_RESPONSE,
   UPDATE_PRODUCT_DESCRIPTION_PAYLOAD,
   UPDATE_PRODUCT_DESCRIPTION_RESPONSE,
 } from "@/types/Seller";
@@ -129,6 +130,18 @@ export const useFetchUnansweredQuestions = (
     queryFn: async () => {
       const { data } = await apiClient.get<GET_UNANSWERED_QUESTIONS_RESPONSE>(
         API_ENDPOINTS.GET_UNANSWERED_QUESTIONS(page, size)
+      );
+      return data.data;
+    },
+  });
+};
+
+export const useFetchAllSales = (page: number = 0, size: number = 20) => {
+  return useQuery<SELLER_SALES_RESPONSE["data"]>({
+    queryKey: ["all-sales", page, size],
+    queryFn: async () => {
+      const { data } = await apiClient.get<SELLER_SALES_RESPONSE>(
+        API_ENDPOINTS.GET_ALL_SALES(page, size)
       );
       return data.data;
     },

@@ -1,12 +1,13 @@
-import type { PRODUCT_DETAILS_STATUS, PRODUCT_DETAILS } from "@/types/Product";
-import ProductBid from "./product-bid/ProductBid";
-import { cn, formatDateTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { usePlaceABid } from "@/hooks/bid-hooks";
 import { toastError, toastSuccess } from "@/components/toast/toast-ui";
+import { cn, formatDateTime } from "@/lib/utils";
+import { usePlaceABid } from "@/hooks/bid-hooks";
+import type { PRODUCT_DETAILS } from "@/types/Product";
+
+import ProductBid from "./product-bid/ProductBid";
 
 const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
-  const productStatus: PRODUCT_DETAILS_STATUS = data.status;
+  const productStatus = data.status;
   const { mutate, isPending } = usePlaceABid();
 
   const handleSubmitBid = (productId: number, buyNowPrice: number) => {
@@ -29,27 +30,7 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
 
   return (
     <div>
-      <div className="flex">
-        <p className="text-2xl mr-auto">{data.name}</p>
-        <div className="flex items-center">
-          <p
-            className={cn(
-              "mr-4 py-2 px-4 rounded-md",
-              productStatus === "COMPLETED"
-                ? "bg-[#50C878] text-white"
-                : "bg-[#E30B5C] text-white"
-            )}
-          >
-            {productStatus}
-          </p>
-          <Button
-            variant="default"
-            onClick={() => handleSubmitBid(data.id, data.buyNowPrice)}
-          >
-            {isPending ? "Buying..." : "Buy Now"}
-          </Button>
-        </div>
-      </div>
+      <p className="text-2xl mr-auto">{data.name}</p>
       <div className="border-b border-gray-200 my-4" />
       <div className="flex justify-between mb-4 text-lg">
         <p>Current Price: {data.currentPrice}</p>
@@ -70,6 +51,27 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
       </p>
       <p className="mb-4 text-lg">End Time: {formatDateTime(data.endTime)}</p>
       <p className="mb-4 text-lg">Time Remaining: {data.timeRemaining}</p>
+
+      <div className="flex items-center justify-end">
+        <p
+          className={cn(
+            "mr-4 py-2 px-4 rounded-md",
+            productStatus === "COMPLETED"
+              ? "bg-[#E30B5C] text-white text-sm"
+              : "bg-[#50C878] text-white text-sm"
+          )}
+        >
+          {productStatus}
+        </p>
+        {productStatus !== "COMPLETED" && (
+          <Button
+            variant="default"
+            onClick={() => handleSubmitBid(data.id, data.buyNowPrice)}
+          >
+            {isPending ? "Buying..." : "Buy Now"}
+          </Button>
+        )}
+      </div>
 
       {productStatus !== "COMPLETED" && (
         <>

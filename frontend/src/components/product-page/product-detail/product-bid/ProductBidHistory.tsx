@@ -67,16 +67,17 @@ function ProductBidHistory({ productId }: { productId: number }) {
               {isSeller && (
                 <TableCell className="font-medium text-right">
                   <NotificationDialog
+                    triggerElement={
+                      <div className="py-1 px-2 bg-black text-white rounded-sm">
+                        <Ban size={16} className="mx-auto" />
+                      </div>
+                    }
                     title="Block Bidder"
                     description="Are you sure you want to block this bidder from bidding on this product?"
                     actionText="Block"
                     cancelText="Cancel"
                     onAction={() => handleBlockABidder(history.userId)}
-                  >
-                    <div className="py-1 px-2 bg-black text-white rounded-sm">
-                      <Ban size={16} className="mx-auto" />
-                    </div>
-                  </NotificationDialog>
+                  />
                 </TableCell>
               )}
             </TableRow>
