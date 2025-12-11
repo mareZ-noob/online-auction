@@ -125,4 +125,12 @@ public class RatingService {
                 .last(ratingPage.isLast())
                 .build();
     }
+
+    public RatingDto getMyRatingForProduct(Long productId) {
+        Long currentUserId = CurrentUser.getUserId();
+
+        Optional<Rating> rating = ratingRepository.findByRatedByIdAndProductId(currentUserId, productId);
+
+        return rating.map(RatingMapper::toDto).orElse(null);
+    }
 }

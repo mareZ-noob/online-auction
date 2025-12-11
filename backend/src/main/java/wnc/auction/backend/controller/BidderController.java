@@ -169,6 +169,19 @@ public class BidderController {
         return ResponseEntity.ok(ApiResponse.success("Rating submitted", rating));
     }
 
+    // Check rating status for a product
+    @GetMapping("/ratings/check/{productId}")
+    @Operation(summary = "Check if I have rated this product")
+    public ResponseEntity<ApiResponse<RatingDto>> checkMyRating(@PathVariable Long productId) {
+        RatingDto myRating = ratingService.getMyRatingForProduct(productId);
+
+        if (myRating != null) {
+            return ResponseEntity.ok(ApiResponse.success("You have rated this product", myRating));
+        } else {
+            return ResponseEntity.ok(ApiResponse.success("Not rated yet", null));
+        }
+    }
+
     // Upgrade Request
     @PostMapping("/upgrade-request")
     @Operation(summary = "Request upgrade to seller")

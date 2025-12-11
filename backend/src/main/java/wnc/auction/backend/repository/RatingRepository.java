@@ -22,4 +22,7 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
 
     @Query("SELECT COUNT(r) FROM Rating r WHERE " + "r.user.id = :userId AND r.isPositive = false")
     int countNegativeRatings(@Param("userId") Long userId);
+
+    // Find rating by the person who rated (ratedBy) and the product
+    Optional<Rating> findByRatedByIdAndProductId(Long ratedById, Long productId);
 }
