@@ -88,4 +88,7 @@ export const API_ENDPOINTS = {
     `/seller/questions/unanswered?page=${page}&size=${size}`,
   GET_ALL_SALES: (page: number, size: number) =>
     `/seller/sales?page=${page}&size=${size}`,
+  RATE_A_BIDDER: "/seller/ratings",
+  CHECK_RATED_BIDDER_ON_A_PRODUCT: (productId: string | number) =>
+    `/seller/ratings/check/${productId}`,
 };

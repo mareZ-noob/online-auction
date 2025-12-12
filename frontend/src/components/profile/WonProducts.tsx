@@ -15,7 +15,7 @@ import {
 } from "@/hooks/user-hooks";
 import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, queryClient } from "@/lib/utils";
 import { CreditCard, Eye, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toastSuccess, toastError } from "../toast/toast-ui";
@@ -83,6 +83,11 @@ function WonProducts() {
         onSuccess: (result) => {
           setComment("");
           toastSuccess(result.message);
+
+          queryClient.invalidateQueries({
+            queryKey: ["check-rated-seller-on-product"],
+            exact: false,
+          });
         },
         onError: (error) => {
           toastError(error);

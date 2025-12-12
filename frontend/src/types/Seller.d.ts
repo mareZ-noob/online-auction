@@ -1,5 +1,5 @@
 import type { ApiResponse, Pagination } from "./ApiResponse";
-import type { USER_QUESTIONS } from "./User";
+import type { RATE_A_USER, USER_QUESTIONS } from "./User";
 
 export type CREATE_PRODUCT_PAYLOAD = {
   name: string;
@@ -80,6 +80,19 @@ export type BLOCK_A_BIDDER_FROM_A_PRODUCT_PAYLOAD = {
 };
 
 export type BLOCK_A_BIDDER_FROM_A_PRODUCT_RESPONSE = ApiResponse<string>;
+
+// Rate a bidder from a sold product
+export type RATE_A_BIDDER_PAYLOAD = {
+  userId: number;
+  productId: number;
+  isPositive: boolean;
+  comment: string;
+};
+
+export type RATE_A_BIDDER_RESPONSE = ApiResponse<RATE_A_USER>;
+
+export type CHECK_A_RATED_BIDDER_ON_A_PRODUCT_RESPONSE =
+  ApiResponse<RATE_A_USER>;
 
 // Get all sales
 export type SELLER_SALES = {

@@ -107,7 +107,7 @@ export type RATE_A_SELLER_PAYLOAD = {
   comment: string;
 };
 
-export type RATE_A_SELLER = {
+export type RATE_A_USER = {
   id: number;
   userId: number;
   userName: string;
@@ -120,7 +120,7 @@ export type RATE_A_SELLER = {
   createdAt: string;
 };
 
-export type RATE_A_SELLER_RESPONSE = ApiResponse<RATE_A_SELLER>;
+export type RATE_A_SELLER_RESPONSE = ApiResponse<RATE_A_USER>;
 
 export type CHECK_A_RATED_SELLER_ON_A_PRODUCT_RESPONSE =
-  ApiResponse<RATE_A_SELLER>;
+  ApiResponse<RATE_A_USER>;

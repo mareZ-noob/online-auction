@@ -1,8 +1,10 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import apiClient from "@/query/api-client";
 import type { ApiResponseError } from "@/types/ApiResponse";
 import type {
+  RATE_A_BIDDER_PAYLOAD,
+  RATE_A_BIDDER_RESPONSE,
   BLOCK_A_BIDDER_FROM_A_PRODUCT_PAYLOAD,
   BLOCK_A_BIDDER_FROM_A_PRODUCT_RESPONSE,
   CREATE_PRODUCT_PAYLOAD,
@@ -12,9 +14,14 @@ import type {
   SELLER_SALES_RESPONSE,
   UPDATE_PRODUCT_DESCRIPTION_PAYLOAD,
   UPDATE_PRODUCT_DESCRIPTION_RESPONSE,
+  SELLER_SALES,
+  CHECK_A_RATED_BIDDER_ON_A_PRODUCT_RESPONSE,
 } from "@/types/Seller";
 import { API_ENDPOINTS } from "./endpoints";
-import type { SELLER_PUBLISHED_PRODUCTS } from "@/types/Product";
+import type {
+  PRODUCTS_BY_SUB_CATEGORY_ID,
+  SELLER_PUBLISHED_PRODUCTS,
+} from "@/types/Product";
 import { queryClient } from "@/lib/utils";
 import type { POST_ANSWER_TO_QUESTION_RESPONSE } from "@/types/Seller";
 
@@ -147,3 +154,58 @@ export const useFetchAllSales = (page: number = 0, size: number = 20) => {
     },
   });
 };
+
+export const useRateABidder = () => {
+  return useMutation<
+    RATE_A_BIDDER_RESPONSE,
+    AxiosError<ApiResponseError>,
+    RATE_A_BIDDER_PAYLOAD
+  >({
+    mutationKey: ["rate_a_bidder"],
+    mutationFn: async (payload: RATE_A_BIDDER_PAYLOAD) => {
+      const { data } = await apiClient.post<RATE_A_BIDDER_RESPONSE>(
+        API_ENDPOINTS.RATE_A_BIDDER,
+        payload
+      );
+      return data;
+    },
+  });
+};
+
+export function useCheckRatedProducts(saleProducts: SELLER_SALES[]) {
+  const queries =
+    useQueries<CHECK_A_RATED_BIDDER_ON_A_PRODUCT_RESPONSE[]>({
+      queries:
+        saleProducts.map((product) => ({
+          queryKey: ["check-rated-bidder-on-product", product.productId],
+          queryFn: async () => {
+            const { data } =
+              await apiClient.get<CHECK_A_RATED_BIDDER_ON_A_PRODUCT_RESPONSE>(
+                API_ENDPOINTS.CHECK_RATED_BIDDER_ON_A_PRODUCT(product.productId)
+              );
+            return data.data;
+          },
+          enabled: !!saleProducts,
+        })) || [],
+    }) ?? [];
+
+  // Build list of unrated product IDs
+  const ratedProducts =
+    queries
+      .map((result, index) => {
+        const product = saleProducts[index];
+        if (!product) return null;
+
+        if (result.data?.productId) {
+          return product.productId;
+        }
+
+        return null;
+      })
+      .filter(Boolean) ?? [];
+
+  return {
+    ratedProducts,
+    queries,
+  };
+}
