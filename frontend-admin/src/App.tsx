@@ -6,12 +6,12 @@ import router from "@/routes/router";
 import { queryClient } from "@/lib/utils.ts";
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <Toaster richColors />
-    </QueryClientProvider>
-  );
+	return (
+		<QueryClientProvider client={queryClient}>
+			<RouterProvider router={router} />
+			<Toaster richColors />
+		</QueryClientProvider>
+	);
 }
 
 export default App;

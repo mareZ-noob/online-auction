@@ -1,21 +1,21 @@
 export type ApiResponse<T> = {
-  success: boolean;
-  message: string;
-  data: T;
-  timestamp: string;
+	success: boolean;
+	message: string;
+	data: T;
+	timestamp: string;
 };
 
 export type Pagination<T> = {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-  last: boolean;
+	content: T[];
+	page: number;
+	size: number;
+	totalElements: number;
+	totalPages: number;
+	last: boolean;
 };
 
 export type ApiResponseError = {
-  success: false;
-  message: string;
-  timestamp: string;
+	success: false;
+	message: string;
+	timestamp: string;
 };

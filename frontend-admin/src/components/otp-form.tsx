@@ -77,7 +77,7 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
 
 		verifyEmailMutate(data, {
 			onSuccess: () => {
-				navigate("/me", { replace: true });
+				navigate("/admin", { replace: true });
 			},
 		});
 	};
