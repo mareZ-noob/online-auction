@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import wnc.auction.backend.dto.model.ProductDto;
 import wnc.auction.backend.dto.model.ProductListDto;
 import wnc.auction.backend.dto.request.CreateProductRequest;
@@ -32,6 +33,7 @@ import wnc.auction.backend.model.enumeration.ProductStatus;
 import wnc.auction.backend.model.enumeration.UserRole;
 import wnc.auction.backend.repository.*;
 import wnc.auction.backend.security.CurrentUser;
+import wnc.auction.backend.utils.Constants;
 
 @Service
 @RequiredArgsConstructor
@@ -48,9 +50,22 @@ public class ProductService {
     private final BlockedBidderRepository blockedBidderRepository;
     private final BidRepository bidRepository;
     private final EmailService emailService;
+    private final FileStorageService fileStorageService;
 
     @Value("${app.auction.new-product-highlight-minutes}")
     private int newProductHighlightMinutes;
+
+    public ProductDto createProductWithImages(CreateProductRequest request, List<MultipartFile> imageFiles) {
+        List<String> imageUrls = new ArrayList<>();
+        for (MultipartFile file : imageFiles) {
+            String url = fileStorageService.storeFile(file);
+            imageUrls.add(url);
+        }
+
+        request.setImages(imageUrls);
+
+        return createProduct(request);
+    }
 
     public ProductDto createProduct(CreateProductRequest request) {
         Long sellerId = CurrentUser.getUserId();
@@ -335,5 +350,48 @@ public class ProductService {
             count++;
         }
         return count;
+    }
+
+    public ProductDto addProductImage(Long productId, MultipartFile file) {
+        Long sellerId = CurrentUser.getUserId();
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND));
+
+        if (!product.getSeller().getId().equals(sellerId)) {
+            throw new ForbiddenException("You can only update your own products");
+        }
+
+        String imageUrl = fileStorageService.storeFile(file);
+        product.getImages().add(imageUrl);
+        productRepository.save(product);
+
+        log.info("Image added to product {}: {}", productId, imageUrl);
+        return ProductMapper.toDto(product, sellerId, false);
+    }
+
+    public ProductDto removeProductImage(Long productId, String imageUrl) {
+        Long sellerId = CurrentUser.getUserId();
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND));
+
+        if (!product.getSeller().getId().equals(sellerId)) {
+            throw new ForbiddenException("You can only update your own products");
+        }
+
+        if (product.getImages().contains(imageUrl)) {
+            product.getImages().remove(imageUrl);
+
+            // Optionally delete from storage (if not used elsewhere)
+            fileStorageService.deleteFile(imageUrl);
+
+            productRepository.save(product);
+        } else {
+            throw new NotFoundException("Image not found in product");
+        }
+
+        log.info("Image removed from product {}: {}", productId, imageUrl);
+        return ProductMapper.toDto(product, sellerId, false);
     }
 }

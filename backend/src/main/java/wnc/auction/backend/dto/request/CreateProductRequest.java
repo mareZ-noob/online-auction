@@ -3,7 +3,6 @@ package wnc.auction.backend.dto.request;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,6 +41,5 @@ public class CreateProductRequest {
     private Boolean autoExtend = false;
     private Boolean allowUnratedBidders = false;
 
-    @Size(min = 3, message = "{validation.product.images.min}")
     private List<String> images;
 }

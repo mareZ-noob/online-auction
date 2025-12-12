@@ -33,3 +33,8 @@ build/
 .vscode/
 
 .env
+postgres_data/
+redis_data/
+pgadmin_data/
+minio_data/
+kafka_data/

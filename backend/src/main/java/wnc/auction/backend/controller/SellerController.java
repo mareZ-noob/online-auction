@@ -1,16 +1,23 @@
 package wnc.auction.backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import wnc.auction.backend.dto.model.*;
 import wnc.auction.backend.dto.request.*;
 import wnc.auction.backend.dto.response.ApiResponse;
 import wnc.auction.backend.dto.response.PageResponse;
+import wnc.auction.backend.exception.BadRequestException;
 import wnc.auction.backend.service.*;
 
 @RestController
@@ -31,6 +38,25 @@ public class SellerController {
     @Operation(summary = "Create a new product")
     public ResponseEntity<ApiResponse<ProductDto>> createProduct(@Valid @RequestBody CreateProductRequest request) {
         ProductDto product = productService.createProduct(request);
+        return ResponseEntity.ok(ApiResponse.success("Product created", product));
+    }
+
+    @PostMapping(value = "/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Create a new product with images")
+    public ResponseEntity<ApiResponse<ProductDto>> createProduct(
+            @Parameter(
+                            description = "Product data in JSON format",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+                    @RequestPart("data")
+                    @Valid
+                    CreateProductRequest request,
+            @Parameter(description = "Product images (min 3)") @RequestPart("images") List<MultipartFile> images) {
+
+        if (images == null || images.size() < 3) {
+            throw new BadRequestException("At least 3 images are required");
+        }
+
+        ProductDto product = productService.createProductWithImages(request, images);
         return ResponseEntity.ok(ApiResponse.success("Product created", product));
     }
 
@@ -133,5 +159,23 @@ public class SellerController {
         } else {
             return ResponseEntity.ok(ApiResponse.success("Not rated yet", null));
         }
+    }
+
+    // Product Image Management
+    @PostMapping(value = "/products/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload and add an image to a product")
+    public ResponseEntity<ApiResponse<ProductDto>> addProductImage(
+            @PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        ProductDto product = productService.addProductImage(id, file);
+        return ResponseEntity.ok(ApiResponse.success("Image added successfully", product));
+    }
+
+    @DeleteMapping("/products/{id}/images")
+    @Operation(summary = "Remove an image from a product")
+    public ResponseEntity<ApiResponse<ProductDto>> removeProductImage(
+            @PathVariable Long id, @RequestBody Map<String, String> request) {
+        String imageUrl = request.get("imageUrl");
+        ProductDto product = productService.removeProductImage(id, imageUrl);
+        return ResponseEntity.ok(ApiResponse.success("Image removed successfully", product));
     }
 }
