@@ -20,7 +20,7 @@ import z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { toastError, toastSuccess } from "../toast/toast-ui";
+import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
 
 const create_a_category_schema = z.object({
 	name: z.string().min(3, "Name must be at least 3 characters long"),

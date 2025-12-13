@@ -28,4 +28,10 @@ export const API_ENDPOINTS = {
 	PRODUCTS_BY_SUB_CATEGORY_ID: (categoryId: string | number) =>
 		`/public/products/category/${categoryId}`,
 	SEARCH_PRODUCTS: "/public/products/search",
+
+	// Users
+	GET_UPGRADE_REQUESTS: (page: number, size: number) =>
+		`admin/upgrade-requests?page=${page}&size=${size}`,
+	REVIEW_UPGRADE_REQUEST: (id: string | number | null) =>
+		`admin/upgrade-requests/${id}/review`,
 };
