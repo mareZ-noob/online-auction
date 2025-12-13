@@ -33,6 +33,7 @@ build/
 .vscode/
 
 .env
+# *.pem
 postgres_data/
 redis_data/
 pgadmin_data/
