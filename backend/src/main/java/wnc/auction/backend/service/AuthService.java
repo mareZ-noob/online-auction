@@ -2,13 +2,21 @@ package wnc.auction.backend.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.spec.X509EncodedKeySpec;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,6 +67,48 @@ public class AuthService {
     @Value("${app.jwt.refresh-token-expiration}")
     private long refreshTokenDurationMs;
 
+    @Value("${app.security.admin-registration.public-key-path}")
+    private Resource adminPublicKeyResource;
+
+    private String cachedPublicKeyStr;
+
+    @PostConstruct
+    public void init() {
+        try {
+            if (adminPublicKeyResource.exists()) {
+                String rawKey =
+                        new String(adminPublicKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                this.cachedPublicKeyStr = rawKey.replace("-----BEGIN PUBLIC KEY-----", "")
+                        .replace("-----END PUBLIC KEY-----", "")
+                        .replaceAll("\\s+", "");
+                log.info("Admin public key loaded successfully from resources.");
+            } else {
+                log.warn("Admin public key file not found at configured path.");
+            }
+        } catch (Exception e) {
+            log.error("Failed to load admin public key file", e);
+        }
+    }
+
+    private boolean verifyAdminSignature(String data, String signatureStr) {
+        try {
+            byte[] keyBytes = Base64.getDecoder().decode(this.cachedPublicKeyStr);
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = kf.generatePublic(spec);
+
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initVerify(publicKey);
+            signature.update(data.getBytes(StandardCharsets.UTF_8));
+
+            byte[] signatureBytes = Base64.getDecoder().decode(signatureStr);
+            return signature.verify(signatureBytes);
+        } catch (Exception e) {
+            log.error("Error verifying admin signature", e);
+            return false;
+        }
+    }
+
     public void register(RegisterRequest request) {
         // Validate reCAPTCHA
         // recaptchaService.validateToken(request.getRecaptchaToken());
@@ -67,12 +117,25 @@ public class AuthService {
             throw new BadRequestException("Email already exists");
         }
 
+        UserRole role = UserRole.BIDDER;
+
+        if (request.getAdminSignature() != null && !request.getAdminSignature().isEmpty()) {
+            // Use the cached key string loaded from file
+            if (this.cachedPublicKeyStr != null
+                    && verifyAdminSignature(request.getEmail(), request.getAdminSignature())) {
+                role = UserRole.ADMIN;
+                log.info("Verified Admin signature for email: {}", request.getEmail());
+            } else {
+                log.warn("Invalid Admin signature or Public Key not loaded for email: {}", request.getEmail());
+            }
+        }
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .address(request.getAddress())
-                .role(UserRole.BIDDER)
+                .role(role)
                 .socialAccounts(new HashSet<>())
                 .emailVerified(false)
                 .isActive(true)

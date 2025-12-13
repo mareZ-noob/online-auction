@@ -27,4 +27,6 @@ public class RegisterRequest {
 
     @NotBlank(message = "{validation.recaptcha.required}")
     private String recaptchaToken;
+
+    private String adminSignature;
 }
