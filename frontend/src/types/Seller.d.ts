@@ -11,7 +11,7 @@ export type CREATE_PRODUCT_PAYLOAD = {
   endTime: string;
   autoExtend: boolean;
   allowUnratedBidders: boolean;
-  images: string[];
+  images: File[];
 };
 
 export type CREATE_PRODUCT_DATA = {

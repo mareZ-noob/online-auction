@@ -87,7 +87,9 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
       <div className="border-b border-gray-200 my-4" />
 
       <p className="mb-4 text-lg">Seller Name: {data.sellerName}</p>
-      <p className="mb-4 text-lg">Seller Rating: {data.sellerRating}</p>
+      <p className="mb-4 text-lg">
+        Seller Rating: {data.sellerRating.toFixed(2) + "%"}
+      </p>
     </div>
   );
 };

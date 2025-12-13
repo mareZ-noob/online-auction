@@ -18,10 +18,7 @@ import type {
   CHECK_A_RATED_BIDDER_ON_A_PRODUCT_RESPONSE,
 } from "@/types/Seller";
 import { API_ENDPOINTS } from "./endpoints";
-import type {
-  PRODUCTS_BY_SUB_CATEGORY_ID,
-  SELLER_PUBLISHED_PRODUCTS,
-} from "@/types/Product";
+import type { SELLER_PUBLISHED_PRODUCTS } from "@/types/Product";
 import { queryClient } from "@/lib/utils";
 import type { POST_ANSWER_TO_QUESTION_RESPONSE } from "@/types/Seller";
 
@@ -32,11 +29,32 @@ export const usePublishNewProduct = () => {
     CREATE_PRODUCT_PAYLOAD
   >({
     mutationKey: ["publish-new-product"],
-    mutationFn: async (payload: CREATE_PRODUCT_PAYLOAD) => {
+    mutationFn: async (payload) => {
+      const fd = new FormData();
+
+      const { images, ...productData } = payload;
+
+      fd.append(
+        "data",
+        new Blob([JSON.stringify(productData)], {
+          type: "application/json",
+        })
+      );
+
+      images.forEach((file) => {
+        fd.append("images", file);
+      });
+
       const { data } = await apiClient.post<CREATE_PRODUCT_RESPONSE>(
         API_ENDPOINTS.CREATE_NEW_PRODUCT,
-        payload
+        fd,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
+
       return data;
     },
   });

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,15 +17,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { usePublishNewProduct } from "@/hooks/seller-hooks";
-import { useFetchCategories } from "@/hooks/product-hooks";
+import {
+  usePublishNewProduct,
+  useUpdateProductDescription,
+} from "@/hooks/seller-hooks";
+import {
+  useFetchCategories,
+  useFetchProductDetailsById,
+} from "@/hooks/product-hooks";
 import { toastError, toastSuccess } from "@/components/toast/toast-ui";
 import type { CREATE_PRODUCT_PAYLOAD } from "@/types/Seller";
 import type { CATEGORY, SUB_CATEGORY } from "@/types/Product";
 import RichTextEditor from "./PublishNewProductDescription.tsx";
+import PublishNewProductImageUploads from "./PublishNewProductImageUploads";
+import { useParams } from "react-router-dom";
+import DOMPurify from "dompurify";
 
 const MIN_IMAGES = 3;
 const blankParagraph = "<p></p>";
+const imageFileSchema = z.instanceof(File, {
+  message: "Please upload a valid image file",
+});
 
 const stripHtml = (value: string) =>
   value
@@ -62,13 +74,9 @@ const publishNewProductSchema = z
       .refine((value) => new Date(value).getTime() > Date.now(), {
         message: "End time must be in the future",
       }),
-    images: z
-      .array(
-        z.string().trim().url({ message: "Please enter a valid image URL" })
-      )
-      .min(MIN_IMAGES, {
-        message: `Please add at least ${MIN_IMAGES} image URLs`,
-      }),
+    images: z.array(imageFileSchema).min(MIN_IMAGES, {
+      message: `Please upload at least ${MIN_IMAGES} images`,
+    }),
     description: z.string().refine((value) => stripHtml(value).length > 0, {
       message: "Product description is required",
     }),
@@ -85,40 +93,32 @@ const publishNewProductSchema = z
     }
   });
 
-type PublishNewProductFormValues = z.input<typeof publishNewProductSchema>;
+export type PublishNewProductFormValues = z.input<
+  typeof publishNewProductSchema
+>;
 type PublishNewProductSubmitValues = z.output<typeof publishNewProductSchema>;
 
 const createDefaultValues = (): Partial<PublishNewProductFormValues> => ({
   name: "",
+  startingPrice: "",
+  stepPrice: "",
+  buyNowPrice: "",
   parentCategoryId: 0,
   categoryId: 0,
   endTime: "",
-  images: Array.from({ length: MIN_IMAGES }, () => ""),
+  images: [] as File[],
   description: blankParagraph,
   autoExtend: true,
   allowUnratedBidders: true,
 });
 
-function PublishNewProduct() {
-  const defaultValues = useMemo(() => createDefaultValues(), []);
+function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
+  const { id: productId } = useParams();
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    getValues,
-    watch,
-    formState: { errors },
-  } = useForm<PublishNewProductFormValues>({
-    resolver: zodResolver(publishNewProductSchema),
-    defaultValues,
-  });
+  let defaultValues = useMemo(() => createDefaultValues(), []);
 
-  const imageKeyCounter = useRef(MIN_IMAGES - 1);
-  const [imageKeys, setImageKeys] = useState<number[]>(() =>
-    Array.from({ length: MIN_IMAGES }, (_, index) => index)
+  const { data: currentProduct } = useFetchProductDetailsById(
+    Number(productId)
   );
 
   const {
@@ -126,6 +126,43 @@ function PublishNewProduct() {
     isLoading: categoriesLoading,
     isError: categoriesError,
   } = useFetchCategories();
+
+  if (mode === "edit" && currentProduct) {
+    defaultValues = {
+      name: currentProduct.name ?? "",
+      startingPrice: currentProduct.startingPrice ?? 0,
+      stepPrice: currentProduct.stepPrice ?? 0,
+      buyNowPrice: currentProduct.buyNowPrice ?? 0,
+      parentCategoryId:
+        categories?.find((category) =>
+          category.children.some(
+            (subCategory) => subCategory.id === currentProduct.categoryId
+          )
+        )?.id ?? 0,
+      categoryId: currentProduct.categoryId ?? 0,
+      endTime: currentProduct
+        ? new Date(currentProduct.endTime).toISOString().slice(0, 16)
+        : "",
+      description: currentProduct.description ?? blankParagraph,
+      autoExtend: currentProduct.autoExtend ?? true,
+      allowUnratedBidders: currentProduct.allowUnratedBidders ?? true,
+    };
+  }
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<PublishNewProductFormValues>({
+    resolver: zodResolver(publishNewProductSchema),
+    defaultValues,
+  });
+
+  const [formResetKey, setFormResetKey] = useState(0);
 
   const autoExtendValue = watch("autoExtend");
   const allowUnratedBiddersValue = watch("allowUnratedBidders");
@@ -137,12 +174,22 @@ function PublishNewProduct() {
       return [] as SUB_CATEGORY[];
     }
 
+    if (mode === "edit" && currentProduct) {
+      const currentSubCategory = categories
+        .flatMap((category) => category.children)
+        .find((subCategory) => subCategory.id === currentProduct.categoryId);
+
+      if (currentSubCategory) {
+        return [currentSubCategory];
+      }
+    }
+
     const parentCategory = categories.find(
       (category: CATEGORY) => category.id === parentCategoryId
     );
 
     return parentCategory?.children ?? [];
-  }, [categories, parentCategoryId]);
+  }, [categories, parentCategoryId, mode, currentProduct]);
 
   useEffect(() => {
     if (!selectedSubCategoryId) {
@@ -159,31 +206,33 @@ function PublishNewProduct() {
   }, [availableSubCategories, selectedSubCategoryId, setValue]);
 
   const { mutate, isPending } = usePublishNewProduct();
+  const {
+    mutate: updateProductDescription,
+    isPending: isUpdatingProductDescription,
+  } = useUpdateProductDescription(Number(productId));
 
   const resetFormState = () => {
     reset(createDefaultValues());
-    imageKeyCounter.current = MIN_IMAGES - 1;
-    setImageKeys(Array.from({ length: MIN_IMAGES }, (_, index) => index));
+    setFormResetKey((key) => key + 1);
   };
 
   const onSubmit = (values: PublishNewProductFormValues) => {
     const parsedValues: PublishNewProductSubmitValues =
       publishNewProductSchema.parse(values);
-
-    const payload: CREATE_PRODUCT_PAYLOAD = {
+    const productPayload: CREATE_PRODUCT_PAYLOAD = {
       name: parsedValues.name,
       description: parsedValues.description,
       startingPrice: parsedValues.startingPrice,
       stepPrice: parsedValues.stepPrice,
       buyNowPrice: parsedValues.buyNowPrice,
-      images: parsedValues.images,
       categoryId: parsedValues.categoryId,
       endTime: new Date(parsedValues.endTime).toISOString(),
       autoExtend: parsedValues.autoExtend,
       allowUnratedBidders: parsedValues.allowUnratedBidders,
+      images: parsedValues.images,
     };
 
-    mutate(payload, {
+    mutate(productPayload, {
       onSuccess: () => {
         toastSuccess("Product published successfully");
         resetFormState();
@@ -194,53 +243,37 @@ function PublishNewProduct() {
     });
   };
 
-  const imageFieldErrors = Array.isArray(errors.images)
-    ? errors.images
-    : undefined;
-
-  const imageRootError = (
-    errors.images as unknown as { root?: { message?: string } }
-  )?.root?.message;
-
-  const appendImageField = () => {
-    const currentImages = [...(getValues("images") ?? [])];
-    currentImages.push("");
-    setValue("images", currentImages, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
-
-    imageKeyCounter.current += 1;
-    setImageKeys((keys) => [...keys, imageKeyCounter.current]);
-  };
-
-  const removeImageField = (index: number) => {
-    if (imageKeys.length <= MIN_IMAGES) {
-      return;
-    }
-
-    const nextImages = [...(getValues("images") ?? [])];
-    nextImages.splice(index, 1);
-    setValue("images", nextImages, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
-
-    setImageKeys((keys) => keys.filter((_, keyIndex) => keyIndex !== index));
-  };
-
   const minEndTime = useMemo(() => {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 5);
     return now.toISOString().slice(0, 16);
   }, []);
 
+  const handleUpdatePublishedProduct = () => {
+    updateProductDescription(
+      {
+        additionalDescription: watch("description"),
+      },
+      {
+        onSuccess: () => {
+          toastSuccess("Product description updated successfully");
+        },
+        onError: (error) => {
+          toastError(error);
+        },
+      }
+    );
+  };
+
   return (
     <div className="mx-auto mt-24 w-full max-w-5xl px-6 pb-16">
       <p className="mb-8 text-2xl font-semibold">Publish New Product Form</p>
-      <form className="space-y-8" noValidate onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="space-y-8"
+        noValidate
+        onSubmit={handleSubmit(onSubmit)}
+        encType="multipart/form-data"
+      >
         <FieldGroup>
           <Field>
             <FieldLabel htmlFor="name">Product Name</FieldLabel>
@@ -249,6 +282,7 @@ function PublishNewProduct() {
               placeholder="Vintage wristwatch"
               {...register("name")}
               aria-invalid={errors.name ? "true" : "false"}
+              readOnly={mode === "edit"}
             />
             <FieldError errors={errors.name ? [errors.name] : []} />
           </Field>
@@ -264,6 +298,7 @@ function PublishNewProduct() {
                 placeholder="100"
                 {...register("startingPrice")}
                 aria-invalid={errors.startingPrice ? "true" : "false"}
+                readOnly={mode === "edit"}
               />
               <FieldError
                 errors={errors.startingPrice ? [errors.startingPrice] : []}
@@ -280,6 +315,7 @@ function PublishNewProduct() {
                 placeholder="10"
                 {...register("stepPrice")}
                 aria-invalid={errors.stepPrice ? "true" : "false"}
+                readOnly={mode === "edit"}
               />
               <FieldError errors={errors.stepPrice ? [errors.stepPrice] : []} />
             </Field>
@@ -294,6 +330,7 @@ function PublishNewProduct() {
                 placeholder="250"
                 {...register("buyNowPrice")}
                 aria-invalid={errors.buyNowPrice ? "true" : "false"}
+                readOnly={mode === "edit"}
               />
               <FieldError
                 errors={errors.buyNowPrice ? [errors.buyNowPrice] : []}
@@ -309,9 +346,11 @@ function PublishNewProduct() {
                 <Field>
                   <FieldLabel>Category</FieldLabel>
                   <Select
-                    value={field.value ? String(field.value) : undefined}
+                    value={field.value ? String(field.value) : ""}
                     onValueChange={(value) => field.onChange(Number(value))}
-                    disabled={categoriesLoading || categoriesError}
+                    disabled={
+                      categoriesLoading || categoriesError || mode === "edit"
+                    }
                   >
                     <SelectTrigger
                       aria-invalid={errors.parentCategoryId ? "true" : "false"}
@@ -351,9 +390,9 @@ function PublishNewProduct() {
                 <Field>
                   <FieldLabel>Subcategory</FieldLabel>
                   <Select
-                    value={field.value ? String(field.value) : undefined}
+                    value={field.value ? String(field.value) : ""}
                     onValueChange={(value) => field.onChange(Number(value))}
-                    disabled={!availableSubCategories.length}
+                    disabled={!availableSubCategories.length || mode === "edit"}
                   >
                     <SelectTrigger
                       aria-invalid={errors.categoryId ? "true" : "false"}
@@ -387,60 +426,50 @@ function PublishNewProduct() {
               min={minEndTime}
               {...register("endTime")}
               aria-invalid={errors.endTime ? "true" : "false"}
+              readOnly={mode === "edit"}
             />
             <FieldError errors={errors.endTime ? [errors.endTime] : []} />
           </Field>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Product Images</p>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={appendImageField}
-              >
-                Add Image
-              </Button>
-            </div>
-            <div className="flex flex-col gap-4">
-              {imageKeys.map((key, index) => (
-                <Field key={key} className="items-start">
-                  <FieldLabel htmlFor={`image-${index}`}>
-                    Image URL {index + 1}
-                  </FieldLabel>
-                  <div className="flex w-full flex-col gap-2 md:flex-row">
-                    <Input
-                      id={`image-${index}`}
-                      type="url"
-                      placeholder="https://example.com/image.jpg"
-                      {...register(`images.${index}`)}
-                      aria-invalid={
-                        imageFieldErrors?.[index] ? "true" : "false"
-                      }
+          {mode === "create" && (
+            <PublishNewProductImageUploads
+              key={formResetKey}
+              control={control}
+              setValue={setValue}
+              resetKey={formResetKey}
+              minImages={MIN_IMAGES}
+            />
+          )}
+
+          {mode === "edit" && currentProduct && (
+            <Field>
+              <FieldLabel>Product Images</FieldLabel>
+              {currentProduct.images.length !== 0 && (
+                <div className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                  {currentProduct.images.map((imageUrl, index) => (
+                    <img
+                      key={index}
+                      src={imageUrl}
+                      alt={`Product Image ${index + 1}`}
+                      className="h-32 w-full rounded object-cover"
                     />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="md:w-auto"
-                      onClick={() => removeImageField(index)}
-                      disabled={imageKeys.length <= MIN_IMAGES}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                  <FieldError
-                    errors={
-                      imageFieldErrors?.[index] ? [imageFieldErrors[index]] : []
-                    }
-                  />
-                </Field>
-              ))}
-            </div>
-            {imageRootError && (
-              <FieldError errors={[{ message: imageRootError }]} />
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </Field>
+          )}
+
+          {mode === "edit" && currentProduct && (
+            <Field>
+              <FieldLabel>Product Description</FieldLabel>
+              <div
+                className="prose prose-neutral max-w-none border rounded-md p-4 bg-gray-50"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(currentProduct.description ?? ""),
+                }}
+              />
+            </Field>
+          )}
 
           <Controller
             control={control}
@@ -451,6 +480,7 @@ function PublishNewProduct() {
                   Product Description
                 </FieldLabel>
                 <RichTextEditor
+                  key={formResetKey}
                   value={field.value}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
@@ -498,9 +528,25 @@ function PublishNewProduct() {
           </Field>
         </FieldGroup>
 
-        <Button type="submit" disabled={isPending} className="w-full md:w-auto">
-          {isPending ? "Publishing..." : "Publish Product"}
-        </Button>
+        {mode === "create" && (
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="w-full md:w-auto"
+          >
+            {isPending ? "Publishing..." : "Publish Product"}
+          </Button>
+        )}
+        {mode === "edit" && (
+          <Button
+            type="button"
+            disabled={isUpdatingProductDescription}
+            className="w-full md:w-auto"
+            onClick={handleUpdatePublishedProduct}
+          >
+            {isUpdatingProductDescription ? "Updating..." : "Update Product"}
+          </Button>
+        )}
       </form>
     </div>
   );
