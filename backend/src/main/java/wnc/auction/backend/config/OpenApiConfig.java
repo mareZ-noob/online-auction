@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 
 @Configuration
@@ -78,12 +76,5 @@ public class OpenApiConfig {
         properties.setUsePkceWithAuthorizationCodeGrant(usePKCE);
 
         return properties;
-    }
-
-    @Bean
-    public MappingJackson2HttpMessageConverter octetStreamJsonConverter() {
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setSupportedMediaTypes(List.of(new MediaType("application", "octet-stream")));
-        return converter;
     }
 }
