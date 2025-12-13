@@ -31,9 +31,8 @@ export function NavMain({
 		}[];
 	}[];
 }) {
-	const { tabName, subTabName, setTabName, setSubTabName } = useContext(
-		CommonLayoutContext,
-	);
+	const { tabName, subTabName, setTabName, setSubTabName } =
+		useContext(CommonLayoutContext);
 	const [openTab, setOpenTab] = useState<string | null>("Dashboard");
 
 	const toggleTab = (title: string) => {

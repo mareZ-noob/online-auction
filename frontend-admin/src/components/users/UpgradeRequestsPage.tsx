@@ -1,3 +1,3 @@
 export default function UpgradeRequestsPage() {
-  return <div>Upgrade Requests</div>;
+	return <div>Upgrade Requests</div>;
 }

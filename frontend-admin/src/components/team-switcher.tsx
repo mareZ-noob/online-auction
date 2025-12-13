@@ -13,6 +13,8 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { useNavigate } from "react-router-dom";
+import { useSignOut } from "@/hooks/auth-hooks";
 
 export function TeamSwitcher({
 	teams,
@@ -23,12 +25,26 @@ export function TeamSwitcher({
 		plan: string;
 	}[];
 }) {
+	const navigate = useNavigate();
+
 	const { isMobile } = useSidebar();
 	const [activeTeam, setActiveTeam] = React.useState(teams[0]);
 
 	if (!activeTeam) {
 		return null;
 	}
+
+	const { mutate } = useSignOut();
+
+	const handleLogout = () => {
+		console.log("abc");
+
+		mutate(undefined, {
+			onSuccess: () => {
+				navigate("/auth/sign-in");
+			},
+		});
+	};
 
 	return (
 		<SidebarMenu>
@@ -59,7 +75,12 @@ export function TeamSwitcher({
 							<div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
 								<LogOut className="size-4" />
 							</div>
-							<div className="text-muted-foreground font-medium">Logout</div>
+							<div
+								className="text-muted-foreground font-medium"
+								onClick={handleLogout}
+							>
+								Logout
+							</div>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

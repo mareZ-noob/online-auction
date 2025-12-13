@@ -55,7 +55,7 @@ export function SigninForm({
 
 	useEffect(() => {
 		if (isAuthenticated) {
-			navigate("/me");
+			navigate("/admin");
 		}
 	}, [isAuthenticated, navigate]);
 
