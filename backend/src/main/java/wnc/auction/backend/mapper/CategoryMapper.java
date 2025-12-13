@@ -1,5 +1,6 @@
 package wnc.auction.backend.mapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.experimental.UtilityClass;
 import wnc.auction.backend.dto.model.CategoryDto;
@@ -10,8 +11,9 @@ import wnc.auction.backend.utils.MessagesUtils;
 public class CategoryMapper {
 
     public static CategoryDto toDto(Category category) {
-        List<CategoryDto> children =
-                category.getChildren().stream().map(CategoryMapper::toDto).toList();
+        List<CategoryDto> children = (category.getChildren() == null)
+                ? new ArrayList<>()
+                : category.getChildren().stream().map(CategoryMapper::toDto).toList();
 
         // Key: category.data.{Name in DB}: category.data.Electronics
         String translatedName = MessagesUtils.getMessageDefault(
