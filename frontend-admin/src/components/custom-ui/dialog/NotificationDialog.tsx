@@ -14,10 +14,11 @@ interface NotificationDialogProps {
 	triggerElement: React.ReactNode;
 	title: string;
 	description: string;
-	actionText: string;
+	actionText?: string;
 	cancelText: string;
 	children?: React.ReactNode;
-	onAction: () => void;
+	className?: string;
+	onAction?: () => void;
 }
 
 function NotificationDialog({
@@ -27,12 +28,13 @@ function NotificationDialog({
 	actionText,
 	cancelText,
 	children,
+	className,
 	onAction,
 }: NotificationDialogProps) {
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>{triggerElement}</AlertDialogTrigger>
-			<AlertDialogContent>
+			<AlertDialogContent className={`${className} w-full max-w-none`}>
 				<AlertDialogHeader>
 					<AlertDialogTitle>{title}</AlertDialogTitle>
 					<AlertDialogDescription>{description}</AlertDialogDescription>
@@ -40,7 +42,11 @@ function NotificationDialog({
 				{children && <div className="py-4">{children}</div>}
 				<AlertDialogFooter>
 					<AlertDialogCancel>{cancelText}</AlertDialogCancel>
-					<AlertDialogAction onClick={onAction}>{actionText}</AlertDialogAction>
+					{actionText && onAction && (
+						<AlertDialogAction onClick={onAction}>
+							{actionText}
+						</AlertDialogAction>
+					)}
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

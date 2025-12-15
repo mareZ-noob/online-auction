@@ -47,7 +47,7 @@ export default function CreateCategoryPage() {
 		control,
 		formState: { errors },
 		handleSubmit,
-		reset
+		reset,
 	} = useForm<CREATE_A_CATEGORY_SCHEMA>({
 		resolver: zodResolver(create_a_category_schema),
 		defaultValues: {
@@ -81,7 +81,9 @@ export default function CreateCategoryPage() {
 			<CardHeader>
 				<CardTitle>Create a Category</CardTitle>
 				<CardDescription>
-					Enter your category details below to create a new category. If a category does not belong to any parent, it will become a new parent category.
+					Enter your category details below to create a new category. If a
+					category does not belong to any parent, it will become a new parent
+					category.
 				</CardDescription>
 			</CardHeader>
 			<CardContent>

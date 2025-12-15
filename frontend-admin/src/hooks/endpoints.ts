@@ -21,12 +21,9 @@ export const API_ENDPOINTS = {
 	ALL_PRODUCTS: "/public/products",
 	PRODUCT_DETAIL_BY_ID: (id: string | number) => `/public/products/${id}`,
 	RELATED_PRODUCTS: (id: string | number) => `/public/products/${id}/related`,
-	MOST_BID_PRODUCTS: "/public/products/top/most-bids",
-	HIGHEST_PRICE_PRODUCTS: "/public/products/top/highest-price",
-	ENDING_SOON_PRODUCTS: "/public/products/top/ending-soon",
 	PRODUCTS_BY_SUB_CATEGORY_ID: (categoryId: string | number) =>
 		`/public/products/category/${categoryId}`,
-	SEARCH_PRODUCTS: "/public/products/search",
+	REMOVE_PRODUCT: (id: string | number) => `/admin/products/${id}`,
 
 	// Users
 	GET_UPGRADE_REQUESTS: (page: number, size: number) =>
