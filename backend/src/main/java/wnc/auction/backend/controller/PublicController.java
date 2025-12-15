@@ -92,18 +92,19 @@ public class PublicController {
     }
 
     @PostMapping("/products/search")
-    @Operation(summary = "Search products")
+    @Operation(summary = "Search products (supports filtering by status or getting all)")
     public ResponseEntity<ApiResponse<PageResponse<ProductListDto>>> searchProducts(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                            description = "Search criteria",
+                            description = "Search criteria. Set status to null to get all history.",
                             content = @Content(examples = @ExampleObject(value = """
 											{
-											"keyword": "iphone",
-											"categoryId": 1,
-											"sortBy": "price",
-											"sortDirection": "asc",
+											"keyword": "",
+											"categoryId": null,
+											"status": null,
+											"sortBy": "endTime",
+											"sortDirection": "desc",
 											"page": 0,
-											"size": 10
+											"size": 20
 											}""")))
                     @RequestBody
                     SearchRequest request) {

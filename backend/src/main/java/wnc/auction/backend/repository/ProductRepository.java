@@ -102,4 +102,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.seller.id = :sellerId AND p.status = 'ACTIVE'")
     List<Product> findBySellerAndStatus(Long sellerId, ProductStatus status);
+
+    @Query(
+            "SELECT p FROM Product p WHERE " + "(:status IS NULL OR p.status = :status) AND "
+                    + "(:categoryIds IS NULL OR p.category.id IN :categoryIds) AND "
+                    + "(:keyword IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Product> findProductsWithFilters(
+            @Param("status") ProductStatus status,
+            @Param("categoryIds") List<Long> categoryIds,
+            @Param("keyword") String keyword,
+            Pageable pageable);
 }
