@@ -37,10 +37,11 @@ export function TeamSwitcher({
 	const { mutate } = useSignOut();
 
 	const handleLogout = () => {
-		console.log("abc");
-
 		mutate(undefined, {
 			onSuccess: () => {
+				navigate("/auth/sign-in");
+			},
+			onError: () => {
 				navigate("/auth/sign-in");
 			},
 		});

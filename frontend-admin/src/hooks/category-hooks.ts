@@ -10,7 +10,7 @@ export const useFetchCategories = () => {
 		queryKey: ["categories"],
 		queryFn: async () => {
 			const { data } = await apiClient.get<CATEGORY_RESPONSE>(
-				API_ENDPOINTS.ROOT_CATEGORIES,
+				API_ENDPOINTS.PARENT_CATEGORIES,
 			);
 			return data.data;
 		},

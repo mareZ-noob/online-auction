@@ -15,7 +15,6 @@ export const API_ENDPOINTS = {
 	PARENT_CATEGORIES: "/public/categories/root",
 	CATEGORIES_BY_ID: (id: string | number) => `/public/categories/${id}`,
 	SUB_CATEGORIES: (id: string | number) => `/public/categories/${id}/children`,
-	ROOT_CATEGORIES: "/public/categories/root",
 	CREATE_CATEGORY: "/admin/categories",
 
 	// Products

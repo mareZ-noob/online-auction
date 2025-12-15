@@ -7,7 +7,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { useFetchUpgradeRequests, useReviewUpgradeRequest } from "@/hooks/user-hooks";
+import {
+	useFetchUpgradeRequests,
+	useReviewUpgradeRequest,
+} from "@/hooks/user-hooks";
 import CustomPagination from "../custom-ui/pagination/CustomPagination";
 import { useEffect, useState } from "react";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
@@ -19,7 +22,7 @@ export default function UpgradeRequestsPage() {
 
 	const { data } = useFetchUpgradeRequests(page);
 
-	const {mutate} = useReviewUpgradeRequest();
+	const { mutate } = useReviewUpgradeRequest();
 
 	useEffect(() => {
 		if (data) {
@@ -39,14 +42,17 @@ export default function UpgradeRequestsPage() {
 	}
 
 	const handleApprove = (id: number, approved: boolean) => {
-		mutate({ id, approved }, {
-			onSuccess: (result) => {
-				toastSuccess(result.message);
+		mutate(
+			{ id, approved },
+			{
+				onSuccess: (result) => {
+					toastSuccess(result.message);
+				},
+				onError: (error) => {
+					toastError(error);
+				},
 			},
-			onError: (error) => {
-				toastError(error);
-			}
-		});
+		);
 	};
 
 	return (
@@ -79,10 +85,16 @@ export default function UpgradeRequestsPage() {
 							<TableCell>{request.createdAt}</TableCell>
 							<TableCell className="flex items-center justify-center">
 								<div className="flex items-center gap-2">
-									<div className="py-1 px-2 rounded-md bg-[#C1E1C1]" onClick={() => handleApprove(request.id, true)}>
+									<div
+										className="py-1 px-2 rounded-md bg-[#C1E1C1]"
+										onClick={() => handleApprove(request.id, true)}
+									>
 										<ThumbsUp className="text-black" size={16} />
 									</div>
-									<div className="py-1 px-2 rounded-md bg-[#FAA0A0]" onClick={() => handleApprove(request.id, false)}>
+									<div
+										className="py-1 px-2 rounded-md bg-[#FAA0A0]"
+										onClick={() => handleApprove(request.id, false)}
+									>
 										<ThumbsDown className="text-black" size={16} />
 									</div>
 								</div>
