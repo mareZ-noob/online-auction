@@ -17,3 +17,22 @@ export type UPGRADE_REQUESTS_RESPONSE = ApiResponse<
 	Pagination<UPGRADE_REQUESTS>
 >;
 export type REVIEW_UPGRADE_REQUEST_RESPONSE = ApiResponse<UPGRADE_REQUESTS>;
+
+export type USER = {
+	id: number;
+	email: string;
+	fullName: string;
+	address: string;
+	dateOfBirth: string;
+	role: string;
+	linkedProviders: string[];
+	emailVerified: boolean;
+	positiveRatings: number;
+	negativeRatings: number;
+	region: string;
+	preferredLanguage: string;
+	ratingPercentage: number;
+	createdAt: string;
+};
+
+export type USER_RESPONSE = ApiResponse<Pagination<USER>>;

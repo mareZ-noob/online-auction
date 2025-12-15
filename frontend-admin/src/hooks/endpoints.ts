@@ -30,4 +30,5 @@ export const API_ENDPOINTS = {
 		`admin/upgrade-requests?page=${page}&size=${size}`,
 	REVIEW_UPGRADE_REQUEST: (id: string | number | null) =>
 		`admin/upgrade-requests/${id}/review`,
+	GET_USERS: "/admin/users",
 };

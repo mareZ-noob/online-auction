@@ -3,6 +3,7 @@ import type { ApiResponse, ApiResponseError } from "@/types/ApiResponse";
 import type {
 	REVIEW_UPGRADE_REQUEST_RESPONSE,
 	UPGRADE_REQUESTS_RESPONSE,
+	USER_RESPONSE,
 } from "@/types/Users";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "./endpoints";
@@ -36,6 +37,24 @@ export const useReviewUpgradeRequest = () => {
 				{ approved },
 			);
 			return data;
+		},
+	});
+};
+
+export const useFetchUsers = (page: number, size: number = 20) => {
+	return useQuery<USER_RESPONSE["data"]>({
+		queryKey: ["users", page, size],
+		queryFn: async () => {
+			const { data } = await apiClient.get<ApiResponse<USER_RESPONSE["data"]>>(
+				API_ENDPOINTS.GET_USERS,
+				{
+					params: {
+						page,
+						size,
+					},
+				},
+			);
+			return data.data;
 		},
 	});
 };
