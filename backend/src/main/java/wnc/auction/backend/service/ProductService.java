@@ -202,42 +202,43 @@ public class ProductService {
                                         : Sort.Direction.ASC,
                                 "currentPrice");
                     case "created" -> Sort.by(Sort.Direction.DESC, "createdAt");
-                    default -> Sort.by(Sort.Direction.ASC, "endTime");
+                    default -> {
+                        // If fetching ALL or COMPLETED, sorting by endTime DESC makes more sense (newest ended first)
+                        // If fetching ACTIVE, sorting by endTime ASC makes sense (ending soonest first)
+                        if (request.getStatus() == ProductStatus.COMPLETED || request.getStatus() == null) {
+                            yield Sort.by(Sort.Direction.DESC, "endTime");
+                        }
+                        yield Sort.by(Sort.Direction.ASC, "endTime");
+                    }
                 };
 
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
-        Page<Product> productPage;
 
-        // Search Logic
+        // Handle Category Logic (Recursive)
+        List<Long> categoryIds = null;
         if (request.getCategoryId() != null) {
-            // Search within a specific Category (and its children)
-            List<Long> categoryIds = new ArrayList<>();
+            categoryIds = new ArrayList<>();
             categoryIds.add(request.getCategoryId());
 
-            // Recursive: Add sub-categories IDs
+            // Get all children categories
             List<Category> children = categoryRepository.findByParentId(request.getCategoryId());
             for (Category child : children) {
                 categoryIds.add(child.getId());
             }
-
-            if (request.getKeyword() != null && !request.getKeyword().trim().isEmpty()) {
-                // Search by Keyword within Category List
-                productPage = productRepository.searchProductsByCategoryIds(
-                        categoryIds, request.getKeyword(), LocalDateTime.now(), pageable);
-            } else {
-                // Filter by Category List only
-                productPage = productRepository.findByCategoryIdsAndActive(categoryIds, LocalDateTime.now(), pageable);
-            }
-        } else {
-            // Global Search (No Category selected)
-            if (request.getKeyword() != null && !request.getKeyword().trim().isEmpty()) {
-                // Search globally by Keyword
-                productPage = productRepository.searchProducts(request.getKeyword(), LocalDateTime.now(), pageable);
-            } else {
-                // No filters applied -> Get all active products
-                productPage = productRepository.findActiveProducts(LocalDateTime.now(), pageable);
-            }
         }
+
+        // Handle Keyword (Check for null or empty)
+        String keyword =
+                (request.getKeyword() != null && !request.getKeyword().trim().isEmpty())
+                        ? request.getKeyword().trim()
+                        : null;
+
+        // Call the new universal repository method
+        Page<Product> productPage = productRepository.findProductsWithFilters(
+                request.getStatus(), // If null, it returns all statuses
+                categoryIds, // If null, it searches all categories
+                keyword, // If null, it ignores keyword
+                pageable);
 
         return mapToPageResponse(productPage);
     }

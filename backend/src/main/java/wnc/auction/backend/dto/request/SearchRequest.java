@@ -3,6 +3,7 @@ package wnc.auction.backend.dto.request;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import wnc.auction.backend.model.enumeration.ProductStatus;
 
 @Data
 @NoArgsConstructor
@@ -11,6 +12,7 @@ public class SearchRequest {
 
     private String keyword;
     private Long categoryId;
+    private ProductStatus status;
     private String sortBy = "endTime"; // endTime, price, created
     private String sortDirection = "asc";
     private Integer page = 0;
