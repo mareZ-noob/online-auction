@@ -21,6 +21,7 @@ public class UserDto {
     private String role;
     private Set<String> linkedProviders;
     private Boolean emailVerified;
+    private Boolean isActive;
     private Integer positiveRatings;
     private Integer negativeRatings;
     private String region;

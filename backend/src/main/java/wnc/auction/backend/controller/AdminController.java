@@ -3,6 +3,7 @@ package wnc.auction.backend.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import wnc.auction.backend.dto.model.UserDto;
 import wnc.auction.backend.dto.request.CategoryRequest;
 import wnc.auction.backend.dto.request.ReviewUpgradeRequest;
 import wnc.auction.backend.dto.response.ApiResponse;
+import wnc.auction.backend.dto.response.ChartDataPoint;
 import wnc.auction.backend.dto.response.DashboardStats;
 import wnc.auction.backend.dto.response.PageResponse;
 import wnc.auction.backend.service.*;
@@ -39,6 +41,14 @@ public class AdminController {
     public ResponseEntity<ApiResponse<DashboardStats>> getDashboard() {
         DashboardStats stats = adminService.getDashboardStats();
         return ResponseEntity.ok(ApiResponse.success(stats));
+    }
+
+    @GetMapping("/dashboard/chart")
+    @Operation(summary = "Get chart statistics (MONTHLY or YEARLY)")
+    public ResponseEntity<ApiResponse<List<ChartDataPoint>>> getChartStats(
+            @RequestParam(defaultValue = "MONTHLY") String type) {
+        List<ChartDataPoint> chartData = adminService.getChartStats(type);
+        return ResponseEntity.ok(ApiResponse.success(chartData));
     }
 
     // User Management

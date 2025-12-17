@@ -2,6 +2,7 @@ package wnc.auction.backend.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wnc.auction.backend.dto.model.UserDto;
+import wnc.auction.backend.dto.response.ChartDataPoint;
 import wnc.auction.backend.dto.response.DashboardStats;
 import wnc.auction.backend.dto.response.PageResponse;
 import wnc.auction.backend.exception.NotFoundException;
@@ -109,5 +111,55 @@ public class AdminService {
         productRepository.save(product);
 
         log.info("Product {} removed by admin", productId);
+    }
+
+    public List<ChartDataPoint> getChartStats(String type) {
+        List<ChartDataPoint> stats = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+
+        if ("MONTHLY".equalsIgnoreCase(type)) {
+            // Get stats for the last 12 months
+            for (int i = 11; i >= 0; i--) {
+                LocalDateTime start = now.minusMonths(i)
+                        .withDayOfMonth(1)
+                        .withHour(0)
+                        .withMinute(0)
+                        .withSecond(0);
+                LocalDateTime end = start.plusMonths(1).minusSeconds(1);
+
+                String label = start.getMonthValue() + "/" + start.getYear();
+                stats.add(collectStats(label, start, end));
+            }
+        } else if ("YEARLY".equalsIgnoreCase(type)) {
+            // Get stats for the last 5 years
+            for (int i = 4; i >= 0; i--) {
+                LocalDateTime start = now.minusYears(i)
+                        .withDayOfYear(1)
+                        .withHour(0)
+                        .withMinute(0)
+                        .withSecond(0);
+                LocalDateTime end = start.plusYears(1).minusSeconds(1);
+
+                String label = String.valueOf(start.getYear());
+                stats.add(collectStats(label, start, end));
+            }
+        }
+
+        return stats;
+    }
+
+    private ChartDataPoint collectStats(String label, LocalDateTime start, LocalDateTime end) {
+        long newUsers = userRepository.countByCreatedAtBetween(start, end);
+        long newProducts = productRepository.countByCreatedAtBetween(start, end);
+
+        List<Transaction> transactions = transactionRepository.findCompletedTransactionsInPeriod(start, end);
+        BigDecimal revenue = transactions.stream().map(Transaction::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return ChartDataPoint.builder()
+                .label(label)
+                .newUsers(newUsers)
+                .newProducts(newProducts)
+                .revenue(revenue)
+                .build();
     }
 }

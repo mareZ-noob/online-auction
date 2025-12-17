@@ -1,5 +1,6 @@
 package wnc.auction.backend.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -24,4 +25,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT t FROM Transaction t WHERE t.status = :status")
     List<Transaction> findByStatus(@Param("status") TransactionStatus status);
+
+    @Query("SELECT t FROM Transaction t WHERE t.status = 'DELIVERED' AND t.updatedAt BETWEEN :start AND :end")
+    List<Transaction> findCompletedTransactionsInPeriod(
+            @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

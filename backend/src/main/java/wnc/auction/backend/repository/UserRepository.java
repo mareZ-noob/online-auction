@@ -1,5 +1,6 @@
 package wnc.auction.backend.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -26,4 +27,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.socialAccounts WHERE u.id = :id")
     Optional<User> findByIdWithSocialAccounts(@Param("id") Long id);
+
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

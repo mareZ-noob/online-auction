@@ -112,4 +112,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("categoryIds") List<Long> categoryIds,
             @Param("keyword") String keyword,
             Pageable pageable);
+
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

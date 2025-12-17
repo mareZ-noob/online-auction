@@ -27,6 +27,7 @@ public class UserMapper {
                 .role(user.getRole().name())
                 .linkedProviders(providers)
                 .emailVerified(user.getEmailVerified())
+                .isActive(user.getIsActive())
                 .positiveRatings(user.getPositiveRatings())
                 .negativeRatings(user.getNegativeRatings())
                 .ratingPercentage(user.getRatingPercentage())
