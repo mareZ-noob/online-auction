@@ -36,3 +36,4 @@ export type USER = {
 };
 
 export type USER_RESPONSE = ApiResponse<Pagination<USER>>;
+export type USER_BY_ID_RESPONSE = ApiResponse<USER>;

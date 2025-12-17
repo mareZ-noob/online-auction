@@ -15,6 +15,7 @@ interface AuthState {
 	logout: () => void;
 	isTokenExpired: () => boolean;
 	refreshUserToken: () => Promise<void>;
+	getUserId: () => number | null;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -85,6 +86,16 @@ export const useAuthStore = create<AuthState>()(
 					console.error("Error refreshing token:", error);
 					get().logout();
 				}
+			},
+			getUserId: () => {
+				const token = get().token;
+
+				if (token)
+				{
+					const decoded = jwtDecode<AccessTokenPayload>(token);
+					return decoded.sub;
+				}
+				return null;
 			},
 		}),
 		{

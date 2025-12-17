@@ -45,14 +45,14 @@ export const useUpdateCategory = () => {
 		mutationFn: async ({ id, payload }) => {
 			const { data } = await apiClient.put<CATEGORY_RESPONSE>(
 				API_ENDPOINTS.UPDATE_CATEGORY(id),
-				payload
+				payload,
 			);
 			return data;
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ["categories"],
-			})
-		}
+			});
+		},
 	});
 };

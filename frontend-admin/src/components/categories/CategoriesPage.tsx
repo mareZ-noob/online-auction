@@ -46,7 +46,10 @@ export default function CategoriesPage() {
 													({subCategory.description})
 												</p>
 											</div>
-											<UpdateCategory className="bg-white border-1 border-black text-black" category={subCategory} />
+											<UpdateCategory
+												className="bg-white border-1 border-black text-black"
+												category={subCategory}
+											/>
 										</div>
 									))}
 								{category.children.length === 0 && (

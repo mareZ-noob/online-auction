@@ -41,7 +41,8 @@ function UsersPage() {
 						<TableHead>Rating</TableHead>
 						<TableHead>Region</TableHead>
 						<TableHead>Joined</TableHead>
-						<TableHead className="text-center">Actions</TableHead>
+						<TableHead className="text-center">Active</TableHead>
+						<TableHead className="text-center">Details</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -74,6 +75,9 @@ function UsersPage() {
 								</TableCell>
 								<TableCell>{user.region || "Unknown"}</TableCell>
 								<TableCell>{formatDateTime(user.createdAt)}</TableCell>
+								<TableCell>
+									<p className="text-center">true</p>
+								</TableCell>
 								<TableCell>
 									<NotificationDialog
 										triggerElement={

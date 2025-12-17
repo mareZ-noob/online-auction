@@ -3,6 +3,7 @@ import type { ApiResponse, ApiResponseError } from "@/types/ApiResponse";
 import type {
 	REVIEW_UPGRADE_REQUEST_RESPONSE,
 	UPGRADE_REQUESTS_RESPONSE,
+	USER_BY_ID_RESPONSE,
 	USER_RESPONSE,
 } from "@/types/Users";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -58,3 +59,15 @@ export const useFetchUsers = (page: number, size: number = 20) => {
 		},
 	});
 };
+
+export const useFetchUserById = (id: string | number) => {
+	return useQuery<USER_BY_ID_RESPONSE["data"]>({
+		queryKey: ["user", id],
+		queryFn: async () => {
+			const { data } = await apiClient.get<ApiResponse<USER_BY_ID_RESPONSE["data"]>>(
+				API_ENDPOINTS.GET_USER_BY_ID(id),
+			);
+			return data.data;
+		},
+	});
+}
