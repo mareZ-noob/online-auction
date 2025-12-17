@@ -51,13 +51,18 @@ function UsersPage() {
 								<TableCell>{user.fullName}</TableCell>
 								<TableCell>{user.email}</TableCell>
 								<TableCell>
-									<div className={cn(
-										"max-w-18 px-2 py-1 rounded-md",
-										user.role === "BIDDER" && "bg-[#F8DE7E]",
-										user.role === "SELLER" && "bg-[#50C878]",
-										user.role === "ADMIN" && "bg-[#DE3163]",
-										user.role !== "BIDDER" && user.role !== "SELLER" && user.role !== "ADMIN" && "bg-gray-500"
-									)}>
+									<div
+										className={cn(
+											"max-w-18 px-2 py-1 rounded-md",
+											user.role === "BIDDER" && "bg-[#F8DE7E]",
+											user.role === "SELLER" && "bg-[#50C878]",
+											user.role === "ADMIN" && "bg-[#DE3163]",
+											user.role !== "BIDDER" &&
+												user.role !== "SELLER" &&
+												user.role !== "ADMIN" &&
+												"bg-gray-500",
+										)}
+									>
 										<p className="text-center">{user.role}</p>
 									</div>
 								</TableCell>

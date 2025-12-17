@@ -15,6 +15,7 @@ import CustomPagination from "../custom-ui/pagination/CustomPagination";
 import { useEffect, useState } from "react";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { toastSuccess, toastError } from "../custom-ui/toast/toast-ui";
+import { formatDateTime } from "@/lib/utils";
 
 export default function UpgradeRequestsPage() {
 	const [page, setPage] = useState(0);
@@ -81,8 +82,8 @@ export default function UpgradeRequestsPage() {
 							<TableCell>{request.status}</TableCell>
 							<TableCell>{request.reason}</TableCell>
 							<TableCell>{request.reviewedByName}</TableCell>
-							<TableCell>{request.reviewedAt}</TableCell>
-							<TableCell>{request.createdAt}</TableCell>
+							<TableCell>{formatDateTime(request.reviewedAt)}</TableCell>
+							<TableCell>{formatDateTime(request.createdAt)}</TableCell>
 							<TableCell className="flex items-center justify-center">
 								<div className="flex items-center gap-2">
 									<div
