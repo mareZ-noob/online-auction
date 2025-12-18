@@ -1,6 +1,8 @@
 import apiClient from "@/query/api-client";
 import type { ApiResponse, ApiResponseError } from "@/types/ApiResponse";
 import type {
+	DISABLE_USER_RESPONSE,
+	ENABLE_USER_RESPONSE,
 	REVIEW_UPGRADE_REQUEST_RESPONSE,
 	UPGRADE_REQUESTS_RESPONSE,
 	USER_BY_ID_RESPONSE,
@@ -9,6 +11,7 @@ import type {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "./endpoints";
 import type { AxiosError } from "axios";
+import { queryClient } from "@/lib/utils";
 
 export const useFetchUpgradeRequests = (page: number, size: number = 20) => {
 	return useQuery<UPGRADE_REQUESTS_RESPONSE["data"]>({
@@ -64,10 +67,56 @@ export const useFetchUserById = (id: string | number) => {
 	return useQuery<USER_BY_ID_RESPONSE["data"]>({
 		queryKey: ["user", id],
 		queryFn: async () => {
-			const { data } = await apiClient.get<ApiResponse<USER_BY_ID_RESPONSE["data"]>>(
-				API_ENDPOINTS.GET_USER_BY_ID(id),
-			);
+			const { data } = await apiClient.get<
+				ApiResponse<USER_BY_ID_RESPONSE["data"]>
+			>(API_ENDPOINTS.GET_USER_BY_ID(id));
 			return data.data;
 		},
 	});
-}
+};
+
+export const useEnableUser = (page: number) => {
+	return useMutation<
+		ENABLE_USER_RESPONSE,
+		AxiosError<ApiResponseError>,
+		{
+			id: string | number;
+		}
+	>({
+		mutationKey: ["enable-user"],
+		mutationFn: async ({ id }) => {
+			const { data } = await apiClient.put<ENABLE_USER_RESPONSE>(
+				API_ENDPOINTS.ENABLE_USER(id),
+			);
+			return data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["users", page],
+			});
+		}
+	});
+};
+
+export const useDisableUser = (page: number) => {
+	return useMutation<
+		DISABLE_USER_RESPONSE,
+		AxiosError<ApiResponseError>,
+		{
+			id: string | number;
+		}
+	>({
+		mutationKey: ["disable-user"],
+		mutationFn: async ({ id }) => {
+			const { data } = await apiClient.put<
+				DISABLE_USER_RESPONSE
+			>(API_ENDPOINTS.DISABLE_USER(id));
+			return data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["users", page],
+			});
+		}
+	});
+};

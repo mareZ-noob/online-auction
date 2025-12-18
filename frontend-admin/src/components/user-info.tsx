@@ -23,7 +23,7 @@ export function UserInfo() {
 
 	const { isMobile } = useSidebar();
 
-	const userId = useAuthStore(state => state.getUserId());
+	const userId = useAuthStore((state) => state.getUserId());
 
 	if (!userId) {
 		navigate("/auth/sign-in");

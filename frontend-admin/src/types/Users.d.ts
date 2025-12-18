@@ -27,6 +27,7 @@ export type USER = {
 	role: string;
 	linkedProviders: string[];
 	emailVerified: boolean;
+	isActive: boolean;
 	positiveRatings: number;
 	negativeRatings: number;
 	region: string;
@@ -37,3 +38,5 @@ export type USER = {
 
 export type USER_RESPONSE = ApiResponse<Pagination<USER>>;
 export type USER_BY_ID_RESPONSE = ApiResponse<USER>;
+export type ENABLE_USER_RESPONSE = ApiResponse<string>;
+export type DISABLE_USER_RESPONSE = ApiResponse<string>;

@@ -33,7 +33,10 @@ export const API_ENDPOINTS = {
 		`admin/upgrade-requests/${id}/review`,
 	GET_USERS: "/admin/users",
 	GET_USER_BY_ID: (id: string | number) => `/admin/users/${id}`,
+	ENABLE_USER: (id: string | number) => `/admin/${id}/enable`,
+	DISABLE_USER: (id: string | number) => `/admin/${id}/disable`,
 
 	// Dashboard
 	GET_DASHBOARD_STATISTICS: "/admin/dashboard",
+	GET_DASHBOARD_STATISTICS_MONTHLY_OR_YEARLY: "/admin/dashboard/chart",
 };

@@ -38,3 +38,34 @@ export const formatCurrency = (
 		currency: currency,
 	}).format(amount);
 };
+
+export const parseDashboardLabel = (value: string): Date | null => {
+	// MM/YYYY
+	if (/^\d{1,2}\/\d{4}$/.test(value)) {
+		const [month, year] = value.split("/");
+		return new Date(Number(year), Number(month) - 1, 1);
+	}
+
+	// YYYY
+	if (/^\d{4}$/.test(value)) {
+		return new Date(Number(value), 0, 1);
+	}
+
+	return null;
+};
+
+export const formatDashboardLabel = (value: string) => {
+	const date = parseDashboardLabel(value);
+	if (!date) return value;
+
+	// YYYY
+	if (/^\d{4}$/.test(value)) {
+		return value; // "2021"
+	}
+
+	// MM/YYYY
+	return date.toLocaleDateString("en-US", {
+		month: "short",
+		year: "numeric",
+	});
+};

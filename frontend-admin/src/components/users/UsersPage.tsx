@@ -7,14 +7,15 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { useFetchUsers } from "@/hooks/user-hooks";
+import { useDisableUser, useEnableUser, useFetchUsers } from "@/hooks/user-hooks";
 import { useEffect, useState } from "react";
 import Spinner from "../custom-ui/loading-spinner/LoadingSpinner";
 import CustomPagination from "../custom-ui/pagination/CustomPagination";
 import NotificationDialog from "../custom-ui/dialog/NotificationDialog";
-import { Eye } from "lucide-react";
+import { Eye, ThumbsDown, ThumbsUp } from "lucide-react";
 import UserDetails from "./UserDetails";
 import { cn, formatDateTime } from "@/lib/utils";
+import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
 
 function UsersPage() {
 	const [page, setPage] = useState(0);
@@ -22,11 +23,36 @@ function UsersPage() {
 
 	const { data: users, isLoading } = useFetchUsers(page);
 
+	const {mutate: enableUser, isPending: enableUserLoading} = useEnableUser(page);
+	const {mutate: disableUser, isPending: disableUserLoading} = useDisableUser(page);
+
 	useEffect(() => {
 		if (users) {
 			setTotalPages(users.totalPages);
 		}
 	}, [users]);
+
+	const handleEnableUser = (userId: string | number) => {
+		enableUser({ id: userId }, {
+			onSuccess: (result) => {
+				toastSuccess(result.message);
+			},
+			onError: (error) => {
+				toastError(error);
+			}
+		});
+	};
+
+	const handleDisableUser = (userId: string | number) => {
+		disableUser({ id: userId }, {
+			onSuccess: (result) => {
+				toastSuccess(result.message);
+			},
+			onError: (error) => {
+				toastError(error);
+			}
+		});
+	};
 
 	return (
 		<div>
@@ -43,6 +69,7 @@ function UsersPage() {
 						<TableHead>Joined</TableHead>
 						<TableHead className="text-center">Active</TableHead>
 						<TableHead className="text-center">Details</TableHead>
+						<TableHead className="text-center">Enable/Disable</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -76,7 +103,7 @@ function UsersPage() {
 								<TableCell>{user.region || "Unknown"}</TableCell>
 								<TableCell>{formatDateTime(user.createdAt)}</TableCell>
 								<TableCell>
-									<p className="text-center">true</p>
+									<p className="text-center">{user.isActive ? "Yes" : "No"}</p>
 								</TableCell>
 								<TableCell>
 									<NotificationDialog
@@ -92,6 +119,60 @@ function UsersPage() {
 									>
 										<UserDetails user={user} />
 									</NotificationDialog>
+								</TableCell>
+								<TableCell>
+									<div className="flex justify-center">
+										{!user.isActive && (
+											<div className="flex items-center justify-center py-1 px-2 rounded-md bg-[#C1E1C1]">
+												<NotificationDialog
+													triggerElement={
+														<ThumbsUp className="text-balck" size={16} />
+													}
+													title={cn(
+														"Are you sure want to ENABLE",
+														user.fullName,
+														"?",
+													)}
+													description="This action will enable the user."
+													actionText={cn(
+														enableUserLoading ? "Enabling..." : "Enable",
+													)}
+													cancelText="Cancel"
+													onAction={() => handleEnableUser(user.id)}
+												>
+													<p>
+														Do you want to ENABLE this user? This can cause the
+														user to be able to bid and sell.
+													</p>
+												</NotificationDialog>
+											</div>
+										)}
+										{user.isActive && (
+											<div className="flex items-center justify-center py-1 px-2 rounded-md bg-[#FAA0A0]">
+												<NotificationDialog
+													triggerElement={
+														<ThumbsDown className="text-balck" size={16} />
+													}
+													title={cn(
+														"Are you sure want to DISABLE",
+														user.fullName,
+														"?",
+													)}
+													description="This action will disable the user."
+													actionText={cn(
+														disableUserLoading ? "Disabling..." : "Disable",
+													)}
+													cancelText="Cancel"
+													onAction={() => handleDisableUser(user.id)}
+												>
+													<p>
+														Do you want to DISABLE this user? This can cause the
+														user to be unable to bid and sell.
+													</p>
+												</NotificationDialog>
+											</div>
+										)}
+									</div>
 								</TableCell>
 							</TableRow>
 						))}

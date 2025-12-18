@@ -90,8 +90,7 @@ export const useAuthStore = create<AuthState>()(
 			getUserId: () => {
 				const token = get().token;
 
-				if (token)
-				{
+				if (token) {
 					const decoded = jwtDecode<AccessTokenPayload>(token);
 					return decoded.sub;
 				}
