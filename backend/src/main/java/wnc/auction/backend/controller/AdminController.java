@@ -15,10 +15,7 @@ import wnc.auction.backend.dto.model.UpgradeRequestDto;
 import wnc.auction.backend.dto.model.UserDto;
 import wnc.auction.backend.dto.request.CategoryRequest;
 import wnc.auction.backend.dto.request.ReviewUpgradeRequest;
-import wnc.auction.backend.dto.response.ApiResponse;
-import wnc.auction.backend.dto.response.ChartDataPoint;
-import wnc.auction.backend.dto.response.DashboardStats;
-import wnc.auction.backend.dto.response.PageResponse;
+import wnc.auction.backend.dto.response.*;
 import wnc.auction.backend.exception.BadRequestException;
 import wnc.auction.backend.service.*;
 
@@ -87,6 +84,13 @@ public class AdminController {
     public ResponseEntity<ApiResponse<Void>> forceLogout(@PathVariable Long userId) {
         userService.forceLogoutAllDevices(userId);
         return ResponseEntity.ok(ApiResponse.success("User logged out from all devices", null));
+    }
+
+    @GetMapping("/config/auction-settings")
+    @Operation(summary = "Get current auction auto-extend settings")
+    public ResponseEntity<ApiResponse<AuctionConfigResponse>> getAuctionSettings() {
+        AuctionConfigResponse config = adminService.getAuctionConfig();
+        return ResponseEntity.ok(ApiResponse.success(config));
     }
 
     @PutMapping("/config/auction-settings")
