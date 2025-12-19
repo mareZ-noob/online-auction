@@ -57,14 +57,16 @@ const publishNewProductSchema = z
     buyNowPrice: z.coerce
       .number()
       .gt(0, { message: "Buy now price must be greater than 0" }),
-    parentCategoryId: z.coerce
+    parentCategoryId: z
       .number()
       .int()
-      .gt(0, { message: "Please select a category" }),
-    categoryId: z.coerce
+      .gt(0, { message: "Please select a category" })
+      .optional(),
+    categoryId: z
       .number()
       .int()
-      .gt(0, { message: "Please select a subcategory" }),
+      .gt(0, { message: "Please select a subcategory" })
+      .optional(),
     endTime: z
       .string()
       .min(1, { message: "Please choose an end time" })
@@ -91,6 +93,25 @@ const publishNewProductSchema = z
         message: "Buy now price must be greater than the starting price",
       });
     }
+
+    if (!values.parentCategoryId && !values.categoryId) {
+      ctx.addIssue({
+        path: ["categoryId"],
+        code: z.ZodIssueCode.custom,
+        message: "Please select a category or a subcategory",
+      });
+    }
+  })
+  .transform((v) => {
+    const categoryId = v.categoryId ?? v.parentCategoryId;
+    console.log(categoryId, v);
+    if (!categoryId) {
+      throw new Error("CategoryId normalization failed");
+    }
+    return {
+      ...v,
+      categoryId,
+    };
   });
 
 export type PublishNewProductFormValues = z.input<
@@ -103,8 +124,8 @@ const createDefaultValues = (): Partial<PublishNewProductFormValues> => ({
   startingPrice: "",
   stepPrice: "",
   buyNowPrice: "",
-  parentCategoryId: 0,
-  categoryId: 0,
+  parentCategoryId: undefined,
+  categoryId: undefined,
   endTime: "",
   images: [] as File[],
   description: blankParagraph,
@@ -138,8 +159,8 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
           category.children.some(
             (subCategory) => subCategory.id === currentProduct.categoryId
           )
-        )?.id ?? 0,
-      categoryId: currentProduct.categoryId ?? 0,
+        )?.id ?? undefined,
+      categoryId: currentProduct.categoryId ?? undefined,
       endTime: currentProduct
         ? new Date(currentProduct.endTime).toISOString().slice(0, 16)
         : "",
@@ -219,6 +240,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
   const onSubmit = (values: PublishNewProductFormValues) => {
     const parsedValues: PublishNewProductSubmitValues =
       publishNewProductSchema.parse(values);
+
     const productPayload: CREATE_PRODUCT_PAYLOAD = {
       name: parsedValues.name,
       description: parsedValues.description,
@@ -347,7 +369,9 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
                   <FieldLabel>Category</FieldLabel>
                   <Select
                     value={field.value ? String(field.value) : ""}
-                    onValueChange={(value) => field.onChange(Number(value))}
+                    onValueChange={(value) =>
+                      field.onChange(value ? Number(value) : undefined)
+                    }
                     disabled={
                       categoriesLoading || categoriesError || mode === "edit"
                     }
@@ -391,7 +415,9 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
                   <FieldLabel>Subcategory</FieldLabel>
                   <Select
                     value={field.value ? String(field.value) : ""}
-                    onValueChange={(value) => field.onChange(Number(value))}
+                    onValueChange={(value) =>
+                      field.onChange(value ? Number(value) : undefined)
+                    }
                     disabled={!availableSubCategories.length || mode === "edit"}
                   >
                     <SelectTrigger
