@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
 	PRODUCTS_BY_SUB_CATEGORY_ID: (categoryId: string | number) =>
 		`/public/products/category/${categoryId}`,
 	REMOVE_PRODUCT: (id: string | number) => `/admin/products/${id}`,
+	AUCTION_SETTINGS: "/admin/config/auction-settings",
 
 	// Users
 	GET_UPGRADE_REQUESTS: (page: number, size: number) =>

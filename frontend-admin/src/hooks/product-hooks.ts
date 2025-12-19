@@ -5,6 +5,8 @@ import type {
 	DELETE_A_PRODUCT_RESPONSE,
 	DELETE_A_PRODUCT_PAYLOAD,
 	PRODUCT_RESPONSE,
+	AUCTION_SETTINGS_RESPONSE,
+	AUCTION_SETTINGS_PAYLOAD,
 } from "@/types/Products";
 import { AxiosError } from "axios";
 import type { ApiResponseError } from "@/types/ApiResponse";
@@ -55,3 +57,26 @@ export const useRemoveAProduct = (page: number | null) => {
 		},
 	});
 };
+
+export const useUpdateAuctionSettings = () => {
+	return useMutation<
+		AUCTION_SETTINGS_RESPONSE,
+		AxiosError<ApiResponseError>,
+		AUCTION_SETTINGS_PAYLOAD
+	>({
+		mutationKey: ["update-auction-settings"],
+		mutationFn: async (payload) => {
+			const { data } = await apiClient.put<AUCTION_SETTINGS_RESPONSE>(
+				API_ENDPOINTS.AUCTION_SETTINGS,
+				undefined,
+				{
+					params: {
+						thresholdMinutes: payload.thresholdMinutes,
+						durationMinutes: payload.durationMinutes,
+					},
+				}
+			);
+			return data;
+		},
+	})
+}

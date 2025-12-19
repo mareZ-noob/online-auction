@@ -103,7 +103,14 @@ function PersonalInformation() {
           fullName: data.fullName ?? "",
           email: data.email ?? "",
           address: data.address ?? "",
-          dateOfBirth: data.dateOfBirth ?? "",
+          dateOfBirth: data.dateOfBirth
+            ? new Date(
+                new Date(data.dateOfBirth).getTime() -
+                  new Date(data.dateOfBirth).getTimezoneOffset() * 60000
+              )
+                .toISOString()
+                .slice(0, 16)
+            : "",
           oldPassword: "",
           newPassword: "",
         });
@@ -114,11 +121,20 @@ function PersonalInformation() {
 
   useEffect(() => {
     if (data) {
+      console.log(formatDateTime(data.dateOfBirth));
+
       reset({
         fullName: data.fullName ?? "",
         email: data.email ?? "",
         address: data.address ?? "",
-        dateOfBirth: data.dateOfBirth ?? "",
+        dateOfBirth: data.dateOfBirth
+          ? new Date(
+              new Date(data.dateOfBirth).getTime() -
+                new Date(data.dateOfBirth).getTimezoneOffset() * 60000
+            )
+              .toISOString()
+              .slice(0, 16)
+          : "",
         oldPassword: "",
         newPassword: "",
       });
@@ -150,7 +166,9 @@ function PersonalInformation() {
         {
           fullName: data.fullName ?? "",
           address: data.address ?? "",
-          dateOfBirth: data.dateOfBirth ?? "",
+          dateOfBirth: data.dateOfBirth
+            ? new Date(data.dateOfBirth).toISOString()
+            : "",
         },
         {
           onSuccess: (result) => {
@@ -309,7 +327,11 @@ function PersonalInformation() {
                   <Label className="text-sm font-medium leading-none mb-1">
                     {t("profile.personalInformation.fields.dateOfBirth")}
                   </Label>
-                  <Input readOnly={!isEditMode} {...register("dateOfBirth")} />
+                  <Input
+                    type="datetime-local"
+                    readOnly={!isEditMode}
+                    {...register("dateOfBirth")}
+                  />
                 </div>
               </div>
               <div className="flex items-center justify-end">

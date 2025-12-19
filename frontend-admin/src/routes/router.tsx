@@ -28,6 +28,9 @@ const CreateCategoryPage = lazy(
 	() => import("@/components/categories/CreateCategoryPage"),
 );
 const ProductsPage = lazy(() => import("@/components/products/ProductsPage"));
+const AuctionSettingsPage = lazy(
+	() => import("@/components/products/AuctionSettings.tsx"),
+);
 const UsersPage = lazy(() => import("@/components/users/UsersPage"));
 const UpgradeRequestsPage = lazy(
 	() => import("@/components/users/UpgradeRequestsPage"),
@@ -83,7 +86,7 @@ const router = createBrowserRouter([
 			{
 				path: "/admin",
 				errorElement: <ErrorPage />,
-				element: <CommonLayout />,
+				element: <Suspense fallback={<LoadingPage />}><CommonLayout /></Suspense>,
 				children: [
 					{
 						index: true,
@@ -98,11 +101,7 @@ const router = createBrowserRouter([
 							},
 							{
 								path: "reports",
-								element: (
-									<Suspense fallback={<LoadingPage />}>
-										<ReportsPage />
-									</Suspense>
-								),
+								element: <ReportsPage />
 							},
 						],
 					},
@@ -111,48 +110,37 @@ const router = createBrowserRouter([
 						children: [
 							{
 								index: true,
-								element: (
-									<Suspense fallback={<LoadingPage />}>
-										<CategoriesPage />
-									</Suspense>
-								),
+								element: <CategoriesPage />,
 							},
 							{
 								path: "create",
-								element: (
-									<Suspense fallback={<LoadingPage />}>
-										<CreateCategoryPage />
-									</Suspense>
-								),
+								element: <CreateCategoryPage />,
 							},
 						],
 					},
 					{
 						path: "products",
-						element: (
-							<Suspense fallback={<LoadingPage />}>
-								<ProductsPage />
-							</Suspense>
-						),
+						children: [
+							{
+								index: true,
+								element: <ProductsPage />,
+							},
+							{
+								path: "auction-settings",
+								element: <AuctionSettingsPage />,
+							},
+						],
 					},
 					{
 						path: "users",
 						children: [
 							{
 								index: true,
-								element: (
-									<Suspense fallback={<LoadingPage />}>
-										<UsersPage />
-									</Suspense>
-								),
+								element: <UsersPage />,
 							},
 							{
 								path: "upgrade-requests",
-								element: (
-									<Suspense fallback={<LoadingPage />}>
-										<UpgradeRequestsPage />
-									</Suspense>
-								),
+								element: <UpgradeRequestsPage />,
 							},
 						],
 					},

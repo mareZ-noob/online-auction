@@ -29,3 +29,10 @@ export type DELETE_A_PRODUCT = {
 };
 
 export type DELETE_A_PRODUCT_RESPONSE = ApiResponse<DELETE_A_PRODUCT>;
+
+export type AUCTION_SETTINGS_PAYLOAD = {
+    thresholdMinutes: number;
+    durationMinutes: number;
+}
+
+export type AUCTION_SETTINGS_RESPONSE = ApiResponse<string>;
