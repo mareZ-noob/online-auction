@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import type { PublishNewProductFormValues } from "./PublishNewProduct";
+import { useTranslation } from "react-i18next";
 
 type PublishNewProductImageUploadsProps = {
   control: Control<PublishNewProductFormValues>;
@@ -20,6 +21,7 @@ function PublishNewProductImageUploads({
   resetKey,
   minImages,
 }: PublishNewProductImageUploadsProps) {
+  const { t } = useTranslation();
   const { field, fieldState } = useController({
     name: "images",
     control,
@@ -85,7 +87,9 @@ function PublishNewProductImageUploads({
 
   return (
     <Field>
-      <FieldLabel htmlFor="images">Product Images</FieldLabel>
+      <FieldLabel htmlFor="images">
+        {t("publish.form.fields.images")}
+      </FieldLabel>
       <Input
         key={resetKey}
         id="images"
@@ -98,7 +102,7 @@ function PublishNewProductImageUploads({
         aria-invalid={fieldState.error ? "true" : "false"}
       />
       <p className="mt-2 text-xs text-muted-foreground">
-        Upload at least {minImages} image files.
+        {t("publish.form.imagesHint", { count: minImages })}
       </p>
       {!!previews.length && (
         <div className="mt-3 space-y-2">
@@ -121,13 +125,25 @@ function PublishNewProductImageUploads({
                 size="sm"
                 onClick={() => removeImageAtIndex(index)}
               >
-                Remove
+                {t("publish.form.removeImage")}
               </Button>
             </div>
           ))}
         </div>
       )}
-      <FieldError errors={fieldState.error ? [fieldState.error] : []} />
+      <FieldError
+        errors={
+          fieldState.error
+            ? [
+                {
+                  message: fieldState.error.message
+                    ? t(fieldState.error.message, { count: minImages })
+                    : undefined,
+                },
+              ]
+            : []
+        }
+      />
     </Field>
   );
 }

@@ -22,13 +22,15 @@ import { toastSuccess, toastError } from "../custom-ui/toast/toast-ui";
 import NotificationDialog from "../custom-ui/dialog/NotificationDialog";
 import { Input } from "../ui/input";
 import z from "zod";
+import { useTranslation } from "react-i18next";
 
 const rate_a_seller_schema = z.object({
-  comment: z.string().max(500, "Comment must be at most 500 characters."),
+  comment: z.string().max(500, "profile.validation.commentMax"),
 });
 
 function WonProducts() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -49,7 +51,7 @@ function WonProducts() {
   if (!wonProducts || wonProducts.content.length === 0) {
     return (
       <ProfilePage>
-        <div>You haven't won any products.</div>
+        <div>{t("profile.wonProducts.empty")}</div>
       </ProfilePage>
     );
   }
@@ -66,7 +68,7 @@ function WonProducts() {
     const parsed = rate_a_seller_schema.safeParse({ comment });
 
     if (!parsed.success) {
-      toastError(parsed.error.issues[0].message);
+      toastError(t(parsed.error.issues[0].message));
       return;
     }
 
@@ -99,19 +101,25 @@ function WonProducts() {
   return (
     <ProfilePage>
       <Table>
-        <TableCaption>A list of your recent won products.</TableCaption>
+        <TableCaption>{t("profile.wonProducts.caption")}</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead>#</TableHead>
-            <TableHead>Product Name</TableHead>
-            <TableHead>Product Description</TableHead>
-            <TableHead>End Time</TableHead>
-            <TableHead>Bid Count</TableHead>
-            <TableHead>Category Name</TableHead>
-            <TableHead>Created At</TableHead>
-            <TableHead className="text-center">Rate Seller</TableHead>
-            <TableHead className="text-center">Details</TableHead>
-            <TableHead className="text-center">Pay</TableHead>
+            <TableHead>{t("profile.common.index")}</TableHead>
+            <TableHead>{t("profile.common.productName")}</TableHead>
+            <TableHead>{t("profile.common.productDescription")}</TableHead>
+            <TableHead>{t("profile.common.endTime")}</TableHead>
+            <TableHead>{t("profile.common.bidCount")}</TableHead>
+            <TableHead>{t("profile.common.categoryName")}</TableHead>
+            <TableHead>{t("profile.common.createdAt")}</TableHead>
+            <TableHead className="text-center">
+              {t("profile.common.rateSeller")}
+            </TableHead>
+            <TableHead className="text-center">
+              {t("profile.common.details")}
+            </TableHead>
+            <TableHead className="text-center">
+              {t("profile.common.pay")}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -153,7 +161,9 @@ function WonProducts() {
                 </p>
               </TableCell>
               {ratedProducts.includes(product.id) ? (
-                <p className="font-light text-center mt-4 text-sm">Rated</p>
+                <p className="font-light text-center mt-4 text-sm">
+                  {t("profile.common.rated")}
+                </p>
               ) : (
                 <TableCell>
                   <div className="flex justify-around">
@@ -162,17 +172,19 @@ function WonProducts() {
                         triggerElement={
                           <ThumbsUp className="text-balck" size={16} />
                         }
-                        title="Thank you for your feedback!"
-                        description="Your positive rating has been recorded."
-                        actionText="Send"
-                        cancelText="Cancel"
+                        title={t("profile.ratingDialog.title")}
+                        description={t(
+                          "profile.ratingDialog.positiveDescription"
+                        )}
+                        actionText={t("profile.ratingDialog.send")}
+                        cancelText={t("profile.ratingDialog.cancel")}
                         onAction={() =>
                           handleRateASeller(product.sellerId, product.id, true)
                         }
                       >
                         <Input
                           type="text"
-                          placeholder="Leave a comment"
+                          placeholder={t("profile.ratingDialog.placeholder")}
                           value={comment}
                           onChange={(e) => setComment(e.target.value)}
                         />
@@ -183,17 +195,19 @@ function WonProducts() {
                         triggerElement={
                           <ThumbsDown className="text-balck" size={16} />
                         }
-                        title="Thank you for your feedback!"
-                        description="Your negative rating has been recorded."
-                        actionText="Send"
-                        cancelText="Cancel"
+                        title={t("profile.ratingDialog.title")}
+                        description={t(
+                          "profile.ratingDialog.negativeDescription"
+                        )}
+                        actionText={t("profile.ratingDialog.send")}
+                        cancelText={t("profile.ratingDialog.cancel")}
                         onAction={() =>
                           handleRateASeller(product.sellerId, product.id, false)
                         }
                       >
                         <Input
                           type="text"
-                          placeholder="Leave a comment"
+                          placeholder={t("profile.ratingDialog.placeholder")}
                           value={comment}
                           onChange={(e) => setComment(e.target.value)}
                         />

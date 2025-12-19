@@ -14,9 +14,11 @@ import { useFetchBiddingProducts } from "@/hooks/user-hooks";
 import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 function BiddingProducts() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -33,7 +35,7 @@ function BiddingProducts() {
   if (!biddingProducts || biddingProducts.content.length === 0) {
     return (
       <ProfilePage>
-        <div>You haven't placed any bids.</div>
+        <div>{t("profile.biddingProducts.empty")}</div>
       </ProfilePage>
     );
   }
@@ -45,19 +47,21 @@ function BiddingProducts() {
   return (
     <ProfilePage>
       <Table>
-        <TableCaption>A list of your recent bidding products.</TableCaption>
+        <TableCaption>{t("profile.biddingProducts.caption")}</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead>#</TableHead>
-            <TableHead>Product Name</TableHead>
-            <TableHead>Product Description</TableHead>
-            <TableHead>Bid Count</TableHead>
-            <TableHead>Category Name</TableHead>
-            <TableHead>Current Price</TableHead>
-            <TableHead>End Time</TableHead>
-            <TableHead>Remaining Time</TableHead>
-            <TableHead>Created At</TableHead>
-            <TableHead className="text-center">Details</TableHead>
+            <TableHead>{t("profile.common.index")}</TableHead>
+            <TableHead>{t("profile.common.productName")}</TableHead>
+            <TableHead>{t("profile.common.productDescription")}</TableHead>
+            <TableHead>{t("profile.common.bidCount")}</TableHead>
+            <TableHead>{t("profile.common.categoryName")}</TableHead>
+            <TableHead>{t("profile.common.currentPrice")}</TableHead>
+            <TableHead>{t("profile.common.endTime")}</TableHead>
+            <TableHead>{t("profile.common.remainingTime")}</TableHead>
+            <TableHead>{t("profile.common.createdAt")}</TableHead>
+            <TableHead className="text-center">
+              {t("profile.common.details")}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

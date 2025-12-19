@@ -8,10 +8,21 @@ import { usePlaceABid } from "@/hooks/bid-hooks";
 import type { PRODUCT_DETAILS } from "@/types/Product";
 
 import ProductBid from "./product-bid/ProductBid";
+import { useTranslation } from "react-i18next";
 
 const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
   const productStatus = data.status;
   const { mutate, isPending } = usePlaceABid();
+  const { t } = useTranslation();
+
+  const bidderName = data.currentBidderName ?? t("product.notAvailable");
+  const bidderRating =
+    data.currentBidderRating !== null && data.currentBidderRating !== undefined
+      ? String(data.currentBidderRating)
+      : t("product.notAvailable");
+  const postedTime = formatDateTime(data.startTime);
+  const endTime = formatDateTime(data.endTime);
+  const sellerRating = `${data.sellerRating.toFixed(2)}%`;
 
   const handleSubmitBid = (productId: number, buyNowPrice: number) => {
     mutate(
@@ -35,25 +46,38 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
     <div>
       <p className="text-2xl mr-auto">{data.name}</p>
       <div className="border-b border-gray-200 my-4" />
+
       <div className="flex justify-between mb-4 text-lg">
-        <p>Current Price: {formatCurrency(data.currentPrice)}</p>
-        <p>Buy Now Price: {formatCurrency(data.buyNowPrice)}</p>
+        <p>
+          {t("productDetail.info.currentPrice", {
+            value: formatCurrency(data.currentPrice),
+          })}
+        </p>
+        <p>
+          {t("productDetail.info.buyNowPrice", {
+            value: formatCurrency(data.buyNowPrice),
+          })}
+        </p>
       </div>
+
       <div className="flex justify-between text-lg">
         <p className="mb-4 text-lg">
-          Highest Bidder Name:{" "}
-          {data.currentBidderName ? data.currentBidderName : "N/A"}
+          {t("productDetail.info.highestBidder", { value: bidderName })}
         </p>
         <p className="mb-4 text-lg">
-          Bidder's Rating:{" "}
-          {data.currentBidderRating ? data.currentBidderRating : "N/A"}
+          {t("productDetail.info.bidderRating", { value: bidderRating })}
         </p>
       </div>
+
       <p className="mb-4 text-lg">
-        Posted Time: {formatDateTime(data.startTime)}
+        {t("productDetail.info.postedTime", { value: postedTime })}
       </p>
-      <p className="mb-4 text-lg">End Time: {formatDateTime(data.endTime)}</p>
-      <p className="mb-4 text-lg">Time Remaining: {data.timeRemaining}</p>
+      <p className="mb-4 text-lg">
+        {t("productDetail.info.endTime", { value: endTime })}
+      </p>
+      <p className="mb-4 text-lg">
+        {t("productDetail.info.timeRemaining", { value: data.timeRemaining })}
+      </p>
 
       <div className="flex items-center justify-end">
         <p
@@ -71,7 +95,9 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
             variant="default"
             onClick={() => handleSubmitBid(data.id, data.buyNowPrice)}
           >
-            {isPending ? "Buying..." : "Buy Now"}
+            {isPending
+              ? t("productDetail.actions.buying")
+              : t("productDetail.actions.buyNow")}
           </Button>
         )}
       </div>
@@ -80,7 +106,9 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
         <>
           <div className="border-b border-gray-200 my-4" />
           <p className="mb-4 text-lg">
-            Step Price: {formatCurrency(data.stepPrice)}
+            {t("productDetail.info.stepPrice", {
+              value: formatCurrency(data.stepPrice),
+            })}
           </p>
           <ProductBid
             productId={data.id}
@@ -89,11 +117,14 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
           />
         </>
       )}
+
       <div className="border-b border-gray-200 my-4" />
 
-      <p className="mb-4 text-lg">Seller Name: {data.sellerName}</p>
       <p className="mb-4 text-lg">
-        Seller Rating: {data.sellerRating.toFixed(2) + "%"}
+        {t("productDetail.info.sellerName", { value: data.sellerName })}
+      </p>
+      <p className="mb-4 text-lg">
+        {t("productDetail.info.sellerRating", { value: sellerRating })}
       </p>
     </div>
   );

@@ -35,11 +35,12 @@ import RichTextEditor from "./PublishNewProductDescription.tsx";
 import PublishNewProductImageUploads from "./PublishNewProductImageUploads";
 import { useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
+import { useTranslation } from "react-i18next";
 
 const MIN_IMAGES = 3;
 const blankParagraph = "<p></p>";
 const imageFileSchema = z.instanceof(File, {
-  message: "Please upload a valid image file",
+  message: "publish.validation.imageInvalid",
 });
 
 const stripHtml = (value: string) =>
@@ -50,40 +51,43 @@ const stripHtml = (value: string) =>
 
 const publishNewProductSchema = z
   .object({
-    name: z.string().trim().min(1, { message: "Product name is required" }),
+    name: z
+      .string()
+      .trim()
+      .min(1, { message: "publish.validation.nameRequired" }),
     startingPrice: z.coerce
       .number()
-      .gt(0, { message: "Initial price must be greater than 0" }),
+      .gt(0, { message: "publish.validation.startingPricePositive" }),
     stepPrice: z.coerce
       .number()
-      .gt(0, { message: "Step price must be greater than 0" }),
+      .gt(0, { message: "publish.validation.stepPricePositive" }),
     buyNowPrice: z.coerce
       .number()
-      .gt(0, { message: "Buy now price must be greater than 0" }),
+      .gt(0, { message: "publish.validation.buyNowPricePositive" }),
     parentCategoryId: z
       .number()
       .int()
-      .gt(0, { message: "Please select a category" })
+      .gt(0, { message: "publish.validation.categoryRequired" })
       .optional(),
     categoryId: z
       .number()
       .int()
-      .gt(0, { message: "Please select a subcategory" })
+      .gt(0, { message: "publish.validation.subcategoryRequired" })
       .optional(),
     endTime: z
       .string()
-      .min(1, { message: "Please choose an end time" })
+      .min(1, { message: "publish.validation.endTimeRequired" })
       .refine((value) => !Number.isNaN(Date.parse(value)), {
-        message: "End time must be a valid date",
+        message: "publish.validation.endTimeInvalid",
       })
       .refine((value) => new Date(value).getTime() > Date.now(), {
-        message: "End time must be in the future",
+        message: "publish.validation.endTimeFuture",
       }),
     images: z.array(imageFileSchema).min(MIN_IMAGES, {
-      message: `Please upload at least ${MIN_IMAGES} images`,
+      message: "publish.validation.imagesMin",
     }),
     description: z.string().refine((value) => stripHtml(value).length > 0, {
-      message: "Product description is required",
+      message: "publish.validation.descriptionRequired",
     }),
     autoExtend: z.boolean(),
     allowUnratedBidders: z.boolean(),
@@ -93,7 +97,7 @@ const publishNewProductSchema = z
       ctx.addIssue({
         path: ["buyNowPrice"],
         code: z.ZodIssueCode.custom,
-        message: "Buy now price must be greater than the starting price",
+        message: "publish.validation.buyNowGreater",
       });
     }
 
@@ -101,7 +105,7 @@ const publishNewProductSchema = z
       ctx.addIssue({
         path: ["categoryId"],
         code: z.ZodIssueCode.custom,
-        message: "Please select a category or a subcategory",
+        message: "publish.validation.categoryOrSubcategory",
       });
     }
   })
@@ -138,6 +142,7 @@ const createDefaultValues = (): Partial<PublishNewProductFormValues> => ({
 
 function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
   const { id: productId } = useParams();
+  const { t } = useTranslation();
 
   let defaultValues = useMemo(() => createDefaultValues(), []);
 
@@ -187,6 +192,15 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
   });
 
   const [formResetKey, setFormResetKey] = useState(0);
+
+  const buildError = (error?: { message?: string }) =>
+    error?.message
+      ? [
+          {
+            message: t(error.message, { count: MIN_IMAGES }),
+          },
+        ]
+      : [];
 
   const autoExtendValue = watch("autoExtend");
   const allowUnratedBiddersValue = watch("allowUnratedBidders");
@@ -259,7 +273,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
 
     mutate(productPayload, {
       onSuccess: () => {
-        toastSuccess("Product published successfully");
+        toastSuccess(t("publish.toast.createSuccess"));
         resetFormState();
       },
       onError: (error) => {
@@ -281,7 +295,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
       },
       {
         onSuccess: () => {
-          toastSuccess("Product description updated successfully");
+          toastSuccess(t("publish.toast.updateSuccess"));
         },
         onError: (error) => {
           toastError(error);
@@ -292,7 +306,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
 
   return (
     <div className="mx-auto mt-24 w-full max-w-5xl px-6 pb-16">
-      <p className="mb-8 text-2xl font-semibold">Publish New Product Form</p>
+      <p className="mb-8 text-2xl font-semibold">{t("publish.form.title")}</p>
       <form
         className="space-y-8"
         noValidate
@@ -301,65 +315,69 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
       >
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="name">Product Name</FieldLabel>
+            <FieldLabel htmlFor="name">
+              {t("publish.form.fields.name")}
+            </FieldLabel>
             <Input
               id="name"
-              placeholder="Vintage wristwatch"
+              placeholder={t("publish.form.placeholders.name")}
               {...register("name")}
               aria-invalid={errors.name ? "true" : "false"}
               readOnly={mode === "edit"}
             />
-            <FieldError errors={errors.name ? [errors.name] : []} />
+            <FieldError errors={buildError(errors.name)} />
           </Field>
 
           <div className="grid gap-6 md:grid-cols-3">
             <Field>
-              <FieldLabel htmlFor="startingPrice">Initial Price</FieldLabel>
+              <FieldLabel htmlFor="startingPrice">
+                {t("publish.form.fields.startingPrice")}
+              </FieldLabel>
               <Input
                 id="startingPrice"
                 type="number"
                 min="0"
                 step="0.01"
-                placeholder="100"
+                placeholder={t("publish.form.placeholders.startingPrice")}
                 {...register("startingPrice")}
                 aria-invalid={errors.startingPrice ? "true" : "false"}
                 readOnly={mode === "edit"}
               />
-              <FieldError
-                errors={errors.startingPrice ? [errors.startingPrice] : []}
-              />
+              <FieldError errors={buildError(errors.startingPrice)} />
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="stepPrice">Step Price</FieldLabel>
+              <FieldLabel htmlFor="stepPrice">
+                {t("publish.form.fields.stepPrice")}
+              </FieldLabel>
               <Input
                 id="stepPrice"
                 type="number"
                 min="0"
                 step="0.01"
-                placeholder="10"
+                placeholder={t("publish.form.placeholders.stepPrice")}
                 {...register("stepPrice")}
                 aria-invalid={errors.stepPrice ? "true" : "false"}
                 readOnly={mode === "edit"}
               />
-              <FieldError errors={errors.stepPrice ? [errors.stepPrice] : []} />
+              <FieldError errors={buildError(errors.stepPrice)} />
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="buyNowPrice">Buy Now Price</FieldLabel>
+              <FieldLabel htmlFor="buyNowPrice">
+                {t("publish.form.fields.buyNowPrice")}
+              </FieldLabel>
               <Input
                 id="buyNowPrice"
                 type="number"
                 min="0"
                 step="0.01"
-                placeholder="250"
+                placeholder={t("publish.form.placeholders.buyNowPrice")}
                 {...register("buyNowPrice")}
                 aria-invalid={errors.buyNowPrice ? "true" : "false"}
                 readOnly={mode === "edit"}
               />
-              <FieldError
-                errors={errors.buyNowPrice ? [errors.buyNowPrice] : []}
-              />
+              <FieldError errors={buildError(errors.buyNowPrice)} />
             </Field>
           </div>
 
@@ -369,7 +387,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
               name="parentCategoryId"
               render={({ field }) => (
                 <Field>
-                  <FieldLabel>Category</FieldLabel>
+                  <FieldLabel>{t("publish.form.fields.category")}</FieldLabel>
                   <Select
                     value={field.value ? String(field.value) : ""}
                     onValueChange={(value) =>
@@ -385,8 +403,8 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
                       <SelectValue
                         placeholder={
                           categoriesLoading
-                            ? "Loading categories..."
-                            : "Select a category"
+                            ? t("publish.form.loadingCategories")
+                            : t("publish.form.categoryPlaceholder")
                         }
                       />
                     </SelectTrigger>
@@ -401,11 +419,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FieldError
-                    errors={
-                      errors.parentCategoryId ? [errors.parentCategoryId] : []
-                    }
-                  />
+                  <FieldError errors={buildError(errors.parentCategoryId)} />
                 </Field>
               )}
             />
@@ -415,7 +429,9 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
               name="categoryId"
               render={({ field }) => (
                 <Field>
-                  <FieldLabel>Subcategory</FieldLabel>
+                  <FieldLabel>
+                    {t("publish.form.fields.subcategory")}
+                  </FieldLabel>
                   <Select
                     value={field.value ? String(field.value) : ""}
                     onValueChange={(value) =>
@@ -426,7 +442,9 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
                     <SelectTrigger
                       aria-invalid={errors.categoryId ? "true" : "false"}
                     >
-                      <SelectValue placeholder="Select a subcategory" />
+                      <SelectValue
+                        placeholder={t("publish.form.subcategoryPlaceholder")}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {availableSubCategories.map((subCategory) => (
@@ -439,16 +457,16 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FieldError
-                    errors={errors.categoryId ? [errors.categoryId] : []}
-                  />
+                  <FieldError errors={buildError(errors.categoryId)} />
                 </Field>
               )}
             />
           </div>
 
           <Field>
-            <FieldLabel htmlFor="endTime">Auction End Time</FieldLabel>
+            <FieldLabel htmlFor="endTime">
+              {t("publish.form.fields.endTime")}
+            </FieldLabel>
             <Input
               id="endTime"
               type="datetime-local"
@@ -457,7 +475,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
               aria-invalid={errors.endTime ? "true" : "false"}
               readOnly={mode === "edit"}
             />
-            <FieldError errors={errors.endTime ? [errors.endTime] : []} />
+            <FieldError errors={buildError(errors.endTime)} />
           </Field>
 
           {mode === "create" && (
@@ -472,14 +490,16 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
 
           {mode === "edit" && currentProduct && (
             <Field>
-              <FieldLabel>Product Images</FieldLabel>
+              <FieldLabel>{t("publish.form.fields.images")}</FieldLabel>
               {currentProduct.images.length !== 0 && (
                 <div className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                   {currentProduct.images.map((imageUrl, index) => (
                     <img
                       key={index}
                       src={imageUrl}
-                      alt={`Product Image ${index + 1}`}
+                      alt={t("publish.images.previewAlt", {
+                        index: index + 1,
+                      })}
                       className="h-32 w-full rounded object-cover"
                     />
                   ))}
@@ -490,7 +510,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
 
           {mode === "edit" && currentProduct && (
             <Field>
-              <FieldLabel>Product Description</FieldLabel>
+              <FieldLabel>{t("publish.form.fields.description")}</FieldLabel>
               <div
                 className="prose prose-neutral max-w-none border rounded-md p-4 bg-gray-50"
                 dangerouslySetInnerHTML={{
@@ -506,7 +526,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
             render={({ field, fieldState }) => (
               <Field>
                 <FieldLabel htmlFor="description">
-                  Product Description
+                  {t("publish.form.fields.description")}
                 </FieldLabel>
                 <RichTextEditor
                   key={formResetKey}
@@ -515,15 +535,13 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
                   onBlur={field.onBlur}
                   error={!!fieldState.error}
                 />
-                <FieldError
-                  errors={fieldState.error ? [fieldState.error] : []}
-                />
+                <FieldError errors={buildError(fieldState.error)} />
               </Field>
             )}
           />
 
           <Field>
-            <FieldLabel>Auction Settings</FieldLabel>
+            <FieldLabel>{t("publish.form.fields.settings")}</FieldLabel>
             <div className="flex flex-wrap gap-3">
               <Button
                 type="button"
@@ -536,7 +554,9 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
                   })
                 }
               >
-                {autoExtendValue ? "Auto Extend: On" : "Auto Extend: Off"}
+                {autoExtendValue
+                  ? t("publish.form.autoExtendOn")
+                  : t("publish.form.autoExtendOff")}
               </Button>
               <Button
                 type="button"
@@ -550,8 +570,8 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
                 }
               >
                 {allowUnratedBiddersValue
-                  ? "Allow Unrated Bidders: On"
-                  : "Allow Unrated Bidders: Off"}
+                  ? t("publish.form.allowUnratedOn")
+                  : t("publish.form.allowUnratedOff")}
               </Button>
             </div>
           </Field>
@@ -563,7 +583,9 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
             disabled={isPending}
             className="w-full md:w-auto"
           >
-            {isPending ? "Publishing..." : "Publish Product"}
+            {isPending
+              ? t("publish.form.actions.publishing")
+              : t("publish.form.actions.publish")}
           </Button>
         )}
         {mode === "edit" && (
@@ -573,7 +595,9 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
             className="w-full md:w-auto"
             onClick={handleUpdatePublishedProduct}
           >
-            {isUpdatingProductDescription ? "Updating..." : "Update Product"}
+            {isUpdatingProductDescription
+              ? t("publish.form.actions.updating")
+              : t("publish.form.actions.update")}
           </Button>
         )}
       </form>

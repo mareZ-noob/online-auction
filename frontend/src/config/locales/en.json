@@ -40,5 +40,260 @@
     "graduallyIncrease": "Gradually Increase",
     "newPulsihed": "New Publish",
     "all": "All"
+  },
+  "watchList": {
+    "title": "Watch List",
+    "searchPlaceholder": "Search your watch list",
+    "searchButton": "Search",
+    "backButton": "Back to all",
+    "empty": "Your watch list is currently empty."
+  },
+  "profile": {
+    "nav": {
+      "personalInformation": "Personal Information",
+      "biddingProducts": "Bidding Products",
+      "wonProducts": "Won Products",
+      "myPublishedProducts": "My Published Products",
+      "wonPublishedProducts": "Won Published Products",
+      "unansweredQuestions": "Unanswered Questions",
+      "groupLabel": "Platform"
+    },
+    "common": {
+      "index": "#",
+      "productName": "Product Name",
+      "productDescription": "Product Description",
+      "bidCount": "Bid Count",
+      "categoryName": "Category Name",
+      "currentPrice": "Current Price",
+      "endTime": "End Time",
+      "remainingTime": "Remaining Time",
+      "createdAt": "Created At",
+      "details": "Details",
+      "edit": "Edit",
+      "sellerName": "Seller Name",
+      "isPositive": "Is Positive",
+      "comment": "Comment",
+      "yes": "Yes",
+      "no": "No",
+      "rateSeller": "Rate Seller",
+      "pay": "Pay",
+      "rated": "Rated",
+      "buyerName": "Buyer Name",
+      "finalPrice": "Final Price",
+      "soldAt": "Sold At",
+      "rateBidder": "Rate Bidder",
+      "question": "Question"
+    },
+    "biddingProducts": {
+      "empty": "You haven't placed any bids.",
+      "caption": "A list of your recent bidding products."
+    },
+    "myPublishedProducts": {
+      "empty": "You haven't published any products.",
+      "caption": "A list of your recently published products."
+    },
+    "ratings": {
+      "empty": "No ratings available.",
+      "caption": "A list of your recent ratings."
+    },
+    "unansweredQuestions": {
+      "caption": "A list of your recent unanswered questions.",
+      "postedBy": "Posted by"
+    },
+    "wonProducts": {
+      "empty": "You haven't won any products.",
+      "caption": "A list of your recent won products."
+    },
+    "ratingDialog": {
+      "title": "Thank you for your feedback!",
+      "positiveDescription": "Your positive rating has been recorded.",
+      "negativeDescription": "Your negative rating has been recorded.",
+      "send": "Send",
+      "cancel": "Cancel",
+      "placeholder": "Leave a comment"
+    },
+    "validation": {
+      "commentMax": "Comment must be at most 500 characters."
+    },
+    "wonPublishedProducts": {
+      "caption": "A list of products you have sold."
+    },
+    "personalInformation": {
+      "cardTitle": "{{name}}'s personal information",
+      "cardDescription": "This is your private information, please keep it safe. This account was created at {{createdAt}}.",
+      "fields": {
+        "fullName": "Full Name",
+        "email": "Email",
+        "oldPassword": "Current Password",
+        "confirmNewPassword": "Confirm New Password",
+        "address": "Address",
+        "dateOfBirth": "Date of Birth"
+      },
+      "placeholders": {
+        "oldPassword": "Your current password",
+        "newPassword": "Your new password"
+      },
+      "actions": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit"
+      },
+      "validation": {
+        "invalidEmail": "Invalid email address",
+        "passwordMin": "Password must be at least 8 characters",
+        "reasonMin": "Reason must be at least 10 characters"
+      },
+      "sellerUpgrade": {
+        "title": "Seller Upgrade",
+        "pending": "Pending",
+        "none": "None",
+        "pendingDescription": "Become a seller to start auctioning your products. An administrator will review your request soon (within 7 days).",
+        "reasonLabel": "Your Reason",
+        "requestButton": "Request to Become a Seller",
+        "positiveRatings": "Positive Ratings:",
+        "negativeRatings": "Negative Ratings:",
+        "averageRatings": "Average Ratings:",
+        "averageRatingsWarning": "(At least 80% to bid on products)",
+        "approved": "Approved",
+        "approvedDescription": "Start showcasing your products and unlock new earning opportunities. As a seller, you can list products and participate in bidding to maximize your potential. Take full advantage of the platform's features to grow your business."
+      }
+    }
+  },
+  "publish": {
+    "editor": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "strike": "Strike",
+      "code": "Code",
+      "heading1": "Heading 1",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3",
+      "heading4": "Heading 4",
+      "bulletList": "Bullet List",
+      "orderedList": "Ordered List",
+      "undo": "Undo",
+      "redo": "Redo"
+    },
+    "form": {
+      "title": "Publish New Product",
+      "fields": {
+        "name": "Product Name",
+        "startingPrice": "Starting Price",
+        "stepPrice": "Step Price",
+        "buyNowPrice": "Buy Now Price",
+        "category": "Category",
+        "subcategory": "Subcategory",
+        "endTime": "End Time",
+        "description": "Description",
+        "images": "Product Images",
+        "settings": "Auction Settings"
+      },
+      "placeholders": {
+        "name": "Enter product name",
+        "startingPrice": "Enter starting price",
+        "stepPrice": "Enter step price",
+        "buyNowPrice": "Enter buy now price"
+      },
+      "loadingCategories": "Loading categories...",
+      "categoryPlaceholder": "Select a category",
+      "subcategoryPlaceholder": "Select a subcategory",
+      "imagesHint": "Upload at least {{count}} product images.",
+      "removeImage": "Remove",
+      "autoExtendOn": "Auto-extend on",
+      "autoExtendOff": "Auto-extend off",
+      "allowUnratedOn": "Allow unrated bidders",
+      "allowUnratedOff": "Disallow unrated bidders",
+      "actions": {
+        "publish": "Publish product",
+        "publishing": "Publishing...",
+        "update": "Update description",
+        "updating": "Updating..."
+      }
+    },
+    "toast": {
+      "createSuccess": "Product published successfully.",
+      "updateSuccess": "Product description updated successfully."
+    },
+    "validation": {
+      "imageInvalid": "Invalid image file.",
+      "nameRequired": "Product name is required.",
+      "startingPricePositive": "Starting price must be greater than 0.",
+      "stepPricePositive": "Step price must be greater than 0.",
+      "buyNowPricePositive": "Buy now price must be greater than 0.",
+      "categoryRequired": "Please select a category.",
+      "subcategoryRequired": "Please select a subcategory.",
+      "endTimeRequired": "End time is required.",
+      "endTimeInvalid": "End time is invalid.",
+      "endTimeFuture": "End time must be in the future.",
+      "imagesMin": "Please upload at least {{count}} images.",
+      "descriptionRequired": "Product description is required.",
+      "buyNowGreater": "Buy now price must be greater than starting price.",
+      "categoryOrSubcategory": "Please choose at least one category option."
+    },
+    "images": {
+      "previewAlt": "Product image {{index}}"
+    }
+  },
+  "productDetail": {
+    "loading": "Loading...",
+    "sections": {
+      "bidHistory": "Product Bid History",
+      "additionalDetails": "Additional Details",
+      "comments": "Comments",
+      "relatedProducts": "You May Also Like"
+    },
+    "related": {
+      "empty": "No related products found."
+    },
+    "info": {
+      "currentPrice": "Current Price: {{value}}",
+      "buyNowPrice": "Buy Now Price: {{value}}",
+      "highestBidder": "Highest Bidder Name: {{value}}",
+      "bidderRating": "Bidder's Rating: {{value}}",
+      "postedTime": "Posted Time: {{value}}",
+      "endTime": "End Time: {{value}}",
+      "timeRemaining": "Time Remaining: {{value}}",
+      "stepPrice": "Step Price: {{value}}",
+      "sellerName": "Seller Name: {{value}}",
+      "sellerRating": "Seller Rating: {{value}}"
+    },
+    "actions": {
+      "buyNow": "Buy Now",
+      "buying": "Buying..."
+    },
+    "bid": {
+      "selectPricePlaceholder": "Select Price",
+      "bidPricesLabel": "Bid Prices",
+      "placeBid": "Place Bid",
+      "placingBid": "Placing Bid...",
+      "activateAutoBid": "Activate Auto Bid",
+      "autoBidLabel": "Enter max auto-bid price (must be >= {{value}})",
+      "autoBidPlaceholder": "e.g., {{value}}",
+      "maxBudgetLabel": "Enter your maximum budget"
+    },
+    "bidHistory": {
+      "caption": "A list of bid history in this product.",
+      "bidTime": "Bid Time",
+      "bidderName": "Bidder's Name",
+      "amount": "Amount",
+      "block": "Block",
+      "blockTitle": "Block Bidder",
+      "blockDescription": "Are you sure you want to block {{bidderName}} from bidding on this product?",
+      "blockAction": "Block",
+      "blockCancel": "Cancel",
+      "blocked": "Blocked"
+    },
+    "comments": {
+      "placeholder": "Type your message here.",
+      "send": "Send",
+      "postedSuccess": "Comment posted successfully!",
+      "answeredSuccess": "Answer posted successfully!",
+      "hasAsked": "{{userName}} has asked:",
+      "sellerAnswered": "Seller has answered:",
+      "noAnswer": "Seller hasn't answered yet.",
+      "cancel": "Cancel",
+      "answerQuestion": "Answer this question",
+      "noComments": "No comments available."
+    }
   }
 }

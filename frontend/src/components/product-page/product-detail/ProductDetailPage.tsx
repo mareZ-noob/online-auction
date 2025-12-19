@@ -13,11 +13,13 @@ import ProductDetailPageFallback from "./ProductDetailPageFallback";
 import ProductBidHistory from "./product-bid/ProductBidHistory";
 import DOMPurify from "dompurify";
 import { useUserStore } from "@/store/user-store";
+import { useTranslation } from "react-i18next";
 
 function ProductDetailPage() {
   const productId = useParams().id as string;
 
   const sellerId = useUserStore((state) => state.id);
+  const { t } = useTranslation();
 
   const { data: relatedProducts } = useFetchRelatedProducts(Number(productId));
   const {
@@ -27,7 +29,7 @@ function ProductDetailPage() {
   } = useFetchProductDetailsById(Number(productId));
 
   if (isLoadingProductDetails) {
-    return <div>Loading...</div>;
+    return <div>{t("productDetail.loading")}</div>;
   }
   if (isErrorProductDetails || !productDetails) {
     return <ProductDetailPageFallback />;
@@ -47,12 +49,14 @@ function ProductDetailPage() {
       </section>
       <div className="my-8 border-b border-gray-200" />
       <section>
-        <p className="text-xl mb-4">Product Bid History</p>
+        <p className="text-xl mb-4">{t("productDetail.sections.bidHistory")}</p>
         <ProductBidHistory isMine={isMine} productId={Number(productId)} />
       </section>
       <div className="my-8 border-b border-gray-200" />
       <section>
-        <p className="text-xl mb-4">Additional Details</p>
+        <p className="text-xl mb-4">
+          {t("productDetail.sections.additionalDetails")}
+        </p>
         <div
           className="prose prose-neutral max-w-none"
           dangerouslySetInnerHTML={{
@@ -62,12 +66,14 @@ function ProductDetailPage() {
       </section>
       <div className="my-8 border-b border-gray-200" />
       <section>
-        <p className="text-xl mb-4">Comments</p>
+        <p className="text-xl mb-4">{t("productDetail.sections.comments")}</p>
         <ProductComments productId={Number(productId)} />
       </section>
       <div className="my-8 border-b border-gray-200" />
       <section>
-        <p className="text-xl mb-4">You May Also Like</p>
+        <p className="text-xl mb-4">
+          {t("productDetail.sections.relatedProducts")}
+        </p>
         {relatedProducts?.length ? (
           <CarouselPlugin>
             {relatedProducts.map((product) => (
@@ -78,7 +84,9 @@ function ProductDetailPage() {
             ))}
           </CarouselPlugin>
         ) : (
-          <p className="font-light text-gray-500">No related products found.</p>
+          <p className="font-light text-gray-500">
+            {t("productDetail.related.empty")}
+          </p>
         )}
       </section>
     </div>

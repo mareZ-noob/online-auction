@@ -40,5 +40,260 @@
     "graduallyIncrease": "Tăng dần",
     "newPulsihed": "Mới đăng",
     "all": "Tất cả"
+  },
+  "watchList": {
+    "title": "Danh sách theo dõi",
+    "searchPlaceholder": "Tìm kiếm trong danh sách theo dõi",
+    "searchButton": "Tìm kiếm",
+    "backButton": "Trở lại danh sách",
+    "empty": "Danh sách theo dõi của bạn hiện đang trống."
+  },
+  "profile": {
+    "nav": {
+      "personalInformation": "Thông tin cá nhân",
+      "biddingProducts": "Sản phẩm đang đấu giá",
+      "wonProducts": "Sản phẩm đã thắng",
+      "myPublishedProducts": "Sản phẩm đã đăng",
+      "wonPublishedProducts": "Sản phẩm đã bán",
+      "unansweredQuestions": "Câu hỏi chưa trả lời",
+      "groupLabel": "Nền tảng"
+    },
+    "common": {
+      "index": "#",
+      "productName": "Tên sản phẩm",
+      "productDescription": "Mô tả sản phẩm",
+      "bidCount": "Số lượt đấu giá",
+      "categoryName": "Danh mục",
+      "currentPrice": "Giá hiện tại",
+      "endTime": "Thời gian kết thúc",
+      "remainingTime": "Thời gian còn lại",
+      "createdAt": "Ngày tạo",
+      "details": "Chi tiết",
+      "edit": "Chỉnh sửa",
+      "sellerName": "Người bán",
+      "isPositive": "Đánh giá tích cực",
+      "comment": "Nhận xét",
+      "yes": "Có",
+      "no": "Không",
+      "rateSeller": "Đánh giá người bán",
+      "pay": "Thanh toán",
+      "rated": "Đã đánh giá",
+      "buyerName": "Người mua",
+      "finalPrice": "Giá cuối cùng",
+      "soldAt": "Thời gian bán",
+      "rateBidder": "Đánh giá người mua",
+      "question": "Câu hỏi"
+    },
+    "biddingProducts": {
+      "empty": "Bạn chưa đặt giá cho sản phẩm nào.",
+      "caption": "Danh sách sản phẩm bạn đang tham gia đấu giá."
+    },
+    "myPublishedProducts": {
+      "empty": "Bạn chưa đăng sản phẩm nào.",
+      "caption": "Danh sách sản phẩm bạn đã đăng gần đây."
+    },
+    "ratings": {
+      "empty": "Chưa có đánh giá nào.",
+      "caption": "Danh sách đánh giá gần đây của bạn."
+    },
+    "unansweredQuestions": {
+      "caption": "Danh sách câu hỏi chưa trả lời.",
+      "postedBy": "Người đăng"
+    },
+    "wonProducts": {
+      "empty": "Bạn chưa thắng sản phẩm nào.",
+      "caption": "Danh sách sản phẩm bạn đã thắng gần đây."
+    },
+    "ratingDialog": {
+      "title": "Cảm ơn bạn đã phản hồi!",
+      "positiveDescription": "Đánh giá tích cực của bạn đã được ghi nhận.",
+      "negativeDescription": "Đánh giá tiêu cực của bạn đã được ghi nhận.",
+      "send": "Gửi",
+      "cancel": "Hủy",
+      "placeholder": "Để lại nhận xét"
+    },
+    "validation": {
+      "commentMax": "Nhận xét không được vượt quá 500 ký tự."
+    },
+    "wonPublishedProducts": {
+      "caption": "Danh sách sản phẩm bạn đã bán."
+    },
+    "personalInformation": {
+      "cardTitle": "Thông tin cá nhân của {{name}}",
+      "cardDescription": "Đây là thông tin riêng tư của bạn, vui lòng giữ an toàn. Tài khoản được tạo vào lúc {{createdAt}}.",
+      "fields": {
+        "fullName": "Họ và tên",
+        "email": "Email",
+        "oldPassword": "Mật khẩu cũ",
+        "confirmNewPassword": "Xác nhận mật khẩu mới",
+        "address": "Địa chỉ",
+        "dateOfBirth": "Ngày sinh"
+      },
+      "placeholders": {
+        "oldPassword": "Mật khẩu cũ của bạn",
+        "newPassword": "Mật khẩu mới của bạn"
+      },
+      "actions": {
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "edit": "Chỉnh sửa"
+      },
+      "validation": {
+        "invalidEmail": "Email không hợp lệ",
+        "passwordMin": "Mật khẩu phải có ít nhất 8 ký tự",
+        "reasonMin": "Lý do phải có ít nhất 10 ký tự"
+      },
+      "sellerUpgrade": {
+        "title": "Nâng cấp người bán",
+        "pending": "Đang chờ",
+        "none": "Chưa gửi",
+        "pendingDescription": "Hãy trở thành người bán để bắt đầu đấu giá sản phẩm của bạn. Quản trị viên sẽ xem xét yêu cầu trong vòng 7 ngày.",
+        "reasonLabel": "Lý do của bạn",
+        "requestButton": "Yêu cầu trở thành người bán",
+        "positiveRatings": "Đánh giá tích cực:",
+        "negativeRatings": "Đánh giá tiêu cực:",
+        "averageRatings": "Tỷ lệ đánh giá trung bình:",
+        "averageRatingsWarning": "(Cần ít nhất 80% để được đấu giá sản phẩm)",
+        "approved": "Đã duyệt",
+        "approvedDescription": "Hãy bắt đầu giới thiệu sản phẩm và tận dụng các cơ hội kiếm tiền mới. Với vai trò người bán, bạn có thể đăng sản phẩm và tham gia đấu giá để tối đa hóa tiềm năng của mình. Khai thác tối đa các tính năng của nền tảng để phát triển doanh nghiệp."
+      }
+    }
+  },
+  "publish": {
+    "editor": {
+      "bold": "Đậm",
+      "italic": "Nghiêng",
+      "strike": "Gạch ngang",
+      "code": "Mã",
+      "heading1": "Tiêu đề 1",
+      "heading2": "Tiêu đề 2",
+      "heading3": "Tiêu đề 3",
+      "heading4": "Tiêu đề 4",
+      "bulletList": "Danh sách đánh dấu",
+      "orderedList": "Danh sách đánh số",
+      "undo": "Hoàn tác",
+      "redo": "Làm lại"
+    },
+    "form": {
+      "title": "Đăng sản phẩm mới",
+      "fields": {
+        "name": "Tên sản phẩm",
+        "startingPrice": "Giá khởi điểm",
+        "stepPrice": "Bước giá",
+        "buyNowPrice": "Giá mua ngay",
+        "category": "Danh mục",
+        "subcategory": "Danh mục con",
+        "endTime": "Thời gian kết thúc",
+        "description": "Mô tả",
+        "images": "Hình ảnh sản phẩm",
+        "settings": "Thiết lập đấu giá"
+      },
+      "placeholders": {
+        "name": "Nhập tên sản phẩm",
+        "startingPrice": "Nhập giá khởi điểm",
+        "stepPrice": "Nhập bước giá",
+        "buyNowPrice": "Nhập giá mua ngay"
+      },
+      "loadingCategories": "Đang tải danh mục...",
+      "categoryPlaceholder": "Chọn danh mục",
+      "subcategoryPlaceholder": "Chọn danh mục con",
+      "imagesHint": "Tải lên ít nhất {{count}} hình ảnh sản phẩm.",
+      "removeImage": "Xóa",
+      "autoExtendOn": "Gia hạn tự động bật",
+      "autoExtendOff": "Gia hạn tự động tắt",
+      "allowUnratedOn": "Cho phép người đấu giá chưa được đánh giá",
+      "allowUnratedOff": "Không cho phép người đấu giá chưa được đánh giá",
+      "actions": {
+        "publish": "Đăng sản phẩm",
+        "publishing": "Đang đăng...",
+        "update": "Cập nhật mô tả",
+        "updating": "Đang cập nhật..."
+      }
+    },
+    "toast": {
+      "createSuccess": "Đăng sản phẩm thành công.",
+      "updateSuccess": "Cập nhật mô tả sản phẩm thành công."
+    },
+    "validation": {
+      "imageInvalid": "Tệp hình ảnh không hợp lệ.",
+      "nameRequired": "Tên sản phẩm là bắt buộc.",
+      "startingPricePositive": "Giá khởi điểm phải lớn hơn 0.",
+      "stepPricePositive": "Bước giá phải lớn hơn 0.",
+      "buyNowPricePositive": "Giá mua ngay phải lớn hơn 0.",
+      "categoryRequired": "Vui lòng chọn danh mục.",
+      "subcategoryRequired": "Vui lòng chọn danh mục con.",
+      "endTimeRequired": "Thời gian kết thúc là bắt buộc.",
+      "endTimeInvalid": "Thời gian kết thúc không hợp lệ.",
+      "endTimeFuture": "Thời gian kết thúc phải ở tương lai.",
+      "imagesMin": "Cần ít nhất {{count}} hình ảnh.",
+      "descriptionRequired": "Mô tả sản phẩm là bắt buộc.",
+      "buyNowGreater": "Giá mua ngay phải lớn hơn giá khởi điểm.",
+      "categoryOrSubcategory": "Vui lòng chọn ít nhất một danh mục."
+    },
+    "images": {
+      "previewAlt": "Hình ảnh sản phẩm {{index}}"
+    }
+  },
+  "productDetail": {
+    "loading": "Đang tải...",
+    "sections": {
+      "bidHistory": "Lịch sử đấu giá",
+      "additionalDetails": "Thông tin bổ sung",
+      "comments": "Bình luận",
+      "relatedProducts": "Có thể bạn sẽ thích"
+    },
+    "related": {
+      "empty": "Không có sản phẩm liên quan."
+    },
+    "info": {
+      "currentPrice": "Giá hiện tại: {{value}}",
+      "buyNowPrice": "Giá mua ngay: {{value}}",
+      "highestBidder": "Tên người đặt giá cao nhất: {{value}}",
+      "bidderRating": "Đánh giá của người đặt giá: {{value}}",
+      "postedTime": "Thời gian đăng: {{value}}",
+      "endTime": "Thời gian kết thúc: {{value}}",
+      "timeRemaining": "Thời gian còn lại: {{value}}",
+      "stepPrice": "Bước giá: {{value}}",
+      "sellerName": "Tên người bán: {{value}}",
+      "sellerRating": "Đánh giá người bán: {{value}}"
+    },
+    "actions": {
+      "buyNow": "Mua ngay",
+      "buying": "Đang mua..."
+    },
+    "bid": {
+      "selectPricePlaceholder": "Chọn mức giá",
+      "bidPricesLabel": "Các mức giá",
+      "placeBid": "Đặt giá",
+      "placingBid": "Đang đặt giá...",
+      "activateAutoBid": "Kích hoạt tự động đặt giá",
+      "autoBidLabel": "Nhập mức giá tự động tối đa (phải >= {{value}})",
+      "autoBidPlaceholder": "ví dụ: {{value}}",
+      "maxBudgetLabel": "Nhập ngân sách tối đa của bạn"
+    },
+    "bidHistory": {
+      "caption": "Danh sách lịch sử đấu giá của sản phẩm này.",
+      "bidTime": "Thời gian",
+      "bidderName": "Tên người đặt giá",
+      "amount": "Số tiền",
+      "block": "Chặn",
+      "blockTitle": "Chặn người đặt giá",
+      "blockDescription": "Bạn có chắc chắn muốn chặn {{bidderName}} khỏi việc đấu giá sản phẩm này?",
+      "blockAction": "Chặn",
+      "blockCancel": "Hủy",
+      "blocked": "Đã chặn"
+    },
+    "comments": {
+      "placeholder": "Nhập tin nhắn của bạn.",
+      "send": "Gửi",
+      "postedSuccess": "Đăng bình luận thành công!",
+      "answeredSuccess": "Đăng câu trả lời thành công!",
+      "hasAsked": "{{userName}} đã hỏi:",
+      "sellerAnswered": "Người bán trả lời:",
+      "noAnswer": "Người bán chưa trả lời.",
+      "cancel": "Hủy",
+      "answerQuestion": "Trả lời câu hỏi này",
+      "noComments": "Chưa có bình luận nào."
+    }
   }
 }

@@ -14,9 +14,11 @@ import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
 import { Eye } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 function UnansweredQuestionList() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -37,15 +39,17 @@ function UnansweredQuestionList() {
   return (
     <ProfilePage>
       <Table>
-        <TableCaption>A list of your recent unanswered questions.</TableCaption>
+        <TableCaption>{t("profile.unansweredQuestions.caption")}</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead>#</TableHead>
-            <TableHead>Product Name</TableHead>
-            <TableHead>Question</TableHead>
-            <TableHead>Posted by</TableHead>
-            <TableHead>Created At</TableHead>
-            <TableHead className="text-center">Details</TableHead>
+            <TableHead>{t("profile.common.index")}</TableHead>
+            <TableHead>{t("profile.common.productName")}</TableHead>
+            <TableHead>{t("profile.common.question")}</TableHead>
+            <TableHead>{t("profile.unansweredQuestions.postedBy")}</TableHead>
+            <TableHead>{t("profile.common.createdAt")}</TableHead>
+            <TableHead className="text-center">
+              {t("profile.common.details")}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -1,10 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const blankParagraph = "<p></p>";
+
+type ToolbarButton = {
+  label: string;
+  onClick: () => void;
+  isActive: boolean;
+  disabled: boolean;
+};
 
 type RichTextEditorProps = {
   value: string;
@@ -19,6 +27,7 @@ export default function RichTextEditor({
   onBlur,
   error,
 }: RichTextEditorProps) {
+  const { t } = useTranslation();
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -71,106 +80,106 @@ export default function RichTextEditor({
     editor.commands.setContent(nextHTML, { emitUpdate: false });
   }, [editor, value]);
 
-  const toolbarButtons = editor
-    ? [
-        {
-          label: "Bold",
-          onClick: () => editor.chain().focus().toggleBold().run(),
-          isActive: editor.isActive("bold"),
-          disabled: !editor.can().chain().focus().toggleBold().run(),
-        },
-        {
-          label: "Italic",
-          onClick: () => editor.chain().focus().toggleItalic().run(),
-          isActive: editor.isActive("italic"),
-          disabled: !editor.can().chain().focus().toggleItalic().run(),
-        },
-        {
-          label: "Strike",
-          onClick: () => editor.chain().focus().toggleStrike().run(),
-          isActive: editor.isActive("strike"),
-          disabled: !editor.can().chain().focus().toggleStrike().run(),
-        },
-        {
-          label: "Code",
-          onClick: () => editor.chain().focus().toggleCodeBlock().run(),
-          isActive: editor.isActive("codeBlock"),
-          disabled: !editor.can().chain().focus().toggleCodeBlock().run(),
-        },
-        {
-          label: "H1",
-          onClick: () =>
-            editor.chain().focus().toggleHeading({ level: 1 }).run(),
-          isActive: editor.isActive("heading", { level: 1 }),
-          disabled: !editor
-            .can()
-            .chain()
-            .focus()
-            .toggleHeading({ level: 1 })
-            .run(),
-        },
-        {
-          label: "H2",
-          onClick: () =>
-            editor.chain().focus().toggleHeading({ level: 2 }).run(),
-          isActive: editor.isActive("heading", { level: 2 }),
-          disabled: !editor
-            .can()
-            .chain()
-            .focus()
-            .toggleHeading({ level: 2 })
-            .run(),
-        },
-        {
-          label: "H3",
-          onClick: () =>
-            editor.chain().focus().toggleHeading({ level: 3 }).run(),
-          isActive: editor.isActive("heading", { level: 3 }),
-          disabled: !editor
-            .can()
-            .chain()
-            .focus()
-            .toggleHeading({ level: 3 })
-            .run(),
-        },
-        {
-          label: "H4",
-          onClick: () =>
-            editor.chain().focus().toggleHeading({ level: 4 }).run(),
-          isActive: editor.isActive("heading", { level: 4 }),
-          disabled: !editor
-            .can()
-            .chain()
-            .focus()
-            .toggleHeading({ level: 4 })
-            .run(),
-        },
-        {
-          label: "Bullet List",
-          onClick: () => editor.chain().focus().toggleBulletList().run(),
-          isActive: editor.isActive("bulletList"),
-          disabled: !editor.can().chain().focus().toggleBulletList().run(),
-        },
-        {
-          label: "Ordered List",
-          onClick: () => editor.chain().focus().toggleOrderedList().run(),
-          isActive: editor.isActive("orderedList"),
-          disabled: !editor.can().chain().focus().toggleOrderedList().run(),
-        },
-        {
-          label: "Undo",
-          onClick: () => editor.chain().focus().undo().run(),
-          isActive: false,
-          disabled: !editor.can().undo(),
-        },
-        {
-          label: "Redo",
-          onClick: () => editor.chain().focus().redo().run(),
-          isActive: false,
-          disabled: !editor.can().redo(),
-        },
-      ]
-    : [];
+  const toolbarButtons = useMemo<ToolbarButton[]>(() => {
+    if (!editor) {
+      return [];
+    }
+
+    return [
+      {
+        label: t("publish.editor.bold"),
+        onClick: () => editor.chain().focus().toggleBold().run(),
+        isActive: editor.isActive("bold"),
+        disabled: !editor.can().chain().focus().toggleBold().run(),
+      },
+      {
+        label: t("publish.editor.italic"),
+        onClick: () => editor.chain().focus().toggleItalic().run(),
+        isActive: editor.isActive("italic"),
+        disabled: !editor.can().chain().focus().toggleItalic().run(),
+      },
+      {
+        label: t("publish.editor.strike"),
+        onClick: () => editor.chain().focus().toggleStrike().run(),
+        isActive: editor.isActive("strike"),
+        disabled: !editor.can().chain().focus().toggleStrike().run(),
+      },
+      {
+        label: t("publish.editor.code"),
+        onClick: () => editor.chain().focus().toggleCodeBlock().run(),
+        isActive: editor.isActive("codeBlock"),
+        disabled: !editor.can().chain().focus().toggleCodeBlock().run(),
+      },
+      {
+        label: t("publish.editor.heading1"),
+        onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+        isActive: editor.isActive("heading", { level: 1 }),
+        disabled: !editor
+          .can()
+          .chain()
+          .focus()
+          .toggleHeading({ level: 1 })
+          .run(),
+      },
+      {
+        label: t("publish.editor.heading2"),
+        onClick: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+        isActive: editor.isActive("heading", { level: 2 }),
+        disabled: !editor
+          .can()
+          .chain()
+          .focus()
+          .toggleHeading({ level: 2 })
+          .run(),
+      },
+      {
+        label: t("publish.editor.heading3"),
+        onClick: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+        isActive: editor.isActive("heading", { level: 3 }),
+        disabled: !editor
+          .can()
+          .chain()
+          .focus()
+          .toggleHeading({ level: 3 })
+          .run(),
+      },
+      {
+        label: t("publish.editor.heading4"),
+        onClick: () => editor.chain().focus().toggleHeading({ level: 4 }).run(),
+        isActive: editor.isActive("heading", { level: 4 }),
+        disabled: !editor
+          .can()
+          .chain()
+          .focus()
+          .toggleHeading({ level: 4 })
+          .run(),
+      },
+      {
+        label: t("publish.editor.bulletList"),
+        onClick: () => editor.chain().focus().toggleBulletList().run(),
+        isActive: editor.isActive("bulletList"),
+        disabled: !editor.can().chain().focus().toggleBulletList().run(),
+      },
+      {
+        label: t("publish.editor.orderedList"),
+        onClick: () => editor.chain().focus().toggleOrderedList().run(),
+        isActive: editor.isActive("orderedList"),
+        disabled: !editor.can().chain().focus().toggleOrderedList().run(),
+      },
+      {
+        label: t("publish.editor.undo"),
+        onClick: () => editor.chain().focus().undo().run(),
+        isActive: false,
+        disabled: !editor.can().undo(),
+      },
+      {
+        label: t("publish.editor.redo"),
+        onClick: () => editor.chain().focus().redo().run(),
+        isActive: false,
+        disabled: !editor.can().redo(),
+      },
+    ];
+  }, [editor, t]);
 
   return (
     <div className="flex flex-col gap-2">

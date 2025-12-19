@@ -17,6 +17,7 @@ import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { useBlockABidderFromAProduct } from "@/hooks/seller-hooks";
 import NotificationDialog from "@/components/custom-ui/dialog/NotificationDialog";
 import { useUserStore } from "@/store/user-store";
+import { useTranslation } from "react-i18next";
 
 function ProductBidHistory({
   isMine,
@@ -26,6 +27,7 @@ function ProductBidHistory({
   productId: number;
 }) {
   const isSeller = useUserStore((state) => state.isSeller);
+  const { t } = useTranslation();
 
   const { data: bidHistoryList } = useFetchBidHistoryOfAProduct(productId);
   const { mutate: blockABidderMutate } = useBlockABidderFromAProduct();
@@ -46,15 +48,23 @@ function ProductBidHistory({
 
   return (
     <Table className="max-w-xl">
-      <TableCaption>A list of bid history in this product.</TableCaption>
+      <TableCaption>{t("productDetail.bidHistory.caption")}</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="max-w-sm">#</TableHead>
-          <TableHead className="w-1/3">Bid Time</TableHead>
-          <TableHead className="w-1/3">Bidder's Name</TableHead>
-          <TableHead className="text-right w-1/3">Amount</TableHead>
+          <TableHead className="w-1/3">
+            {t("productDetail.bidHistory.bidTime")}
+          </TableHead>
+          <TableHead className="w-1/3">
+            {t("productDetail.bidHistory.bidderName")}
+          </TableHead>
+          <TableHead className="text-right w-1/3">
+            {t("productDetail.bidHistory.amount")}
+          </TableHead>
           {isMine && isSeller && (
-            <TableHead className="text-right w-1/3">Block</TableHead>
+            <TableHead className="text-right w-1/3">
+              {t("productDetail.bidHistory.block")}
+            </TableHead>
           )}
         </TableRow>
       </TableHeader>
@@ -82,15 +92,22 @@ function ProductBidHistory({
                           <Ban size={16} className="mx-auto" />
                         </div>
                       }
-                      title="Block Bidder"
-                      description={`Are you sure you want to block ${history.maskedUserName} from bidding on this product?`}
-                      actionText="Block"
-                      cancelText="Cancel"
+                      title={t("productDetail.bidHistory.blockTitle")}
+                      description={t(
+                        "productDetail.bidHistory.blockDescription",
+                        {
+                          bidderName: history.maskedUserName,
+                        }
+                      )}
+                      actionText={t("productDetail.bidHistory.blockAction")}
+                      cancelText={t("productDetail.bidHistory.blockCancel")}
                       onAction={() => handleBlockABidder(history.userId)}
                     />
                   )}
                   {history.blocked && (
-                    <span className="text-destructive">Blocked</span>
+                    <span className="text-destructive">
+                      {t("productDetail.bidHistory.blocked")}
+                    </span>
                   )}
                 </TableCell>
               )}

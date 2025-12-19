@@ -14,6 +14,7 @@ import ProductPagination from "../../product-list/ProductPagination";
 import { useUserStore } from "@/store/user-store";
 import { usePostAnswerToAQuestionProduct } from "@/hooks/seller-hooks";
 import { formatDateTime } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 function CreateComment({
   productId,
@@ -24,6 +25,7 @@ function CreateComment({
 }) {
   const [questionValue, setQuestionValue] = useState("");
   const { mutate } = usePostCommentOnAProduct(page);
+  const { t } = useTranslation();
 
   const handleQuestionInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setQuestionValue(e.target.value);
@@ -38,7 +40,9 @@ function CreateComment({
       {
         onSuccess: (result) => {
           setQuestionValue("");
-          toastSuccess(result.message || "Comment posted successfully!");
+          toastSuccess(
+            result.message || t("productDetail.comments.postedSuccess")
+          );
         },
         onError: (error) => {
           toastError(error);
@@ -50,12 +54,14 @@ function CreateComment({
   return (
     <div className="flex w-full max-w-xl gap-2">
       <Textarea
-        placeholder="Type your message here."
+        placeholder={t("productDetail.comments.placeholder")}
         className="min-h-0"
         value={questionValue}
         onChange={handleQuestionInput}
       />
-      <Button onClick={handlePostComment}>Send</Button>
+      <Button onClick={handlePostComment}>
+        {t("productDetail.comments.send")}
+      </Button>
     </div>
   );
 }
@@ -70,6 +76,7 @@ function QuestionComment({ questions }: { questions: USER_QUESTIONS[] }) {
   );
 
   const { mutate } = usePostAnswerToAQuestionProduct(answeredQuestionId || "");
+  const { t } = useTranslation();
 
   const handleAnswerInput = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
@@ -87,7 +94,9 @@ function QuestionComment({ questions }: { questions: USER_QUESTIONS[] }) {
       {
         onSuccess: (result) => {
           setAnswerValue("");
-          toastSuccess(result.message || "Answer posted successfully!");
+          toastSuccess(
+            result.message || t("productDetail.comments.answeredSuccess")
+          );
         },
         onError: (error) => {
           toastError(error);
@@ -106,7 +115,9 @@ function QuestionComment({ questions }: { questions: USER_QUESTIONS[] }) {
           <div className="flex justify-between items-start">
             <div className="flex items-start gap-2">
               <p className="font-light text-nowrap">
-                {question.userName} has asked:
+                {t("productDetail.comments.hasAsked", {
+                  userName: question.userName,
+                })}
               </p>
               <p className="font-medium">{question.question}</p>
               <p className="font-light text-gray-400 italic text-nowrap">
@@ -126,14 +137,16 @@ function QuestionComment({ questions }: { questions: USER_QUESTIONS[] }) {
               >
                 <p className="text-sm">
                   {isAnswering === question.id
-                    ? "Cancel"
-                    : "Answer this question"}
+                    ? t("productDetail.comments.cancel")
+                    : t("productDetail.comments.answerQuestion")}
                 </p>
               </Button>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <p className="font-light">Seller has answered:</p>
+            <p className="font-light">
+              {t("productDetail.comments.sellerAnswered")}
+            </p>
             {question.answer ? (
               <>
                 <p className=" font-medium">{question.answer}</p>
@@ -143,19 +156,21 @@ function QuestionComment({ questions }: { questions: USER_QUESTIONS[] }) {
               </>
             ) : (
               <p className=" font-light italic text-gray-500">
-                Seller hasn't answered yet.
+                {t("productDetail.comments.noAnswer")}
               </p>
             )}
           </div>
           {isSeller && isAnswering === question.id && (
             <div className="flex w-full max-w-xl gap-2">
               <Textarea
-                placeholder="Type your message here."
+                placeholder={t("productDetail.comments.placeholder")}
                 className="min-h-0"
                 value={answerValue}
                 onChange={(e) => handleAnswerInput(e, question.id)}
               />
-              <Button onClick={handlePostAnswer}>Send</Button>
+              <Button onClick={handlePostAnswer}>
+                {t("productDetail.comments.send")}
+              </Button>
             </div>
           )}
         </div>
@@ -166,6 +181,7 @@ function QuestionComment({ questions }: { questions: USER_QUESTIONS[] }) {
 
 function ProductComments({ productId }: { productId: number }) {
   const isSeller = useUserStore((state) => state.isSeller);
+  const { t } = useTranslation();
 
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -183,7 +199,9 @@ function ProductComments({ productId }: { productId: number }) {
     return (
       <div>
         {!isSeller && <CreateComment productId={productId} page={page} />}
-        <p className="mt-4 font-light text-gray-400">No comments available.</p>
+        <p className="mt-4 font-light text-gray-400">
+          {t("productDetail.comments.noComments")}
+        </p>
       </div>
     );
   }

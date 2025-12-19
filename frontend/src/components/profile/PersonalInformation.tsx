@@ -24,23 +24,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
 import Ratings from "./Ratings";
 import { cn, formatDateTime } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const email_schema = z
   .string()
   .optional()
   .refine((value) => !value || z.email().safeParse(value).success, {
-    message: "Invalid email address",
+    message: "profile.personalInformation.validation.invalidEmail",
   });
 
 const password_schema = z
   .string()
   .optional()
   .refine((value) => !value || value.length >= 8, {
-    message: "Password must be at least 8 characters",
+    message: "profile.personalInformation.validation.passwordMin",
   });
 
 const upgrade_to_seller_schema = z.object({
-  reason: z.string().min(10, "Reason must be at least 10 characters"),
+  reason: z
+    .string()
+    .min(10, "profile.personalInformation.validation.reasonMin"),
 });
 
 const personal_information_schema = z.object({
@@ -57,6 +60,7 @@ type UpgradeToSellerFormData = z.infer<typeof upgrade_to_seller_schema>;
 
 function PersonalInformation() {
   const [isEditMode, setIsEditMode] = useState(false);
+  const { t } = useTranslation();
 
   const id = useUserStore((state) => state.id);
   const isSeller = useUserStore((state) => state.isSeller);
@@ -204,11 +208,16 @@ function PersonalInformation() {
       <div className="flex flex-row gap-16">
         <Card className="w-full">
           <CardHeader>
-            <CardTitle>{data?.fullName}'s personal information</CardTitle>
+            <CardTitle>
+              {t("profile.personalInformation.cardTitle", {
+                name: data?.fullName ?? "",
+              })}
+            </CardTitle>
             <CardDescription>
               <p className="my-2">
-                This is the private information about you, please keep it safe.
-                This account is created at {formatDateTime(data?.createdAt)}
+                {t("profile.personalInformation.cardDescription", {
+                  createdAt: formatDateTime(data?.createdAt),
+                })}
               </p>
             </CardDescription>
           </CardHeader>
@@ -217,23 +226,25 @@ function PersonalInformation() {
               <div className="grid grid-cols-2 gap-8 mb-4">
                 <div className="flex flex-col gap-2">
                   <Label className="text-sm font-medium leading-none mb-1">
-                    Full Name
+                    {t("profile.personalInformation.fields.fullName")}
                   </Label>
                   <Input readOnly={!isEditMode} {...register("fullName")} />
                   {errors.fullName && (
                     <p className="text-destructive text-xs">
-                      {errors.fullName.message}
+                      {errors.fullName.message
+                        ? t(errors.fullName.message)
+                        : null}
                     </p>
                   )}
                 </div>
                 <div className="flex flex-col gap-2 mb-4">
                   <Label className="text-sm font-medium leading-none mb-1">
-                    Email
+                    {t("profile.personalInformation.fields.email")}
                   </Label>
                   <Input readOnly={!isEditMode} {...register("email")} />
                   {errors.email && (
                     <p className="text-destructive text-xs">
-                      {errors.email.message}
+                      {errors.email.message ? t(errors.email.message) : null}
                     </p>
                   )}
                 </div>
@@ -241,10 +252,12 @@ function PersonalInformation() {
               <div className="grid grid-cols-2 gap-8 mb-4">
                 <div className="flex flex-col gap-2 mb-4">
                   <Label className="text-sm font-medium leading-none mb-1">
-                    Password
+                    {t("profile.personalInformation.fields.oldPassword")}
                   </Label>
                   <Input
-                    placeholder="Your old password"
+                    placeholder={t(
+                      "profile.personalInformation.placeholders.oldPassword"
+                    )}
                     type="password"
                     {...register("oldPassword")}
                     readOnly={!isEditMode}
@@ -254,16 +267,20 @@ function PersonalInformation() {
                   />
                   {errors.oldPassword && (
                     <p className="text-destructive text-xs">
-                      {errors.oldPassword.message}
+                      {errors.oldPassword.message
+                        ? t(errors.oldPassword.message)
+                        : null}
                     </p>
                   )}
                 </div>
                 <div className="flex flex-col gap-2 mb-4">
                   <Label className="text-sm font-medium leading-none mb-1">
-                    Confirm New Password
+                    {t("profile.personalInformation.fields.confirmNewPassword")}
                   </Label>
                   <Input
-                    placeholder="Your new password"
+                    placeholder={t(
+                      "profile.personalInformation.placeholders.newPassword"
+                    )}
                     type="password"
                     {...register("newPassword")}
                     readOnly={!isEditMode}
@@ -273,7 +290,9 @@ function PersonalInformation() {
                   />
                   {errors.newPassword && (
                     <p className="text-destructive text-xs">
-                      {errors.newPassword.message}
+                      {errors.newPassword.message
+                        ? t(errors.newPassword.message)
+                        : null}
                     </p>
                   )}
                 </div>
@@ -282,13 +301,13 @@ function PersonalInformation() {
               <div className="grid grid-cols-2 gap-8">
                 <div className="flex flex-col gap-2 mb-4">
                   <Label className="text-sm font-medium leading-none mb-1">
-                    Address
+                    {t("profile.personalInformation.fields.address")}
                   </Label>
                   <Input readOnly={!isEditMode} {...register("address")} />
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label className="text-sm font-medium leading-none mb-1">
-                    Date of Birth
+                    {t("profile.personalInformation.fields.dateOfBirth")}
                   </Label>
                   <Input readOnly={!isEditMode} {...register("dateOfBirth")} />
                 </div>
@@ -296,18 +315,20 @@ function PersonalInformation() {
               <div className="flex items-center justify-end">
                 {isEditMode ? (
                   <div className="flex gap-2">
-                    <Button type="submit">Save</Button>
+                    <Button type="submit">
+                      {t("profile.personalInformation.actions.save")}
+                    </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={handleToggleEditMode}
                     >
-                      Cancel
+                      {t("profile.personalInformation.actions.cancel")}
                     </Button>
                   </div>
                 ) : (
                   <Button type="button" onClick={handleToggleEditMode}>
-                    Edit
+                    {t("profile.personalInformation.actions.edit")}
                   </Button>
                 )}
               </div>
@@ -319,21 +340,22 @@ function PersonalInformation() {
             <CardHeader>
               <CardTitle>
                 <div className="flex items-center">
-                  <p>Seller Upgrade</p>
+                  <p>{t("profile.personalInformation.sellerUpgrade.title")}</p>
                   {upgradeTpSellerStatus ? (
                     <p className="ml-2 px-2 py-1 bg-black text-white rounded-sm font-normal text-sm">
-                      Pending
+                      {t("profile.personalInformation.sellerUpgrade.pending")}
                     </p>
                   ) : (
                     <p className="ml-2 px-2 py-1 bg-black text-white rounded-sm font-normal text-sm">
-                      None
+                      {t("profile.personalInformation.sellerUpgrade.none")}
                     </p>
                   )}
                 </div>
               </CardTitle>
               <CardDescription>
-                Become a seller to start auctioning your products. And the
-                Administrator will review your request soon (within 7 days).
+                {t(
+                  "profile.personalInformation.sellerUpgrade.pendingDescription"
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent className="h-full relative">
@@ -342,29 +364,39 @@ function PersonalInformation() {
               >
                 <div className="flex flex-col gap-2">
                   <Label className="text-sm font-medium leading-none mb-1">
-                    Your Reason
+                    {t("profile.personalInformation.sellerUpgrade.reasonLabel")}
                   </Label>
                   <Input {...registerUpgradeToSeller("reason")} />
                   {errorsUpgradeToSeller.reason && (
                     <p className="text-destructive text-xs">
-                      {errorsUpgradeToSeller.reason.message}
+                      {errorsUpgradeToSeller.reason.message
+                        ? t(errorsUpgradeToSeller.reason.message)
+                        : null}
                     </p>
                   )}
                 </div>
                 <Button className="absolute bottom-0 right-4" type="submit">
-                  Request to be a Seller
+                  {t("profile.personalInformation.sellerUpgrade.requestButton")}
                 </Button>
               </form>
               <div className="border-b border-gray-200 my-4" />
               <div className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm whitespace-nowrap">Positive Ratings:</p>
+                  <p className="text-sm whitespace-nowrap">
+                    {t(
+                      "profile.personalInformation.sellerUpgrade.positiveRatings"
+                    )}
+                  </p>
                   <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
                     {data?.positiveRatings}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm whitespace-nowrap">Negative Ratings:</p>
+                  <p className="text-sm whitespace-nowrap">
+                    {t(
+                      "profile.personalInformation.sellerUpgrade.negativeRatings"
+                    )}
+                  </p>
                   <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
                     {data?.negativeRatings}
                   </p>
@@ -373,7 +405,11 @@ function PersonalInformation() {
               <div className="border-b border-gray-200 my-4" />
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm whitespace-nowrap">Average Ratings:</p>
+                  <p className="text-sm whitespace-nowrap">
+                    {t(
+                      "profile.personalInformation.sellerUpgrade.averageRatings"
+                    )}
+                  </p>
                   <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
                     {averageRatings?.toFixed(2)}
                     <span className="ml-1">%</span>
@@ -381,7 +417,9 @@ function PersonalInformation() {
                 </div>
                 {averageRatings < 80 && (
                   <p className="text-xs text-destructive italic mt-2">
-                    (At least 80% to bid products)
+                    {t(
+                      "profile.personalInformation.sellerUpgrade.averageRatingsWarning"
+                    )}
                   </p>
                 )}
               </div>
@@ -393,30 +431,37 @@ function PersonalInformation() {
             <CardHeader>
               <CardTitle>
                 <div className="flex items-center">
-                  <p>Seller Upgrade</p>
+                  <p>{t("profile.personalInformation.sellerUpgrade.title")}</p>
                   <p className="ml-2 px-2 py-1 bg-black text-white rounded-sm font-normal text-sm">
-                    Approved
+                    {t("profile.personalInformation.sellerUpgrade.approved")}
                   </p>
                 </div>
               </CardTitle>
               <CardDescription>
-                Start showcasing your products and unlock new earning
-                opportunities. As a seller, you can not only list your products
-                but also participate in bidding to maximize your potential. Take
-                full advantage of the platform's features to grow your business.
+                {t(
+                  "profile.personalInformation.sellerUpgrade.approvedDescription"
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent className="h-full relative">
               <div className="border-b border-gray-200 mb-4" />
               <div className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm whitespace-nowrap">Positive Ratings:</p>
+                  <p className="text-sm whitespace-nowrap">
+                    {t(
+                      "profile.personalInformation.sellerUpgrade.positiveRatings"
+                    )}
+                  </p>
                   <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
                     {data?.positiveRatings}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm whitespace-nowrap">Negative Ratings:</p>
+                  <p className="text-sm whitespace-nowrap">
+                    {t(
+                      "profile.personalInformation.sellerUpgrade.negativeRatings"
+                    )}
+                  </p>
                   <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
                     {data?.negativeRatings}
                   </p>
@@ -425,7 +470,11 @@ function PersonalInformation() {
               <div className="border-b border-gray-200 my-4" />
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm whitespace-nowrap">Average Ratings:</p>
+                  <p className="text-sm whitespace-nowrap">
+                    {t(
+                      "profile.personalInformation.sellerUpgrade.averageRatings"
+                    )}
+                  </p>
                   <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
                     {averageRatings?.toFixed(2)}
                     <span className="ml-1">%</span>
@@ -433,7 +482,9 @@ function PersonalInformation() {
                 </div>
                 {averageRatings < 80 && (
                   <p className="text-xs text-destructive italic mt-2">
-                    (At least 80% to bid products)
+                    {t(
+                      "profile.personalInformation.sellerUpgrade.averageRatingsWarning"
+                    )}
                   </p>
                 )}
               </div>

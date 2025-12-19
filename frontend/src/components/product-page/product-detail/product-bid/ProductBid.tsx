@@ -24,6 +24,7 @@ import {
   toastSuccess,
 } from "@/components/custom-ui/toast/toast-ui";
 import { formatCurrency } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 type ProductBidProps = {
   productId: number;
@@ -46,6 +47,8 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
   const [isCheckedAutoBid, setIsCheckedAutoBid] = useState(false);
 
   const { mutate, isPending, isError, error } = usePlaceABid();
+  const { t } = useTranslation();
+  const minBid = validBidPriceRange[0] ?? 0;
 
   const handleToggleAutoBid = () => {
     setIsCheckedAutoBid((prev) => !prev);
@@ -95,16 +98,20 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
     <>
       <div className="flex items-center justify-between mb-4">
         <Select
-          defaultValue={String(validBidPriceRange[0])}
+          defaultValue={String(minBid)}
           disabled={isCheckedAutoBid}
           onValueChange={(value) => handleSelectBidPrice(value)}
         >
           <SelectTrigger className="w-full text-lg">
-            <SelectValue placeholder="Select Price" />
+            <SelectValue
+              placeholder={t("productDetail.bid.selectPricePlaceholder")}
+            />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel className="text-lg">Bid Prices</SelectLabel>
+              <SelectLabel className="text-lg">
+                {t("productDetail.bid.bidPricesLabel")}
+              </SelectLabel>
               {validBidPriceRange.map((price) => (
                 <SelectItem
                   key={price}
@@ -122,7 +129,9 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
           disabled={isCheckedAutoBid}
           onClick={handleSubmitBid}
         >
-          {isPending ? "Placing Bid..." : "Place Bid"}
+          {isPending
+            ? t("productDetail.bid.placingBid")
+            : t("productDetail.bid.placeBid")}
         </Button>
       </div>
       <Accordion type="single" collapsible className="w-full">
@@ -137,23 +146,31 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
                 }
                 className="text-lg"
               >
-                Activate Auto Bid
+                {t("productDetail.bid.activateAutoBid")}
               </Label>
             </div>
           </AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col items-end justify-between px-1">
-              <NumberInput
-                label={`Enter max auto-bid price (must be >= ${validBidPriceRange[0]})`}
-                placeholder={`e.g., ${validBidPriceRange[0]}`}
-                validBid={validBidPriceRange[0]}
-                onValidBid={setAutoBidPrice}
-              />
+              {validBidPriceRange.length > 0 && (
+                <NumberInput
+                  label={t("productDetail.bid.autoBidLabel", {
+                    value: minBid,
+                  })}
+                  placeholder={t("productDetail.bid.autoBidPlaceholder", {
+                    value: minBid,
+                  })}
+                  validBid={minBid}
+                  onValidBid={setAutoBidPrice}
+                />
+              )}
               <NumberInput
                 className="mt-4"
-                label="Enter your maximum budget"
-                placeholder={`e.g., ${validBidPriceRange[0]}`}
-                validBid={validBidPriceRange[0]}
+                label={t("productDetail.bid.maxBudgetLabel")}
+                placeholder={t("productDetail.bid.autoBidPlaceholder", {
+                  value: minBid,
+                })}
+                validBid={minBid}
                 onValidBid={setMaxAutoBidPrice}
               />
               <Button
@@ -161,7 +178,9 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
                 disabled={!isCheckedAutoBid}
                 onClick={handleSubmitAutoBid}
               >
-                {isPending ? "Placing Bid..." : "Place Bid"}
+                {isPending
+                  ? t("productDetail.bid.placingBid")
+                  : t("productDetail.bid.placeBid")}
               </Button>
             </div>
           </AccordionContent>
