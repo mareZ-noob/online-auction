@@ -19,6 +19,7 @@ import wnc.auction.backend.dto.response.ApiResponse;
 import wnc.auction.backend.dto.response.ChartDataPoint;
 import wnc.auction.backend.dto.response.DashboardStats;
 import wnc.auction.backend.dto.response.PageResponse;
+import wnc.auction.backend.exception.BadRequestException;
 import wnc.auction.backend.service.*;
 
 @RestController
@@ -86,6 +87,22 @@ public class AdminController {
     public ResponseEntity<ApiResponse<Void>> forceLogout(@PathVariable Long userId) {
         userService.forceLogoutAllDevices(userId);
         return ResponseEntity.ok(ApiResponse.success("User logged out from all devices", null));
+    }
+
+    @PutMapping("/config/auction-settings")
+    @Operation(summary = "Update auction auto-extend settings")
+    public ResponseEntity<ApiResponse<Void>> updateAuctionSettings(
+            @RequestParam int thresholdMinutes, @RequestParam int durationMinutes) {
+
+        // Validate inputs logic if needed
+        if (thresholdMinutes < 1 || durationMinutes < 1) {
+            throw new BadRequestException("Minutes must be positive");
+        }
+
+        // Save to DB
+        adminService.updateAuctionConfig(thresholdMinutes, durationMinutes);
+
+        return ResponseEntity.ok(ApiResponse.success("Auction settings updated", null));
     }
 
     // Category Management

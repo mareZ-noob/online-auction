@@ -17,6 +17,7 @@ public class ProductListDto {
     private String name;
     private String description;
     private BigDecimal currentPrice;
+    private BigDecimal bidPrice;
     private BigDecimal buyNowPrice;
     private String thumbnailImage;
     private String currentBidderName;

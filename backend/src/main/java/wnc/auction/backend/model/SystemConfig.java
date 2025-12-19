@@ -1,0 +1,24 @@
+package wnc.auction.backend.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "system_configs")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SystemConfig {
+
+    @Id
+    @Column(name = "config_key", unique = true, nullable = false)
+    private String key;
+
+    @Column(name = "config_value")
+    private String value;
+
+    @Column(name = "description")
+    private String description;
+}

@@ -37,6 +37,8 @@ public class User {
     private String fullName;
 
     private String address;
+
+    @Column(name = "date_of_birth")
     private LocalDateTime dateOfBirth;
 
     @Enumerated(EnumType.STRING)

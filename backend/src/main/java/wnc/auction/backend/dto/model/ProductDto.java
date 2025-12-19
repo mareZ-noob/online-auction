@@ -29,6 +29,8 @@ public class ProductDto {
     private Long currentBidderId;
     private String currentBidderName;
     private Double currentBidderRating;
+    private Integer currentBidderPositiveRatings;
+    private Integer currentBidderNegativeRatings;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String timeRemaining;

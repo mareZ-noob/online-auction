@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,12 +45,10 @@ public class BidService {
     private final NotificationService notificationService;
     private final AuctionSchedulerService auctionSchedulerService;
     private final TransactionService transactionService;
+    private final SystemConfigService systemConfigService;
 
-    @Value("${app.auction.auto-extend-threshold-minutes:5}")
-    private int autoExtendThresholdMinutes;
-
-    @Value("${app.auction.auto-extend-duration-minutes:10}")
-    private int autoExtendDurationMinutes;
+    private static final String CONFIG_EXTEND_THRESHOLD = "AUCTION_EXTEND_THRESHOLD";
+    private static final String CONFIG_EXTEND_DURATION = "AUCTION_EXTEND_DURATION";
 
     public BidDto placeBid(PlaceBidRequest request) {
         // Fetch User and Product
@@ -266,24 +263,23 @@ public class BidService {
 
     private void checkAndTriggerAutoExtend(Product product) {
         if (Boolean.TRUE.equals(product.getAutoExtend())) {
+
+            // Fetch dynamic values from DB (default 5 and 10 if not set in DB)
+            int threshold = systemConfigService.getIntConfig(CONFIG_EXTEND_THRESHOLD, 5);
+            int duration = systemConfigService.getIntConfig(CONFIG_EXTEND_DURATION, 10);
+
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime currentEndTime = product.getEndTime();
 
-            // If within threshold (e.g., last 5 mins)
-            if (now.plusMinutes(autoExtendThresholdMinutes).isAfter(currentEndTime)) {
+            // Use the dynamic threshold
+            if (now.plusMinutes(threshold).isAfter(currentEndTime)) {
+                LocalDateTime newEndTime = currentEndTime.plusMinutes(duration);
 
-                LocalDateTime newEndTime = currentEndTime.plusMinutes(autoExtendDurationMinutes);
                 product.setEndTime(newEndTime);
                 productRepository.save(product);
-
-                // Reschedule Quartz Job
                 auctionSchedulerService.rescheduleAuctionClose(product.getId(), newEndTime);
 
-                log.info("Auction auto-extended for product {}. New end time: {}", product.getId(), newEndTime);
-
-                // Broadcast system message
-                notificationService.broadcastSystemMessage("Auction for product '" + product.getName()
-                        + "' extended by " + autoExtendDurationMinutes + " minutes!");
+                log.info("Auction extended by {} minutes based on Admin config", duration);
             }
         }
     }

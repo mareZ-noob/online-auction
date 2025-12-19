@@ -37,6 +37,7 @@ public class AdminService {
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
     private final UpgradeRequestRepository upgradeRequestRepository;
+    private final SystemConfigService systemConfigService;
 
     public DashboardStats getDashboardStats() {
         long totalUsers = userRepository.count();
@@ -161,5 +162,10 @@ public class AdminService {
                 .newProducts(newProducts)
                 .revenue(revenue)
                 .build();
+    }
+
+    public void updateAuctionConfig(int threshold, int duration) {
+        systemConfigService.updateConfig("AUCTION_EXTEND_THRESHOLD", String.valueOf(threshold));
+        systemConfigService.updateConfig("AUCTION_EXTEND_DURATION", String.valueOf(duration));
     }
 }

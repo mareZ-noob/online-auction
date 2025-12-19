@@ -42,6 +42,14 @@ public class ProductMapper {
                         product.getCurrentBidder() != null
                                 ? product.getCurrentBidder().getRatingPercentage()
                                 : null)
+                .currentBidderPositiveRatings(
+                        product.getCurrentBidder() != null
+                                ? product.getCurrentBidder().getPositiveRatings()
+                                : null)
+                .currentBidderNegativeRatings(
+                        product.getCurrentBidder() != null
+                                ? product.getCurrentBidder().getNegativeRatings()
+                                : null)
                 .startTime(product.getStartTime())
                 .endTime(product.getEndTime())
                 .timeRemaining(calculateTimeRemaining(product.getEndTime()))
@@ -63,6 +71,7 @@ public class ProductMapper {
                 .name(product.getName())
                 .description(product.getDescription())
                 .currentPrice(product.getCurrentPrice())
+                .bidPrice(product.getCurrentPrice())
                 .buyNowPrice(product.getBuyNowPrice())
                 .thumbnailImage(
                         product.getImages().isEmpty()
