@@ -1,0 +1,44 @@
+{
+  "userNav": {
+    "profile": "Hồ sơ",
+    "publishNewProduct": "Đăng sản phẩm mới",
+    "darkMode": "Chế độ tối",
+    "vietnamese": "Tiếng Việt",
+    "english": "Tiếng Anh",
+    "logout": "Đăng xuất",
+    "loggingOut": "Đang đăng xuất",
+    "login": "Đăng nhập",
+    "signup": "Đăng ký",
+    "watchList": "Danh sách theo dõi",
+    "search": "Tìm kiếm"
+  },
+  "dashboard": {
+    "description": "Bước vào một trải nghiệm đấu giá mượt mà, nơi công nghệ kết hợp cùng sự tinh tế. Khám phá những món đồ được tuyển chọn, tham gia đấu giá thông minh và tận hưởng nền tảng hiện đại, thân thiện, được thiết kế dành cho những nhà sưu tập trẻ trung và năng động ngày nay.",
+    "top5MostBiddedProducts": "5 Sản phẩm được đặt giá nhiều nhất",
+    "top5HighestPricedProducts": "5 Sản phẩm có giá cao nhất"
+  },
+  "product": {
+    "currentPrice": "Giá hiện tại",
+    "buyNow": "Mua ngay",
+    "highestBidder": "Người trả giá cao nhất",
+    "bidPrice": "Giá đặt",
+    "publishedDate": "Ngày đăng",
+    "remainingTime": "Thời gian còn lại",
+    "bidCount": "Số lượt đặt giá",
+    "viewDetails": "Xem chi tiết",
+    "notAvailable": "Không có",
+    "follow": "Theo dõi",
+    "following": "Đang theo dõi",
+    "unfollow": "Bỏ theo dõi",
+    "remove": "Xóa"
+  },
+  "filter": {
+    "endTime": "Thời gian kết thúc",
+    "price": "Giá",
+    "other": "Khác",
+    "graduallyDecrease": "Giảm dần",
+    "graduallyIncrease": "Tăng dần",
+    "newPulsihed": "Mới đăng",
+    "all": "Tất cả"
+  }
+}

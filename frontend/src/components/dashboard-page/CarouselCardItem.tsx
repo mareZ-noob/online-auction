@@ -4,9 +4,11 @@ import { Card, CardContent } from "@/components/ui/card.tsx";
 import { CarouselItem } from "@/components/ui/carousel.tsx";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 function CarouselCardItem({ data }: { data: CardItemInformation }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleViewDetails = (id: number) => {
     navigate(`/products/${id}`);
@@ -22,18 +24,34 @@ function CarouselCardItem({ data }: { data: CardItemInformation }) {
                 <div className="flex flex-col justify-end text-left ml-[20%] mb-[10%] max-w-md">
                   <p className="text-4xl mb-4">{data.productName}</p>
                   <div className="flex mb-4 justify-between">
-                    <p>Current Price: {formatCurrency(data.currentPrice)}</p>
-                    <p>Buy Now: {formatCurrency(data.buyNowPrice)}</p>
+                    <p>
+                      {t("product.currentPrice")}:{" "}
+                      {formatCurrency(data.currentPrice)}
+                    </p>
+                    <p>
+                      {t("product.buyNow")}: {formatCurrency(data.buyNowPrice)}
+                    </p>
                   </div>
                   <div className="flex mb-4 justify-between">
-                    <p>Highest Bidder: {data.bidderName || "N/A"}</p>
-                    <p>Bid Price: {formatCurrency(data.bidderPrice)}</p>
+                    <p>
+                      {t("product.highestBidder")}:{" "}
+                      {data.bidderName || t("product.notAvailable")}
+                    </p>
+                    <p>
+                      {t("product.bidPrice")}:{" "}
+                      {formatCurrency(data.bidderPrice)}
+                    </p>
                   </div>
                   <p className="mb-4">
-                    Published Date: {formatDateTime(data.publishedDate)}
+                    {t("product.publishedDate")}:{" "}
+                    {formatDateTime(data.publishedDate)}
                   </p>
-                  <p className="mb-4">Remaining Time: {data.remainingTime}</p>
-                  <p>Current Bid Count: {data.bidCount}</p>
+                  <p className="mb-4">
+                    {t("product.remainingTime")}: {data.remainingTime}
+                  </p>
+                  <p>
+                    {t("product.bidCount")}: {data.bidCount}
+                  </p>
 
                   <div className="ml-auto">
                     <Button
@@ -41,7 +59,7 @@ function CarouselCardItem({ data }: { data: CardItemInformation }) {
                       className=" mt-4 size-12 px-12 mr-4"
                       onClick={() => handleViewDetails(data.id)}
                     >
-                      View details
+                      {t("product.viewDetails")}
                     </Button>
                   </div>
                 </div>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button.tsx";
 import type { CardItemInformation } from "@/types/CardItem";
 import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 function ProductItemCard({
   data,
@@ -20,6 +21,7 @@ function ProductItemCard({
   isWatchList?: boolean;
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { mutate: removeFromWatchList } = useRemoveAProductFromWatchList(
     data.id
@@ -76,18 +78,31 @@ function ProductItemCard({
           {data.productName}
         </p>
         <div className="flex mb-4 justify-between">
-          <p>Current Price: {formatCurrency(data.currentPrice)}</p>
-          <p>Buy Now: {formatCurrency(data.buyNowPrice)}</p>
+          <p>
+            {t("product.currentPrice")}: {formatCurrency(data.currentPrice)}
+          </p>
+          <p>
+            {t("product.buyNow")}: {formatCurrency(data.buyNowPrice)}
+          </p>
         </div>
         <div className="flex mb-4 justify-between">
-          <p>Highest Bidder: {data.bidderName || "N/A"}</p>
-          <p>Bid Price: {formatCurrency(data.bidderPrice)}</p>
+          <p>
+            {t("product.highestBidder")}:{" "}
+            {data.bidderName || t("product.notAvailable")}
+          </p>
+          <p>
+            {t("product.bidPrice")}: {formatCurrency(data.bidderPrice)}
+          </p>
         </div>
         <p className="mb-4">
-          Published Date: {formatDateTime(data.publishedDate)}
+          {t("product.publishedDate")}: {formatDateTime(data.publishedDate)}
         </p>
-        <p className="mb-4">Remaining Time: {data.remainingTime}</p>
-        <p>Current Bid Count: {data.bidCount}</p>
+        <p className="mb-4">
+          {t("product.remainingTime")}: {data.remainingTime}
+        </p>
+        <p>
+          {t("product.bidCount")}: {data.bidCount}
+        </p>
 
         <div className="flex items-center justify-end">
           {isWatchList ? (
@@ -96,7 +111,7 @@ function ProductItemCard({
               className=" mt-4 size-12 px-12 mr-4"
               onClick={handleRemoveFromWatchList}
             >
-              Remove
+              {t("product.unfollow")}
             </Button>
           ) : (
             <Button
@@ -104,7 +119,7 @@ function ProductItemCard({
               className=" mt-4 size-12 px-12 mr-4"
               onClick={handleAddToWatchList}
             >
-              {watchListButton}
+              {t("product." + watchListButton.toLowerCase())}
             </Button>
           )}
           <Button
@@ -112,7 +127,7 @@ function ProductItemCard({
             className=" mt-4 size-12 px-12"
             onClick={() => handleViewDetails(data.id)}
           >
-            View details
+            {t("product.viewDetails")}
           </Button>
         </div>
       </div>

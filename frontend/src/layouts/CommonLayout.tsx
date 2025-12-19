@@ -10,6 +10,7 @@ import {
   UserPen,
   ChartBarStacked,
   SquarePlus,
+  Languages,
 } from "lucide-react";
 import {
   InputGroup,
@@ -34,9 +35,12 @@ import { useFetchCategories } from "@/hooks/product-hooks";
 import { useUserStore } from "@/store/user-store";
 import { useFetchUser } from "@/hooks/user-hooks";
 import { CommonLayoutContext } from "@/store/context/common-layout-context";
+import ChangeLanguageButton from "@/components/custom-ui/change-language-button/ChangeLanguageButton";
+import { useTranslation } from "react-i18next";
 
 function WatchList() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const goToWatchList = () => {
     navigate("/watch-list");
@@ -49,13 +53,14 @@ function WatchList() {
       onClick={goToWatchList}
     >
       <Heart />
-      <p>Watchlist</p>
+      <p>{t("userNav.watchList")}</p>
     </Button>
   );
 }
 
 function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const id = useUserStore((state) => state.id);
   const isSeller = useUserStore((state) => state.isSeller);
@@ -88,7 +93,7 @@ function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
         <DropdownMenuGroup>
           <DropdownMenuItem className="flex items-center" onClick={goToProfile}>
             <UserPen className="text-black" />
-            Profile
+            {t("userNav.profile")}
           </DropdownMenuItem>
           {isSeller && (
             <DropdownMenuItem
@@ -96,18 +101,26 @@ function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
               onClick={goToPublishProduct}
             >
               <SquarePlus className="text-black" />
-              Publish New Product
+              {t("userNav.publishNewProduct")}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem className="flex items-center">
             <Moon className="text-black" />
-            Dark Mode
+            {t("userNav.darkMode")}
+          </DropdownMenuItem>
+          <DropdownMenuItem className="flex items-center">
+            <Languages className="text-black" />
+            <ChangeLanguageButton lang="vi" />
+          </DropdownMenuItem>
+          <DropdownMenuItem className="flex items-center">
+            <Languages className="text-black" />
+            <ChangeLanguageButton lang="en" />
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="flex items-center">
           <LogOut className="text-black" />
-          Log out
+          {t("userNav.logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -133,6 +146,8 @@ function ToggleCategory() {
 
 function SearchBar() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const [inputValue, setInputValue] = useState("");
 
   const onSearch = () => {
@@ -156,7 +171,7 @@ function SearchBar() {
         </InputGroupAddon>
       </InputGroup>
       <div className="flex gap-2 items-center">
-        <Button onClick={onSearch}>Search</Button>
+        <Button onClick={onSearch}>{t("userNav.search")}</Button>
         <ToggleCategory />
       </div>
     </>
@@ -165,6 +180,8 @@ function SearchBar() {
 
 function Header() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const isTokenExpired = useAuthStore((state) => state.isTokenExpired);
 
   const { mutate, isPending } = useSignOut();
@@ -202,12 +219,12 @@ function Header() {
         {isTokenExpired() ? (
           <div className="flex items-center justify-center">
             <Button variant="outline" className="mr-4" onClick={handleSignIn}>
-              Login
+              {t("userNav.login")}
             </Button>
-            <Button onClick={handleSignUp}>Signup</Button>
+            <Button onClick={handleSignUp}>{t("userNav.signup")}</Button>
           </div>
         ) : isPending ? (
-          <Button disabled>Logging out...</Button>
+          <Button disabled>{t("userNav.loggingOut")}</Button>
         ) : (
           <div className="flex items-center justify-center gap-2">
             <WatchList />

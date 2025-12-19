@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/auth-store";
+import i18n from "@/config/i18n";
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8088/api/",
@@ -13,9 +14,7 @@ apiClient.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
 
-    const language = localStorage.getItem("lang") || "vi";
-
-    config.headers["Accept-Language"] = language;
+    config.headers["Accept-Language"] = i18n.language;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

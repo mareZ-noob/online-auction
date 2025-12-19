@@ -4,14 +4,15 @@ import { Toaster } from "sonner";
 
 import router from "./routes/router.tsx";
 import { queryClient } from "./lib/utils.ts";
+import "@/config/i18n.ts";
 
 function App() {
-	return (
-		<QueryClientProvider client={queryClient}>
-			<RouterProvider router={router} />
-			<Toaster richColors />
-		</QueryClientProvider>
-	);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+      <Toaster richColors />
+    </QueryClientProvider>
+  );
 }
 
 export default App;

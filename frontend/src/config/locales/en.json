@@ -1,0 +1,44 @@
+{
+  "userNav": {
+    "profile": "Profile",
+    "publishNewProduct": "Publish New Product",
+    "darkMode": "Dark Mode",
+    "vietnamese": "Vietnamese",
+    "english": "English",
+    "logout": "Logout",
+    "loggingOut": "Logging Out",
+    "login": "Login",
+    "signup": "Signup",
+    "watchList": "Watch List",
+    "search": "Search"
+  },
+  "dashboard": {
+    "description": "Step into a seamless auction experience where technology meets sophistication. Explore curated items, engage in smart bidding, and enjoy a modern, user-friendly platform designed for today's young and dynamic collectors.",
+    "top5MostBiddedProducts": "Top 5 Most Bidded Products",
+    "top5HighestPricedProducts": "Top 5 Highest Priced Products"
+  },
+  "product": {
+    "currentPrice": "Current Price",
+    "buyNow": "Buy Now",
+    "highestBidder": "Highest Bidder",
+    "bidPrice": "Bid Price",
+    "publishedDate": "Published Date",
+    "remainingTime": "Remaining Time",
+    "bidCount": "Current Bid Count",
+    "viewDetails": "View details",
+    "notAvailable": "N/A",
+    "follow": "Follow",
+    "following": "Following",
+    "unfollow": "Unfollow",
+    "remove": "Remove"
+  },
+  "filter": {
+    "endTime": "End Time",
+    "price": "Price",
+    "other": "Other",
+    "graduallyDecrease": "Gradually Decrease",
+    "graduallyIncrease": "Gradually Increase",
+    "newPulsihed": "New Publish",
+    "all": "All"
+  }
+}
