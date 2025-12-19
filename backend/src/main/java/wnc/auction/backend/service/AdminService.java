@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wnc.auction.backend.dto.model.UserDto;
+import wnc.auction.backend.dto.response.AuctionConfigResponse;
 import wnc.auction.backend.dto.response.ChartDataPoint;
 import wnc.auction.backend.dto.response.DashboardStats;
 import wnc.auction.backend.dto.response.PageResponse;
@@ -161,6 +162,16 @@ public class AdminService {
                 .newUsers(newUsers)
                 .newProducts(newProducts)
                 .revenue(revenue)
+                .build();
+    }
+
+    public AuctionConfigResponse getAuctionConfig() {
+        int threshold = systemConfigService.getIntConfig("AUCTION_EXTEND_THRESHOLD", 5);
+        int duration = systemConfigService.getIntConfig("AUCTION_EXTEND_DURATION", 10);
+
+        return AuctionConfigResponse.builder()
+                .thresholdMinutes(threshold)
+                .durationMinutes(duration)
                 .build();
     }
 
