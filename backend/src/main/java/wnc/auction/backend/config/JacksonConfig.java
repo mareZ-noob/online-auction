@@ -25,7 +25,9 @@ public class JacksonConfig {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         // Configure null handling
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        // mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+        mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
 
         return mapper;
     }
