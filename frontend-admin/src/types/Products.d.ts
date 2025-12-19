@@ -35,4 +35,6 @@ export type AUCTION_SETTINGS_PAYLOAD = {
     durationMinutes: number;
 }
 
-export type AUCTION_SETTINGS_RESPONSE = ApiResponse<string>;
+export type UPDATE_AUCTION_SETTINGS_RESPONSE = ApiResponse<string>;
+
+export type GET_AUCTION_SETTINGS_RESPONSE = ApiResponse<AUCTION_SETTINGS_PAYLOAD>;

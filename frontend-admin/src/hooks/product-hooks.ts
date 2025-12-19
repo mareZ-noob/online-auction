@@ -5,8 +5,9 @@ import type {
 	DELETE_A_PRODUCT_RESPONSE,
 	DELETE_A_PRODUCT_PAYLOAD,
 	PRODUCT_RESPONSE,
-	AUCTION_SETTINGS_RESPONSE,
+	UPDATE_AUCTION_SETTINGS_RESPONSE,
 	AUCTION_SETTINGS_PAYLOAD,
+	GET_AUCTION_SETTINGS_RESPONSE,
 } from "@/types/Products";
 import { AxiosError } from "axios";
 import type { ApiResponseError } from "@/types/ApiResponse";
@@ -60,13 +61,13 @@ export const useRemoveAProduct = (page: number | null) => {
 
 export const useUpdateAuctionSettings = () => {
 	return useMutation<
-		AUCTION_SETTINGS_RESPONSE,
+		UPDATE_AUCTION_SETTINGS_RESPONSE,
 		AxiosError<ApiResponseError>,
 		AUCTION_SETTINGS_PAYLOAD
 	>({
 		mutationKey: ["update-auction-settings"],
 		mutationFn: async (payload) => {
-			const { data } = await apiClient.put<AUCTION_SETTINGS_RESPONSE>(
+			const { data } = await apiClient.put<UPDATE_AUCTION_SETTINGS_RESPONSE>(
 				API_ENDPOINTS.AUCTION_SETTINGS,
 				undefined,
 				{
@@ -77,6 +78,23 @@ export const useUpdateAuctionSettings = () => {
 				}
 			);
 			return data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["get-auction-settings"],
+			})
+		}
+	})
+}
+
+export const useFetchAuctionSettings = () => {
+	return useQuery<GET_AUCTION_SETTINGS_RESPONSE["data"]>({
+		queryKey: ["get-auction-settings"],
+		queryFn: async () => {
+			const { data } = await apiClient.get<GET_AUCTION_SETTINGS_RESPONSE>(
+				API_ENDPOINTS.GET_AUCTION_SETTINGS,
+			);
+			return data.data;
 		},
 	})
 }
