@@ -4,7 +4,10 @@ import {
 } from "@/hooks/product-hooks";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { toastError, toastSuccess } from "@/components/toast/toast-ui";
+import {
+  toastError,
+  toastSuccess,
+} from "@/components/custom-ui/toast/toast-ui";
 import { useEffect, useState } from "react";
 import type { USER_QUESTIONS } from "@/types/User";
 import ProductPagination from "../../product-list/ProductPagination";

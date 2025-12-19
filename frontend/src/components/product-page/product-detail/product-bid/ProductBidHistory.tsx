@@ -1,5 +1,8 @@
 import { Ban } from "lucide-react";
-import { toastError, toastSuccess } from "@/components/toast/toast-ui";
+import {
+  toastError,
+  toastSuccess,
+} from "@/components/custom-ui/toast/toast-ui";
 import {
   Table,
   TableBody,
@@ -12,7 +15,7 @@ import {
 import { useFetchBidHistoryOfAProduct } from "@/hooks/bid-hooks";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { useBlockABidderFromAProduct } from "@/hooks/seller-hooks";
-import NotificationDialog from "@/components/dialog/NotificationDialog";
+import NotificationDialog from "@/components/custom-ui/dialog/NotificationDialog";
 import { useUserStore } from "@/store/user-store";
 
 function ProductBidHistory({

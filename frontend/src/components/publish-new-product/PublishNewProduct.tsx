@@ -25,7 +25,10 @@ import {
   useFetchCategories,
   useFetchProductDetailsById,
 } from "@/hooks/product-hooks";
-import { toastError, toastSuccess } from "@/components/toast/toast-ui";
+import {
+  toastError,
+  toastSuccess,
+} from "@/components/custom-ui/toast/toast-ui.tsx";
 import type { CREATE_PRODUCT_PAYLOAD } from "@/types/Seller";
 import type { CATEGORY, SUB_CATEGORY } from "@/types/Product";
 import RichTextEditor from "./PublishNewProductDescription.tsx";

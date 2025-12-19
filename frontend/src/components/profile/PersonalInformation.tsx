@@ -21,7 +21,7 @@ import { Button } from "../ui/button";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toastError, toastSuccess } from "../toast/toast-ui";
+import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
 import Ratings from "./Ratings";
 import { cn, formatDateTime } from "@/lib/utils";
 

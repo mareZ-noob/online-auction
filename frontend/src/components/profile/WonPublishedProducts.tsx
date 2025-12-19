@@ -19,8 +19,8 @@ import { formatDateTime, queryClient } from "@/lib/utils";
 import { Eye, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import z from "zod";
-import { toastSuccess, toastError } from "../toast/toast-ui";
-import NotificationDialog from "../dialog/NotificationDialog";
+import { toastSuccess, toastError } from "../custom-ui/toast/toast-ui";
+import NotificationDialog from "../custom-ui/dialog/NotificationDialog";
 import { Input } from "../ui/input";
 
 const rate_a_bidder_schema = z.object({

@@ -19,7 +19,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@radix-ui/react-label";
 import NumberInput from "./NumberInput";
 import { usePlaceABid } from "@/hooks/bid-hooks";
-import { toastError, toastSuccess } from "@/components/toast/toast-ui";
+import {
+  toastError,
+  toastSuccess,
+} from "@/components/custom-ui/toast/toast-ui";
 import { formatCurrency } from "@/lib/utils";
 
 type ProductBidProps = {

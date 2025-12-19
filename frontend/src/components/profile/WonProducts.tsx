@@ -18,8 +18,8 @@ import ProfilePage from "./ProfilePage";
 import { formatDateTime, queryClient } from "@/lib/utils";
 import { CreditCard, Eye, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toastSuccess, toastError } from "../toast/toast-ui";
-import NotificationDialog from "../dialog/NotificationDialog";
+import { toastSuccess, toastError } from "../custom-ui/toast/toast-ui";
+import NotificationDialog from "../custom-ui/dialog/NotificationDialog";
 import { Input } from "../ui/input";
 import z from "zod";
 

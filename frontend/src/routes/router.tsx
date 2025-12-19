@@ -67,7 +67,11 @@ const router = createBrowserRouter([
       },
       {
         path: "me",
-        element: <DashboardPage />,
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <DashboardPage />
+          </Suspense>
+        ),
       },
       {
         path: "watch-list",
@@ -228,6 +232,10 @@ const router = createBrowserRouter([
         ),
       },
     ],
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
   },
 ]);
 

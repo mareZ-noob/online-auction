@@ -7,7 +7,7 @@ import {
 } from "@/hooks/watch-list-hooks";
 import { Button } from "@/components/ui/button.tsx";
 import type { CardItemInformation } from "@/types/CardItem";
-import { toastError, toastSuccess } from "../toast/toast-ui";
+import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 
 function ProductItemCard({

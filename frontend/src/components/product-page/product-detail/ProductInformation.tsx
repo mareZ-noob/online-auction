@@ -1,5 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { toastError, toastSuccess } from "@/components/toast/toast-ui";
+import {
+  toastError,
+  toastSuccess,
+} from "@/components/custom-ui/toast/toast-ui";
 import { cn, formatCurrency, formatDateTime } from "@/lib/utils";
 import { usePlaceABid } from "@/hooks/bid-hooks";
 import type { PRODUCT_DETAILS } from "@/types/Product";

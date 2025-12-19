@@ -186,7 +186,7 @@ function Header() {
   };
 
   return (
-    <div className="flex items-center justify-between w-full py-4 px-16 border-b-1 border-[#ddd]">
+    <div className="flex items-center justify-between w-full py-4 px-16 border-b border-[#ddd]">
       <div className="flex items-center w-[50%]">
         <div className="flex justify-center gap-2 md:justify-start">
           <a href="/me" className="flex items-center gap-2 font-medium">
@@ -232,7 +232,8 @@ function Category() {
   const cats = categories ?? [];
 
   const handleCategoryClick = (categoryName: string, categoryId: number) => {
-    setActiveCategory((prev) => (prev === categoryId ? null : categoryId));
+    setActiveCategory(categoryId);
+    setActiveSubCategory(null);
     navigate(`/products?category=${categoryName}`, {
       state: {
         categoryId: categoryId,
@@ -251,6 +252,7 @@ function Category() {
     subCategoryName: string,
     subCategoryId: number
   ) => {
+    setActiveSubCategory(subCategoryId);
     navigate(
       `/products?category=${categoryName}&subCategory=${subCategoryName}`,
       {
@@ -289,7 +291,7 @@ function Category() {
 
       {activeCategory && (
         <div
-          className="absolute left-0 top-full w-full bg-white px-16 py-4 border-b border-[#ddd] flex gap-10 z-1"
+          className="absolute left-0 top-full w-full bg-white px-16 border-b border-[#ddd] flex gap-10 z-1"
           onClick={() => setActiveCategory(activeCategory)}
           onBlur={handleResetCategory}
         >
@@ -298,9 +300,9 @@ function Category() {
               <p
                 key={subCategory.id}
                 className={cn(
-                  "text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer",
+                  "py-4 px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer",
                   activeSubCategory === subCategory.id
-                    ? "text-black"
+                    ? "border-b-2 border-black text-black"
                     : "text-muted-foreground"
                 )}
                 onClick={() =>
