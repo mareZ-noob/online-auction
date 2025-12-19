@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { toastError, toastSuccess } from "@/components/toast/toast-ui";
-import { cn, formatDateTime } from "@/lib/utils";
+import { cn, formatCurrency, formatDateTime } from "@/lib/utils";
 import { usePlaceABid } from "@/hooks/bid-hooks";
 import type { PRODUCT_DETAILS } from "@/types/Product";
 
@@ -33,8 +33,8 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
       <p className="text-2xl mr-auto">{data.name}</p>
       <div className="border-b border-gray-200 my-4" />
       <div className="flex justify-between mb-4 text-lg">
-        <p>Current Price: {data.currentPrice}</p>
-        <p>Buy Now Price: {data.buyNowPrice}</p>
+        <p>Current Price: {formatCurrency(data.currentPrice)}</p>
+        <p>Buy Now Price: {formatCurrency(data.buyNowPrice)}</p>
       </div>
       <div className="flex justify-between text-lg">
         <p className="mb-4 text-lg">
@@ -76,7 +76,9 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
       {productStatus !== "COMPLETED" && (
         <>
           <div className="border-b border-gray-200 my-4" />
-          <p className="mb-4 text-lg">Step Price: {data.stepPrice}</p>
+          <p className="mb-4 text-lg">
+            Step Price: {formatCurrency(data.stepPrice)}
+          </p>
           <ProductBid
             productId={data.id}
             currentPrice={data.currentPrice}

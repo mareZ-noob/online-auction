@@ -10,12 +10,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useFetchBidHistoryOfAProduct } from "@/hooks/bid-hooks";
-import { formatDateTime } from "@/lib/utils";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { useBlockABidderFromAProduct } from "@/hooks/seller-hooks";
 import NotificationDialog from "@/components/dialog/NotificationDialog";
 import { useUserStore } from "@/store/user-store";
 
-function ProductBidHistory({ productId }: { productId: number }) {
+function ProductBidHistory({
+  isMine,
+  productId,
+}: {
+  isMine: boolean;
+  productId: number;
+}) {
   const isSeller = useUserStore((state) => state.isSeller);
 
   const { data: bidHistoryList } = useFetchBidHistoryOfAProduct(productId);
@@ -44,7 +50,7 @@ function ProductBidHistory({ productId }: { productId: number }) {
           <TableHead className="w-1/3">Bid Time</TableHead>
           <TableHead className="w-1/3">Bidder's Name</TableHead>
           <TableHead className="text-right w-1/3">Amount</TableHead>
-          {isSeller && (
+          {isMine && isSeller && (
             <TableHead className="text-right w-1/3">Block</TableHead>
           )}
         </TableRow>
@@ -62,22 +68,27 @@ function ProductBidHistory({ productId }: { productId: number }) {
                 {history.maskedUserName}
               </TableCell>
               <TableCell className="font-medium text-right">
-                {history.amount}
+                {formatCurrency(history.amount)}
               </TableCell>
-              {isSeller && (
+              {isMine && isSeller && (
                 <TableCell className="font-medium text-right">
-                  <NotificationDialog
-                    triggerElement={
-                      <div className="py-1 px-2 bg-black text-white rounded-sm">
-                        <Ban size={16} className="mx-auto" />
-                      </div>
-                    }
-                    title="Block Bidder"
-                    description="Are you sure you want to block this bidder from bidding on this product?"
-                    actionText="Block"
-                    cancelText="Cancel"
-                    onAction={() => handleBlockABidder(history.userId)}
-                  />
+                  {!history.blocked && (
+                    <NotificationDialog
+                      triggerElement={
+                        <div className="py-1 px-2 bg-black text-white rounded-sm">
+                          <Ban size={16} className="mx-auto" />
+                        </div>
+                      }
+                      title="Block Bidder"
+                      description={`Are you sure you want to block ${history.maskedUserName} from bidding on this product?`}
+                      actionText="Block"
+                      cancelText="Cancel"
+                      onAction={() => handleBlockABidder(history.userId)}
+                    />
+                  )}
+                  {history.blocked && (
+                    <span className="text-destructive">Blocked</span>
+                  )}
                 </TableCell>
               )}
             </TableRow>

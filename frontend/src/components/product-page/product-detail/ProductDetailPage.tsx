@@ -12,9 +12,12 @@ import { useParams } from "react-router-dom";
 import ProductDetailPageFallback from "./ProductDetailPageFallback";
 import ProductBidHistory from "./product-bid/ProductBidHistory";
 import DOMPurify from "dompurify";
+import { useUserStore } from "@/store/user-store";
 
 function ProductDetailPage() {
   const productId = useParams().id as string;
+
+  const sellerId = useUserStore((state) => state.id);
 
   const { data: relatedProducts } = useFetchRelatedProducts(Number(productId));
   const {
@@ -31,6 +34,7 @@ function ProductDetailPage() {
   }
 
   const { images, ...rest } = productDetails;
+  const isMine = productDetails.sellerId === Number(sellerId);
 
   return (
     <div>
@@ -44,7 +48,7 @@ function ProductDetailPage() {
       <div className="my-8 border-b border-gray-200" />
       <section>
         <p className="text-xl mb-4">Product Bid History</p>
-        <ProductBidHistory productId={Number(productId)} />
+        <ProductBidHistory isMine={isMine} productId={Number(productId)} />
       </section>
       <div className="my-8 border-b border-gray-200" />
       <section>

@@ -23,6 +23,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toastError, toastSuccess } from "../toast/toast-ui";
 import Ratings from "./Ratings";
+import { cn, formatDateTime } from "@/lib/utils";
 
 const email_schema = z
   .string()
@@ -165,6 +166,12 @@ function PersonalInformation() {
   const { data: requestsToBecomeSeller } = useFetchRequestsToBecomeSeller();
   const { mutate: upgradeToSeller } = useUpgradeToSeller();
 
+  const averageRatings =
+    data?.positiveRatings && data?.negativeRatings
+      ? (data.positiveRatings / (data.positiveRatings + data.negativeRatings)) *
+        100
+      : 0;
+
   const onSubmitUpgradeToSeller = (data: UpgradeToSellerFormData) => {
     upgradeToSeller(
       {
@@ -201,7 +208,7 @@ function PersonalInformation() {
             <CardDescription>
               <p className="my-2">
                 This is the private information about you, please keep it safe.
-                This account is created at {data?.createdAt}
+                This account is created at {formatDateTime(data?.createdAt)}
               </p>
             </CardDescription>
           </CardHeader>
@@ -231,40 +238,46 @@ function PersonalInformation() {
                   )}
                 </div>
               </div>
-              {isEditMode && (
-                <div className="grid grid-cols-2 gap-8 mb-4">
-                  <div className="flex flex-col gap-2 mb-4">
-                    <Label className="text-sm font-medium leading-none mb-1">
-                      Password
-                    </Label>
-                    <Input
-                      placeholder="Your old password"
-                      type="password"
-                      {...register("oldPassword")}
-                    />
-                    {errors.oldPassword && (
-                      <p className="text-destructive text-xs">
-                        {errors.oldPassword.message}
-                      </p>
+              <div className="grid grid-cols-2 gap-8 mb-4">
+                <div className="flex flex-col gap-2 mb-4">
+                  <Label className="text-sm font-medium leading-none mb-1">
+                    Password
+                  </Label>
+                  <Input
+                    placeholder="Your old password"
+                    type="password"
+                    {...register("oldPassword")}
+                    readOnly={!isEditMode}
+                    className={cn(
+                      !isEditMode && "bg-gray-100 cursor-not-allowed"
                     )}
-                  </div>
-                  <div className="flex flex-col gap-2 mb-4">
-                    <Label className="text-sm font-medium leading-none mb-1">
-                      Confirm New Password
-                    </Label>
-                    <Input
-                      placeholder="Your new password"
-                      type="password"
-                      {...register("newPassword")}
-                    />
-                    {errors.newPassword && (
-                      <p className="text-destructive text-xs">
-                        {errors.newPassword.message}
-                      </p>
-                    )}
-                  </div>
+                  />
+                  {errors.oldPassword && (
+                    <p className="text-destructive text-xs">
+                      {errors.oldPassword.message}
+                    </p>
+                  )}
                 </div>
-              )}
+                <div className="flex flex-col gap-2 mb-4">
+                  <Label className="text-sm font-medium leading-none mb-1">
+                    Confirm New Password
+                  </Label>
+                  <Input
+                    placeholder="Your new password"
+                    type="password"
+                    {...register("newPassword")}
+                    readOnly={!isEditMode}
+                    className={cn(
+                      !isEditMode && "bg-gray-100 cursor-not-allowed"
+                    )}
+                  />
+                  {errors.newPassword && (
+                    <p className="text-destructive text-xs">
+                      {errors.newPassword.message}
+                    </p>
+                  )}
+                </div>
+              </div>
 
               <div className="grid grid-cols-2 gap-8">
                 <div className="flex flex-col gap-2 mb-4">
@@ -324,26 +337,10 @@ function PersonalInformation() {
               </CardDescription>
             </CardHeader>
             <CardContent className="h-full relative">
-              <div className="border border-gray-100 mb-4" />
-              <div className="flex flex-row gap-8 items-center">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm whitespace-nowrap">Positive Ratings:</p>
-                  <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
-                    {data?.positiveRatings}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm whitespace-nowrap">Negative Ratings:</p>
-                  <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
-                    {data?.negativeRatings}
-                  </p>
-                </div>
-              </div>
-              <div className="border border-gray-100 mt-4" />
               <form
                 onSubmit={handleSubmitUpgradeToSeller(onSubmitUpgradeToSeller)}
               >
-                <div className="flex flex-col gap-2 mt-4">
+                <div className="flex flex-col gap-2">
                   <Label className="text-sm font-medium leading-none mb-1">
                     Your Reason
                   </Label>
@@ -358,6 +355,36 @@ function PersonalInformation() {
                   Request to be a Seller
                 </Button>
               </form>
+              <div className="border-b border-gray-200 my-4" />
+              <div className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm whitespace-nowrap">Positive Ratings:</p>
+                  <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
+                    {data?.positiveRatings}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm whitespace-nowrap">Negative Ratings:</p>
+                  <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
+                    {data?.negativeRatings}
+                  </p>
+                </div>
+              </div>
+              <div className="border-b border-gray-200 my-4" />
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm whitespace-nowrap">Average Ratings:</p>
+                  <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
+                    {averageRatings?.toFixed(2)}
+                    <span className="ml-1">%</span>
+                  </p>
+                </div>
+                {averageRatings < 80 && (
+                  <p className="text-xs text-destructive italic mt-2">
+                    (At least 80% to bid products)
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
         )}
@@ -380,8 +407,8 @@ function PersonalInformation() {
               </CardDescription>
             </CardHeader>
             <CardContent className="h-full relative">
-              <div className="border border-gray-100 mb-4" />
-              <div className="flex flex-row gap-8 items-center">
+              <div className="border-b border-gray-200 mb-4" />
+              <div className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
                   <p className="text-sm whitespace-nowrap">Positive Ratings:</p>
                   <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
@@ -394,6 +421,21 @@ function PersonalInformation() {
                     {data?.negativeRatings}
                   </p>
                 </div>
+              </div>
+              <div className="border-b border-gray-200 my-4" />
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm whitespace-nowrap">Average Ratings:</p>
+                  <p className="text-sm px-3 py-1 rounded-sm bg-black text-white">
+                    {averageRatings?.toFixed(2)}
+                    <span className="ml-1">%</span>
+                  </p>
+                </div>
+                {averageRatings < 80 && (
+                  <p className="text-xs text-destructive italic mt-2">
+                    (At least 80% to bid products)
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

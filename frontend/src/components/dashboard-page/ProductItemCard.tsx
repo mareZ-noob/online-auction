@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import type { CardItemInformation } from "@/types/CardItem";
 import { toastError, toastSuccess } from "../toast/toast-ui";
-import { formatDateTime } from "@/lib/utils";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
 
 function ProductItemCard({
   data,
@@ -76,12 +76,12 @@ function ProductItemCard({
           {data.productName}
         </p>
         <div className="flex mb-4 justify-between">
-          <p>Current Price: {data.currentPrice}</p>
-          <p>Buy Now: {data.buyNowPrice}</p>
+          <p>Current Price: {formatCurrency(data.currentPrice)}</p>
+          <p>Buy Now: {formatCurrency(data.buyNowPrice)}</p>
         </div>
         <div className="flex mb-4 justify-between">
-          <p>Highest Bidder: {data.bidderName}</p>
-          <p>Bid Price: {data.bidderPrice}</p>
+          <p>Highest Bidder: {data.bidderName || "N/A"}</p>
+          <p>Bid Price: {formatCurrency(data.bidderPrice)}</p>
         </div>
         <p className="mb-4">
           Published Date: {formatDateTime(data.publishedDate)}

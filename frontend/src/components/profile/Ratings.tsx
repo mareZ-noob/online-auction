@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { useFetchUserRatings } from "@/hooks/user-hooks";
 import ProductPagination from "../product-page/product-list/ProductPagination";
+import { formatDateTime } from "@/lib/utils";
 
 function Ratings() {
   const [page, setPage] = useState(0);
@@ -48,7 +49,7 @@ function Ratings() {
               <TableCell>{rating.productName}</TableCell>
               <TableCell>{rating.isPositive ? "Yes" : "No"}</TableCell>
               <TableCell>{rating.comment}</TableCell>
-              <TableCell>{rating.createdAt}</TableCell>
+              <TableCell>{formatDateTime(rating.createdAt)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

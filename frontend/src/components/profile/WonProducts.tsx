@@ -138,12 +138,12 @@ function WonProducts() {
                 </p>
               </TableCell>
               <TableCell className="max-w-sm">
-                <p className="font-light whitespace-normal wrap-break-word">
+                <p className="font-light whitespace-normal wrap-break-word text-center">
                   {product.bidCount}
                 </p>
               </TableCell>
               <TableCell className="max-w-sm">
-                <p className="font-light whitespace-normal wrap-break-word">
+                <p className="font-light whitespace-normal wrap-break-word text-center">
                   {product.categoryName}
                 </p>
               </TableCell>
@@ -153,7 +153,7 @@ function WonProducts() {
                 </p>
               </TableCell>
               {ratedProducts.includes(product.id) ? (
-                <p className="text-center mt-4 text-sm">Rated</p>
+                <p className="font-light text-center mt-4 text-sm">Rated</p>
               ) : (
                 <TableCell>
                   <div className="flex justify-around">

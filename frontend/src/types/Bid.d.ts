@@ -32,6 +32,7 @@ export type BID_HISTORY_OF_A_PRODUCT = {
   userId: number;
   maskedUserName: string;
   amount: number;
+  blocked: boolean;
   createdAt: string;
 };
 

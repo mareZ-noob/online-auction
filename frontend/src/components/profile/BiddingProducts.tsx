@@ -13,7 +13,7 @@ import {
 import { useFetchBiddingProducts } from "@/hooks/user-hooks";
 import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
-import { formatDateTime } from "@/lib/utils";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
 
 function BiddingProducts() {
   const navigate = useNavigate();
@@ -79,18 +79,18 @@ function BiddingProducts() {
                 </p>
               </TableCell>
               <TableCell className="max-w-sm">
-                <p className="font-light whitespace-normal wrap-break-word">
+                <p className="font-light whitespace-normal wrap-break-word text-center">
                   {product.bidCount}
                 </p>
               </TableCell>
               <TableCell className="max-w-sm">
-                <p className="font-light whitespace-normal wrap-break-word">
+                <p className="font-light whitespace-normal wrap-break-word text-center">
                   {product.categoryName}
                 </p>
               </TableCell>
               <TableCell className="max-w-sm">
-                <p className="font-light whitespace-normal wrap-break-word">
-                  {product.currentPrice}
+                <p className="font-light whitespace-normal wrap-break-word text-center">
+                  {formatCurrency(product.currentPrice)}
                 </p>
               </TableCell>
               <TableCell className="max-w-sm">

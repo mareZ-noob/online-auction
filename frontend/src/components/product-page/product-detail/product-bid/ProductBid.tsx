@@ -20,6 +20,7 @@ import { Label } from "@radix-ui/react-label";
 import NumberInput from "./NumberInput";
 import { usePlaceABid } from "@/hooks/bid-hooks";
 import { toastError, toastSuccess } from "@/components/toast/toast-ui";
+import { formatCurrency } from "@/lib/utils";
 
 type ProductBidProps = {
   productId: number;
@@ -107,7 +108,7 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
                   value={String(price)}
                   className="text-lg"
                 >
-                  {price}
+                  {formatCurrency(price)}
                 </SelectItem>
               ))}
             </SelectGroup>

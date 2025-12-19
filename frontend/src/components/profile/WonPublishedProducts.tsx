@@ -104,14 +104,24 @@ function WonPublishedProducts() {
         <TableBody>
           {salesData?.content.map((sale, index) => (
             <TableRow key={sale.id}>
-              <TableCell className="font-medium">{index + 1}</TableCell>
-              <TableCell className="font-medium">{sale.productName}</TableCell>
-              <TableCell>{sale.buyerName}</TableCell>
-              <TableCell>{sale.amount.toFixed(2)}</TableCell>
-              <TableCell>{formatDateTime(sale.createdAt)}</TableCell>
+              <TableCell>
+                <p className="font-light">{index + 1}</p>
+              </TableCell>
+              <TableCell>
+                <p className="font-light">{sale.productName}</p>
+              </TableCell>
+              <TableCell>
+                <p className="font-light">{sale.buyerName}</p>
+              </TableCell>
+              <TableCell>
+                <p className="font-light">{sale.amount.toFixed(2)}</p>
+              </TableCell>
+              <TableCell>
+                <p className="font-light">{formatDateTime(sale.createdAt)}</p>
+              </TableCell>
               <TableCell className="flex items-center justify-center">
                 {ratedProducts.includes(sale.productId) ? (
-                  <p className="text-center text-sm">Rated</p>
+                  <p className="font-light text-center text-sm">Rated</p>
                 ) : (
                   <div className="flex gap-2">
                     <div className="flex items-center justify-center py-1 px-2 rounded-md bg-[#C1E1C1] mx-auto">
