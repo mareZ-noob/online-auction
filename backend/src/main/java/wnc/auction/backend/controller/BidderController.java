@@ -138,29 +138,6 @@ public class BidderController {
         return ResponseEntity.ok(ApiResponse.success(transaction));
     }
 
-    @PutMapping("/transactions/{transactionId}/shipping-address")
-    @Operation(summary = "Update shipping address")
-    public ResponseEntity<ApiResponse<TransactionDto>> updateShippingAddress(
-            @PathVariable Long transactionId, @Valid @RequestBody UpdateShippingAddressRequest request) {
-        TransactionDto transaction = transactionService.updateShippingAddress(transactionId, request);
-        return ResponseEntity.ok(ApiResponse.success("Shipping address updated", transaction));
-    }
-
-    @PostMapping("/transactions/{transactionId}/confirm-payment")
-    @Operation(summary = "Confirm payment")
-    public ResponseEntity<ApiResponse<TransactionDto>> confirmPayment(
-            @PathVariable Long transactionId, @Valid @RequestBody ConfirmPaymentRequest request) {
-        TransactionDto transaction = transactionService.confirmPayment(transactionId, request);
-        return ResponseEntity.ok(ApiResponse.success("Payment confirmed", transaction));
-    }
-
-    @PostMapping("/transactions/{transactionId}/confirm-delivery")
-    @Operation(summary = "Confirm delivery received")
-    public ResponseEntity<ApiResponse<TransactionDto>> confirmDelivery(@PathVariable Long transactionId) {
-        TransactionDto transaction = transactionService.confirmDelivery(transactionId);
-        return ResponseEntity.ok(ApiResponse.success("Delivery confirmed", transaction));
-    }
-
     // Rating Operations
     @PostMapping("/ratings")
     @Operation(summary = "Rate a user (seller)")

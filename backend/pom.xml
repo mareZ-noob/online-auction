@@ -41,6 +41,7 @@
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
         <sdk-s3.version>1.12.793</sdk-s3.version>
         <minio.version>8.6.0</minio.version>
+        <stripe.version>30.0.0</stripe.version>
         <okhttp.version>4.12.0</okhttp.version>
         <spotless.version>3.1.0</spotless.version>
     </properties>
@@ -169,6 +170,10 @@
             <artifactId>okhttp</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
@@ -251,6 +256,11 @@
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stripe</groupId>
+                <artifactId>stripe-java</artifactId>
+                <version>${stripe.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
