@@ -1,5 +1,3 @@
-import type { ApiResponse } from "./ApiResponse";
-
 export type LATEST_BID = {
   amount: number;
   productId: number;

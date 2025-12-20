@@ -25,3 +25,12 @@ export type MONTHLY_OR_YEARLY_STATISTICS = {
 export type DASHBOARD_MONTHLY_OR_YEARLY_STATISTICS_RESPONSE = ApiResponse<
 	MONTHLY_OR_YEARLY_STATISTICS[]
 >;
+
+export type DASHBOARD_LIVE_STATS = {
+    activeProductConnections: number,
+    productsWatched: number,
+    activeUserConnections: number,
+    usersWatching: number
+}
+
+export type DASHBOARD_LIVE_STATS_RESPONSE = ApiResponse<DASHBOARD_LIVE_STATS>;

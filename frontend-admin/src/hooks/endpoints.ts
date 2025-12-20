@@ -41,4 +41,5 @@ export const API_ENDPOINTS = {
 	// Dashboard
 	GET_DASHBOARD_STATISTICS: "/admin/dashboard",
 	GET_DASHBOARD_STATISTICS_MONTHLY_OR_YEARLY: "/admin/dashboard/chart",
+	DASHBOARD_STATS_SSE: "/notifications/stats",
 };

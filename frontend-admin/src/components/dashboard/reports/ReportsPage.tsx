@@ -1,6 +1,7 @@
 import { useFetchDashboardStatistics } from "@/hooks/dashboard-hooks";
 import { FigureCard, ChildFigureCard } from "./FigureCard";
 import { ReportChart } from "./ReportChart";
+import LiveStats from "../live-stats/LiveStats";
 
 function ReportsPage() {
 	const { data } = useFetchDashboardStatistics();
@@ -53,6 +54,7 @@ function ReportsPage() {
 					/>
 				</FigureCard>
 			</div>
+			<LiveStats />
 			<ReportChart />
 		</div>
 	);
