@@ -17,7 +17,7 @@ function ErrorPage() {
         </h2>
 
         <p className="mt-4 text-gray-600 leading-relaxed">
-          Our digital librarian seems to have misplaced the page you requested.
+          Our Admin Platform seems to have misplaced the page you requested.
           Stay with us, and we'll help you rediscover it.
         </p>
 

@@ -91,4 +91,8 @@ export const API_ENDPOINTS = {
   RATE_A_BIDDER: "/seller/ratings",
   CHECK_RATED_BIDDER_ON_A_PRODUCT: (productId: string | number) =>
     `/seller/ratings/check/${productId}`,
+
+  // SSE
+  PRODUCT_NOTIFICATION_SSE: (productId: string | number) =>
+    `/notifications/stream/product/${productId}`,
 };

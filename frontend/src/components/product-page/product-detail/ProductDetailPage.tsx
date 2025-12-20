@@ -14,9 +14,12 @@ import ProductBidHistory from "./product-bid/ProductBidHistory";
 import DOMPurify from "dompurify";
 import { useUserStore } from "@/store/user-store";
 import { useTranslation } from "react-i18next";
+import { useProductSSE } from "@/hooks/sse-hooks";
 
 function ProductDetailPage() {
   const productId = useParams().id as string;
+
+  useProductSSE(productId);
 
   const sellerId = useUserStore((state) => state.id);
   const { t } = useTranslation();

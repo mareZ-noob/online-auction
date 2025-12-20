@@ -13,11 +13,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useFetchBidHistoryOfAProduct } from "@/hooks/bid-hooks";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { formatCurrency, formatDateTime, queryClient } from "@/lib/utils";
 import { useBlockABidderFromAProduct } from "@/hooks/seller-hooks";
 import NotificationDialog from "@/components/custom-ui/dialog/NotificationDialog";
 import { useUserStore } from "@/store/user-store";
 import { useTranslation } from "react-i18next";
+import { useProductSSE } from "@/hooks/sse-hooks";
+import { useEffect } from "react";
+import type { BID_HISTORY_OF_A_PRODUCT_RESPONSE } from "@/types/Bid";
 
 function ProductBidHistory({
   isMine,
@@ -32,6 +35,8 @@ function ProductBidHistory({
   const { data: bidHistoryList } = useFetchBidHistoryOfAProduct(productId);
   const { mutate: blockABidderMutate } = useBlockABidderFromAProduct();
 
+  const { leadBidder } = useProductSSE(productId);
+
   const handleBlockABidder = (bidderId: number) => {
     blockABidderMutate(
       { productId, bidderId },
@@ -45,6 +50,31 @@ function ProductBidHistory({
       }
     );
   };
+
+  useEffect(() => {
+    if (!leadBidder) return;
+
+    queryClient.setQueryData(
+      ["bidHistoryOfAProduct", productId],
+      (old: BID_HISTORY_OF_A_PRODUCT_RESPONSE | undefined) => {
+        if (!old) return old;
+
+        return {
+          ...old,
+          data: [
+            {
+              userId: leadBidder.userId,
+              maskedUserName: leadBidder.maskedUserName,
+              amount: leadBidder.amount,
+              blocked: leadBidder.blocked,
+              createdAt: leadBidder.createdAt,
+            },
+            ...old.data,
+          ],
+        };
+      }
+    );
+  }, [leadBidder, productId]);
 
   return (
     <Table className="max-w-xl">
