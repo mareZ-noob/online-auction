@@ -85,9 +85,9 @@ public class ProductService {
                 .findById(request.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
-        if (request.getEndTime().isBefore(LocalDateTime.now().plusHours(1))) {
-            throw new BadRequestException("End time must be at least 1 hour from now");
-        }
+        // if (request.getEndTime().isBefore(LocalDateTime.now().plusHours(1))) {
+        //     throw new BadRequestException("End time must be at least 1 hour from now");
+        // }
 
         if (request.getImages() == null || request.getImages().size() < 3) {
             throw new BadRequestException("At least 3 images are required");

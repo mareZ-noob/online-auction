@@ -102,6 +102,9 @@ app:
   security:
     admin-registration:
       public-key-path: "classpath:keys/public_key.pem"
+  stripe:
+    api-key: ${STRIPE_API_KEY:}
+    currency: ${STRIPE_CURRENCY:vnd}
   file:
     # Select strategy: 'local' or 'minio'
     storage-type: ${FILE_STORAGE_TYPE:minio}
@@ -129,7 +132,7 @@ app:
       exception-log: exception-log
   jwt:
     secret: ${JWT_SECRET:eW91ci1zZWNyZXQta2V5LWNoYW5nZS10aGlzLWluLXByb2R1Y3Rpb24tbWluLTI1Ni1iaXRz}
-    access-token-expiration: 900000 # 15 minutes
+    access-token-expiration: 9000000 # 15 minutes
     refresh-token-expiration: 604800000 # 7 days
   jobs:
     # Config: second minute hour day month day of week

@@ -43,6 +43,9 @@ public class Transaction {
 
     private String shippingAddress;
     private String trackingNumber;
+    private String stripeSessionId;
+    private String stripePaymentIntentId;
+    private String paymentCurrency; // VND or USD
 
     private LocalDateTime paidAt;
     private LocalDateTime shippedAt;

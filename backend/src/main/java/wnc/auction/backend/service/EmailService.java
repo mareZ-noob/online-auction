@@ -68,6 +68,14 @@ public class EmailService {
         sendQuestionNotificationWithLocale(getUserEmail(userId), productName, question, askerName, productUrl, locale);
     }
 
+    public void sendOrderShippedNotification(Long userId, Long productId, String productName, String trackingNumber) {
+        Locale locale = localeService.getLocaleByUserId(userId);
+        // Construct the product URL for the email button
+        String productUrl = String.format("%s/products/%d", frontendUrl, productId);
+
+        sendOrderShippedNotificationWithLocale(getUserEmail(userId), productName, trackingNumber, productUrl, locale);
+    }
+
     // Overloaded methods for direct email sending (optional, if needed)
     public void sendOtpEmailByEmail(String email, String code, String purpose) {
         Locale locale = localeService.getLocaleByEmail(email);
@@ -187,6 +195,28 @@ public class EmailService {
             log.info("Role expiration email sent to: {} in locale: {}", to, locale);
         } catch (Exception e) {
             log.error("Failed to send role expiration email", e);
+        }
+    }
+
+    private void sendOrderShippedNotificationWithLocale(
+            String to, String productName, String trackingNumber, String productUrl, Locale locale) {
+        try {
+            Context context = new Context(locale);
+            context.setVariable("productName", productName);
+            context.setVariable("trackingNumber", trackingNumber);
+            context.setVariable("productUrl", productUrl);
+
+            // Process the Thymeleaf template "order-shipped.html"
+            String htmlContent = templateEngine.process("order-shipped", context);
+
+            // Get localized subject
+            String subject =
+                    messageSource.getMessage("email.order.shipped.subject", new Object[] {productName}, locale);
+
+            sendHtmlEmail(to, subject, htmlContent);
+            log.info("Order shipped notification sent to: {} in locale: {}", to, locale);
+        } catch (Exception e) {
+            log.error("Failed to send order shipped notification", e);
         }
     }
 
