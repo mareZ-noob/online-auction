@@ -56,7 +56,10 @@
       "myPublishedProducts": "Sản phẩm đã đăng",
       "wonPublishedProducts": "Sản phẩm đã bán",
       "unansweredQuestions": "Câu hỏi chưa trả lời",
-      "groupLabel": "Nền tảng"
+      "groupLabel": "Nền tảng",
+      "payment": "Thanh toán",
+      "sellerPayment": "Xác nhận mã vận chuyển",
+      "sellerSales": "Bán hàng"
     },
     "common": {
       "index": "#",

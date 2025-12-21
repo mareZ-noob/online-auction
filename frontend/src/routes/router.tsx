@@ -55,6 +55,18 @@ const WonPublishedProducts = lazy(
   () => import("@/components/profile/WonPublishedProducts.tsx")
 );
 
+// Payment
+const SuccessfulPaymentPage = lazy(
+  () => import("@/components/payment/SuccessfulPaymentPage")
+);
+const PaymentPage = lazy(() => import("@/components/payment/PaymentPage"));
+const SellerPayment = lazy(
+  () => import("@/components/payment/seller-payment/SellerPayment")
+);
+const SellerSalesPage = lazy(
+  () => import("@/components/payment/seller-sales/SellerSalesPage")
+);
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -232,6 +244,41 @@ const router = createBrowserRouter([
         ),
       },
     ],
+  },
+  {
+    path: "/payment",
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        index: true,
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <PaymentPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "seller-sales",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <SellerSalesPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "seller",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <SellerPayment />
+          </Suspense>
+        ),
+      },
+      {
+        path: "success",
+        element: <SuccessfulPaymentPage />,
+      },
+    ],
+    loader: ProtectedRoute,
   },
   {
     path: "*",

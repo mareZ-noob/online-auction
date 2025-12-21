@@ -9,6 +9,9 @@ import {
   ShoppingBag,
   MessageCircleQuestionMark,
   CircleCheckBig,
+  CreditCard,
+  Truck,
+  CircleDollarSign,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -66,6 +69,23 @@ const NAV_ITEMS: NavEntry[] = [
     url: "/profile/unanswered-questions",
     icon: MessageCircleQuestionMark,
     isSeller: true,
+  },
+  {
+    titleKey: "profile.nav.sellerSales",
+    url: "/payment/seller-sales",
+    icon: CircleDollarSign,
+    isSeller: true,
+  },
+  {
+    titleKey: "profile.nav.sellerPayment",
+    url: "/payment/seller",
+    icon: Truck,
+    isSeller: true,
+  },
+  {
+    titleKey: "profile.nav.payment",
+    url: "/payment",
+    icon: CreditCard,
   },
 ];
 

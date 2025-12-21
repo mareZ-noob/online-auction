@@ -16,7 +16,7 @@ import {
 import ProductPagination from "../product-page/product-list/ProductPagination";
 import ProfilePage from "./ProfilePage";
 import { formatDateTime, queryClient } from "@/lib/utils";
-import { CreditCard, Eye, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Eye, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toastSuccess, toastError } from "../custom-ui/toast/toast-ui";
 import NotificationDialog from "../custom-ui/dialog/NotificationDialog";
@@ -116,9 +116,6 @@ function WonProducts() {
             </TableHead>
             <TableHead className="text-center">
               {t("profile.common.details")}
-            </TableHead>
-            <TableHead className="text-center">
-              {t("profile.common.pay")}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -222,11 +219,6 @@ function WonProducts() {
                   onClick={() => handleViewDetails(product.id)}
                 >
                   <Eye className="text-white" size={16} />
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="max-w-8 flex items-center justify-center py-1 rounded-md bg-black mx-auto">
-                  <CreditCard className="text-white" size={16} />
                 </div>
               </TableCell>
             </TableRow>

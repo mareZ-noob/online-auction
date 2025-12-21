@@ -121,8 +121,6 @@ function PersonalInformation() {
 
   useEffect(() => {
     if (data) {
-      console.log(formatDateTime(data.dateOfBirth));
-
       reset({
         fullName: data.fullName ?? "",
         email: data.email ?? "",

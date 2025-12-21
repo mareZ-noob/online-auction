@@ -56,7 +56,10 @@
       "myPublishedProducts": "My Published Products",
       "wonPublishedProducts": "Won Published Products",
       "unansweredQuestions": "Unanswered Questions",
-      "groupLabel": "Platform"
+      "groupLabel": "Platform",
+      "payment": "Payment",
+      "sellerPayment": "Tracking Number Confirmation",
+      "sellerSales": "My Sales"
     },
     "common": {
       "index": "#",

@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDateTime, queryClient } from "@/lib/utils";
+import { formatCurrency, formatDateTime, queryClient } from "@/lib/utils";
 import { Eye, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import z from "zod";
@@ -120,7 +120,7 @@ function WonPublishedProducts() {
                 <p className="font-light">{sale.buyerName}</p>
               </TableCell>
               <TableCell>
-                <p className="font-light">{sale.amount.toFixed(2)}</p>
+                <p className="font-light">{formatCurrency(sale.amount)}</p>
               </TableCell>
               <TableCell>
                 <p className="font-light">{formatDateTime(sale.createdAt)}</p>

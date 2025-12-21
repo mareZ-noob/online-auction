@@ -95,4 +95,37 @@ export const API_ENDPOINTS = {
   // SSE
   PRODUCT_NOTIFICATION_SSE: (productId: string | number) =>
     `/notifications/stream/product/${productId}`,
+
+  // Transaction
+  TRANSACTION_DETAILS_BY_PRODUCT: (productId: string | number) =>
+    `/transactions/product/${productId}`,
+  TRANSACTION_BY_ID: (transactionId: string | number) =>
+    `/transactions/${transactionId}`,
+  SELLER_SALES: "/transactions/my-sales",
+  BUYER_PURCHASES: "/transactions/my-purchases",
+
+  INITIATE_PAYMENT: (transactionId: string | number) =>
+    `/transactions/${transactionId}/payment/initiate`,
+  UPDATE_SHIPPING_ADDRESS: (transactionId: string | number) =>
+    `/transactions/${transactionId}/shipping-address`,
+  SHIP_TRACKING: (transactionId: string | number) =>
+    `/transactions/${transactionId}/ship`,
+  CONFIRM_DELIVERY: (transactionId: string | number) =>
+    `/transactions/${transactionId}/confirm-delivery`,
+
+  CANCEL_TRANSACTION: (transactionId: string | number) =>
+    `/transactions/${transactionId}/cancel`,
+
+  RATE_TRANSACTION: "/transactions/rate",
+
+  // Payment
+  CREATE_STRIPE_CHECKOUT_SESSION: "/payment/create-checkout-session",
+  CANCEL_PAYMENT_SESSION: (transactionId: string | number) =>
+    `/payment/cancel/${transactionId}`,
+  VERIFY_AFTER_REDIRECT_FROM_STRIPE: "/payment/verify",
+  GET_PAYMENT_SESSION_DETAILS: (sessionId: string) =>
+    `/payment/session/${sessionId}`,
+  GET_SUPPORT_CURRENCIES: (transctionId: string | number) =>
+    `/payment/currencies/${transctionId}`,
+  GET_CURRENCIES_CONVERSION: "/payment/convert",
 };
