@@ -19,7 +19,7 @@ public class HealthController {
     @GetMapping
     @Operation(summary = "Health check")
     public ResponseEntity<ApiResponse<Map<String, Object>>> healthCheck() {
-        java.util.Map<String, Object> health = new HashMap<>();
+        Map<String, Object> health = new HashMap<>();
         health.put("status", "UP");
         health.put("timestamp", LocalDateTime.now());
         health.put("service", "Online Auction API");

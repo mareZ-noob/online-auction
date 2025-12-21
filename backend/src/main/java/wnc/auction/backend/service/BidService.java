@@ -2,8 +2,7 @@ package wnc.auction.backend.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -176,7 +175,7 @@ public class BidService {
         if (allCompetitorBids.isEmpty()) return;
 
         // Filter list: Keep only the LATEST Auto-Bid per user (Fix Zombie Bid issue)
-        java.util.Map<Long, Bid> uniqueCompetitors = new java.util.HashMap<>();
+        Map<Long, Bid> uniqueCompetitors = new HashMap<>();
         for (Bid b : allCompetitorBids) {
             // Keep the bid with the latest creation date for each user
             if (!uniqueCompetitors.containsKey(b.getUser().getId())
@@ -439,7 +438,7 @@ public class BidService {
 
         // Find the highest bid where the user is not blocked
         // This effectively skips 1st, 2nd, etc. if they are blocked
-        java.util.Optional<Bid> validWinnerBid = allBids.stream()
+        Optional<Bid> validWinnerBid = allBids.stream()
                 .filter(bid -> !blockedBidderIds.contains(bid.getUser().getId()))
                 .findFirst();
 

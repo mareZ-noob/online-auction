@@ -76,8 +76,6 @@ public class ChatController {
     @Operation(summary = "Subscribe to chat updates (SSE)")
     public SseEmitter subscribeToChatUpdates(@PathVariable Long transactionId) {
 
-        // This would connect to NotificationService for real-time updates
-        // Implementation would be similar to product bid updates
-        return new SseEmitter(Long.MAX_VALUE);
+        return chatService.subscribeToChat(transactionId);
     }
 }

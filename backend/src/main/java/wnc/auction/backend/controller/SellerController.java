@@ -111,8 +111,8 @@ public class SellerController {
 
     @GetMapping("/products/{productId}/questions")
     @Operation(summary = "Get questions for a product")
-    public ResponseEntity<ApiResponse<java.util.List<QuestionDto>>> getProductQuestions(@PathVariable Long productId) {
-        java.util.List<QuestionDto> questions = questionService.getProductQuestions(productId);
+    public ResponseEntity<ApiResponse<List<QuestionDto>>> getProductQuestions(@PathVariable Long productId) {
+        List<QuestionDto> questions = questionService.getProductQuestions(productId);
         return ResponseEntity.ok(ApiResponse.success(questions));
     }
 

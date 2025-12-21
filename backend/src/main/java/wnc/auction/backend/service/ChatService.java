@@ -7,9 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import wnc.auction.backend.dto.model.ChatMessageDto;
 import wnc.auction.backend.dto.request.SendChatMessageRequest;
 import wnc.auction.backend.dto.response.PageResponse;
+import wnc.auction.backend.exception.BadRequestException;
 import wnc.auction.backend.exception.ForbiddenException;
 import wnc.auction.backend.exception.NotFoundException;
 import wnc.auction.backend.mapper.ChatMessageMapper;
@@ -17,6 +19,7 @@ import wnc.auction.backend.model.ChatMessage;
 import wnc.auction.backend.model.Transaction;
 import wnc.auction.backend.model.User;
 import wnc.auction.backend.model.enumeration.MessageType;
+import wnc.auction.backend.model.enumeration.TransactionStatus;
 import wnc.auction.backend.repository.ChatMessageRepository;
 import wnc.auction.backend.repository.TransactionRepository;
 import wnc.auction.backend.repository.UserRepository;
@@ -33,6 +36,22 @@ public class ChatService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
 
+    public SseEmitter subscribeToChat(Long transactionId) {
+        Long userId = CurrentUser.getUserId();
+        Transaction transaction = transactionRepository
+                .findById(transactionId)
+                .orElseThrow(() -> new NotFoundException("Transaction not found"));
+
+        // Verify user is buyer or seller (Security Check)
+        if (!transaction.getBuyer().getId().equals(userId)
+                && !transaction.getSeller().getId().equals(userId)) {
+            throw new ForbiddenException("You are not part of this transaction");
+        }
+
+        // Delegate to NotificationService
+        return notificationService.subscribeToChat(transactionId);
+    }
+
     // Send a chat message
     public ChatMessageDto sendMessage(SendChatMessageRequest request) {
         Long senderId = CurrentUser.getUserId();
@@ -48,6 +67,14 @@ public class ChatService {
             throw new ForbiddenException("You are not part of this transaction");
         }
 
+        if (transaction.getStatus() == TransactionStatus.CANCELLED) {
+            throw new BadRequestException("Cannot send messages in a cancelled transaction");
+        }
+
+        if (transaction.getStatus() == TransactionStatus.COMPLETED) {
+            throw new BadRequestException("Transaction is completed. Chat is closed.");
+        }
+
         // Create message
         ChatMessage message = ChatMessage.builder()
                 .transaction(transaction)
@@ -59,6 +86,10 @@ public class ChatService {
                 .build();
 
         message = chatMessageRepository.save(message);
+
+        ChatMessageDto messageDto = ChatMessageMapper.toDto(message);
+
+        notificationService.sendChatUpdate(transaction.getId(), messageDto);
 
         // Send real-time notification to the other party
         Long recipientId = transaction.getBuyer().getId().equals(senderId)

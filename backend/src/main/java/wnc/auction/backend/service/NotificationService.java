@@ -30,6 +30,9 @@ public class NotificationService {
     // Store SSE emitters by product ID for real-time bid updates
     private final Map<Long, List<SseEmitter>> productEmitters = new ConcurrentHashMap<>();
 
+    // Store SSE emitters by chat transaction ID for real-time chat messages
+    private final Map<Long, List<SseEmitter>> chatEmitters = new ConcurrentHashMap<>();
+
     private final BidRepository bidRepository;
 
     // Create SSE connection for user notifications
@@ -73,6 +76,22 @@ public class NotificationService {
         }
 
         log.info("SSE connection created for product: {}", productId);
+        return emitter;
+    }
+
+    public SseEmitter subscribeToChat(Long transactionId) {
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE); // Timeout set to max
+
+        // Create list if not exists and add emitter
+        chatEmitters
+                .computeIfAbsent(transactionId, k -> new CopyOnWriteArrayList<>())
+                .add(emitter);
+
+        // Remove emitter on completion or timeout
+        emitter.onCompletion(() -> removeChatEmitter(transactionId, emitter));
+        emitter.onTimeout(() -> removeChatEmitter(transactionId, emitter));
+        emitter.onError((e) -> removeChatEmitter(transactionId, emitter));
+
         return emitter;
     }
 
@@ -141,6 +160,20 @@ public class NotificationService {
         emitters.removeAll(deadEmitters);
 
         log.info("Sent {} notification to user {} ({} clients)", type, userId, emitters.size());
+    }
+
+    public void sendChatUpdate(Long transactionId, Object data) {
+        List<SseEmitter> emitters = chatEmitters.get(transactionId);
+        if (emitters != null) {
+            // Send to all subscribers of this transaction
+            for (SseEmitter emitter : emitters) {
+                try {
+                    emitter.send(SseEmitter.event().name("chat_message").data(data));
+                } catch (IOException e) {
+                    emitter.completeWithError(e);
+                }
+            }
+        }
     }
 
     // Send notification to multiple users
@@ -274,6 +307,16 @@ public class NotificationService {
             }
         }
         log.info("SSE connection removed for product: {}", productId);
+    }
+
+    private void removeChatEmitter(Long transactionId, SseEmitter emitter) {
+        List<SseEmitter> emitters = chatEmitters.get(transactionId);
+        if (emitters != null) {
+            emitters.remove(emitter);
+            if (emitters.isEmpty()) {
+                chatEmitters.remove(transactionId);
+            }
+        }
     }
 
     private String maskUserName(String fullName) {

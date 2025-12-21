@@ -3,6 +3,7 @@ package wnc.auction.backend.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -62,10 +63,10 @@ public class PaymentController {
     @GetMapping("/currencies/{transactionId}")
     @Operation(summary = "Get supported currencies with exchange rates")
     public ResponseEntity<ApiResponse<Map<String, CurrencyInfo>>> getSupportedCurrencies(
-            @PathVariable Long transactionId, @RequestParam(required = false) java.math.BigDecimal amount) {
+            @PathVariable Long transactionId, @RequestParam(required = false) BigDecimal amount) {
 
-        Map<String, CurrencyInfo> currencies = stripePaymentService.getSupportedCurrencies(
-                amount != null ? amount : new java.math.BigDecimal("1000000"));
+        Map<String, CurrencyInfo> currencies =
+                stripePaymentService.getSupportedCurrencies(amount != null ? amount : new BigDecimal("1000000"));
 
         return ResponseEntity.ok(ApiResponse.success(currencies));
     }
@@ -77,7 +78,7 @@ public class PaymentController {
 
         BigDecimal converted = stripePaymentService.convertCurrency(amount, from, to);
 
-        Map<String, Object> result = new java.util.HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         result.put("originalAmount", amount);
         result.put("originalCurrency", from.toUpperCase());
         result.put("convertedAmount", converted);
