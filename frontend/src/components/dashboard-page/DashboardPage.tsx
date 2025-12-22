@@ -8,6 +8,7 @@ import {
 } from "@/hooks/product-hooks";
 import { CardItemInformationMapper } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import DashboardParallex from "./DashboardParallex";
 
 function DashboardPage() {
   const { t } = useTranslation();
@@ -17,17 +18,13 @@ function DashboardPage() {
   const { data: topHighestPriceProducts } = useFetchTopHighestPriceProducts();
 
   return (
-    <div className="mt-28">
-      <section className="flex flex-col items-center justify-center text-center">
-        <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-          Bid with Confidence. Own with Style.
-        </h1>
-
-        <p className="mt-4 mb-28 text-base md:text-lg lg:text-xl max-w-2xl leading-relaxed text-gray-600">
-          {t("dashboard.description")}
+    <div>
+      <DashboardParallex />
+      <section className="mt-24">
+        <p className="mb-24 pb-8 mx-16 text-4xl uppercase border-b-2 border-black">
+          {t("dashboard.endingSoonProducts")}
         </p>
-
-        <CarouselPlugin>
+        <CarouselPlugin className="bg-black -mx-16 px-32 py-16">
           {endingSoonProducts &&
             endingSoonProducts.map((product) => (
               <CarouselCardItem
@@ -37,8 +34,8 @@ function DashboardPage() {
             ))}
         </CarouselPlugin>
       </section>
-      <section className="mt-24">
-        <p className="mb-12 text-4xl uppercase">
+      <section className="mt-24 px-16">
+        <p className="mb-24 pb-8 text-4xl uppercase border-b-2 border-black">
           {t("dashboard.top5MostBiddedProducts")}
         </p>
         <Products
@@ -47,11 +44,12 @@ function DashboardPage() {
               ? topMostBidProducts.map(CardItemInformationMapper)
               : []
           }
+          animation={{ reveal: true }}
         />
       </section>
 
-      <section className="mt-24">
-        <p className="mb-12 text-4xl uppercase">
+      <section className="mt-24 px-16">
+        <p className="mb-24 pb-8 text-4xl uppercase border-b-2 border-black">
           {t("dashboard.top5HighestPricedProducts")}
         </p>
         <Products
@@ -60,6 +58,7 @@ function DashboardPage() {
               ? topHighestPriceProducts.map(CardItemInformationMapper)
               : []
           }
+          animation={{ reveal: true }}
         />
       </section>
     </div>

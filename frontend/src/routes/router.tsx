@@ -97,6 +97,20 @@ const router = createBrowserRouter([
     loader: ProtectedRoute,
   },
   {
+    path: "/dashboard",
+    element: (
+      <Suspense fallback={<LoadingPage />}>
+        <CommonLayout />
+      </Suspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: <DashboardPage />,
+      },
+    ],
+  },
+  {
     path: "/profile",
     errorElement: <ErrorPage />,
     children: [

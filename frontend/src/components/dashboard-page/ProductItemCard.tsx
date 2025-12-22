@@ -8,17 +8,28 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import type { CardItemInformation } from "@/types/CardItem";
 import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { cn, formatCurrency, formatDateTime } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+
+import { motion } from "framer-motion";
+import { cardVariants } from "@/lib/animation.tsx";
+
+export type AnimationProps = {
+  reveal?: boolean;
+};
 
 function ProductItemCard({
   data,
   height = 400,
   isWatchList = false,
+  className,
+  animation,
 }: {
   data: CardItemInformation;
   height?: number;
   isWatchList?: boolean;
+  className?: string;
+  animation?: AnimationProps;
 }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -60,15 +71,25 @@ function ProductItemCard({
   }, [isAddedToWatchList.data]);
 
   return (
-    <div className="flex flex-col w-sm">
+    <motion.div
+      className={cn(
+        "flex flex-col w-sm border border-gray-100 rounded-lg p-4 bg-white",
+        className
+      )}
+      variants={cardVariants}
+      initial={animation?.reveal ? "initial" : undefined}
+      whileInView={animation?.reveal ? "visible" : undefined}
+      viewport={{ once: true, amount: 0.3 }}
+      whileHover="hover"
+    >
       <div
-        className="bg-muted relative block"
+        className="bg-white flex items-center justify-center overflow-hidden"
         style={{ height: `${height}px` }}
       >
         <img
           src={data.productImage}
           alt="Image"
-          className="absolute top-[50%] left-[50%] inset-0 object-cover translate-x-[-50%] translate-y-[-50%] dark:brightness-[0.2] dark:grayscale"
+          className="object-cover dark:brightness-[0.2] dark:grayscale"
           style={{ height: `${height}px` }}
         />
       </div>
@@ -131,7 +152,7 @@ function ProductItemCard({
           </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

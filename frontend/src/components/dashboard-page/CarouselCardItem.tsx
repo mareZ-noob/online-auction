@@ -63,7 +63,7 @@ function CarouselCardItem({ data }: { data: CardItemInformation }) {
                     </Button>
                   </div>
                 </div>
-                <div className="bg-muted relative block">
+                <div className="bg-muted relative blockk">
                   <img
                     src={data.productImage}
                     alt="Image"

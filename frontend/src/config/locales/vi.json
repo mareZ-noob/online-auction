@@ -14,6 +14,7 @@
   },
   "dashboard": {
     "description": "Bước vào một trải nghiệm đấu giá mượt mà, nơi công nghệ kết hợp cùng sự tinh tế. Khám phá những món đồ được tuyển chọn, tham gia đấu giá thông minh và tận hưởng nền tảng hiện đại, thân thiện, được thiết kế dành cho những nhà sưu tập trẻ trung và năng động ngày nay.",
+    "endingSoonProducts": "Sản phẩm sắp kết thúc hàng đầu",
     "top5MostBiddedProducts": "5 Sản phẩm được đặt giá nhiều nhất",
     "top5HighestPricedProducts": "5 Sản phẩm có giá cao nhất"
   },

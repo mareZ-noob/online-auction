@@ -14,6 +14,7 @@
   },
   "dashboard": {
     "description": "Step into a seamless auction experience where technology meets sophistication. Explore curated items, engage in smart bidding, and enjoy a modern, user-friendly platform designed for today's young and dynamic collectors.",
+    "endingSoonProducts": "Top Ending Soon Products",
     "top5MostBiddedProducts": "Top 5 Most Bidded Products",
     "top5HighestPricedProducts": "Top 5 Highest Priced Products"
   },

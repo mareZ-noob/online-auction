@@ -104,10 +104,10 @@ function NavUser({ handleSignOut }: { handleSignOut?: () => void }) {
               {t("userNav.publishNewProduct")}
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem className="flex items-center">
+          {/* <DropdownMenuItem className="flex items-center">
             <Moon className="text-black" />
             {t("userNav.darkMode")}
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem className="flex items-center">
             <Languages className="text-black" />
             <ChangeLanguageButton lang="vi" />
@@ -203,7 +203,7 @@ function Header() {
   };
 
   return (
-    <div className="flex items-center justify-between w-full py-4 px-16 border-b border-[#ddd]">
+    <div className="flex items-center justify-between w-full py-4 px-16 bg-white border-b border-[#ddd] z-50">
       <div className="flex items-center w-[50%]">
         <div className="flex justify-center gap-2 md:justify-start">
           <a href="/me" className="flex items-center gap-2 font-medium">
