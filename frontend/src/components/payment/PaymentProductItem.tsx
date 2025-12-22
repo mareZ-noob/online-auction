@@ -14,6 +14,8 @@ import ConfirmDelivery from "./payment-steps/ConfirmDelivery";
 import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
 import { useFetchProductDetailsById } from "@/hooks/product-hooks";
 import { formatCurrency } from "@/lib/utils";
+import Chat from "./chat/Chat";
+import { MessageCircle } from "lucide-react";
 
 function PaymentProductItem({ data }: { data: PURCHASES }) {
   const status = data.status;
@@ -130,59 +132,71 @@ function PaymentProductItem({ data }: { data: PURCHASES }) {
           </div>
         </div>
       </div>
-      {status === "PENDING_PAYMENT" && (
-        <NotificationDialog
+      <div className="flex flex-col gap-y-2">
+        {status === "PENDING_PAYMENT" && (
+          <NotificationDialog
+            triggerElement={
+              <Button size="sm" onClick={handlePay}>
+                Pay
+              </Button>
+            }
+            title="Pay with Credit Card"
+            description="You will be redirected to the payment gateway to complete your purchase."
+            cancelText="Cancel"
+            className="min-w-4xl"
+          >
+            <InitiatePayment />
+          </NotificationDialog>
+        )}
+        {status === "PAYMENT_CONFIRMED" && (
+          <NotificationDialog
+            triggerElement={
+              <Button size="sm" onClick={handlePay}>
+                Update Address
+              </Button>
+            }
+            title="Update Address"
+            description="Ensure your shipping address is correct before proceeding."
+            cancelText="Cancel"
+            className="min-w-4xl"
+          >
+            <UpdateShippingAddress />
+          </NotificationDialog>
+        )}
+        {status === "SHIPPED" && (
+          <NotificationDialog
+            triggerElement={
+              <Button size="sm" onClick={handlePay}>
+                Confirm Delivery
+              </Button>
+            }
+            title="Confirm Delivery"
+            description="Please confirm that you have received your order."
+            cancelText="Cancel"
+            className="min-w-4xl"
+            actionText="Confirm Delivery"
+            onAction={handleConfirmDelivery}
+          >
+            <ConfirmDelivery />
+          </NotificationDialog>
+        )}
+        {status === "CANCELLED" && (
+          <div>
+            <p className="font-medium">Cancelation Reason</p>
+            <p>{transactionData?.data.transaction.cancellationReason}</p>
+          </div>
+        )}
+        <Chat
           triggerElement={
-            <Button size="sm" onClick={handlePay}>
-              Pay
+            <Button size="sm">
+              <MessageCircle />
             </Button>
           }
-          title="Pay with Credit Card"
-          description="You will be redirected to the payment gateway to complete your purchase."
-          cancelText="Cancel"
-          className="min-w-4xl"
-        >
-          <InitiatePayment />
-        </NotificationDialog>
-      )}
-      {status === "PAYMENT_CONFIRMED" && (
-        <NotificationDialog
-          triggerElement={
-            <Button size="sm" onClick={handlePay}>
-              Update Address
-            </Button>
-          }
-          title="Update Address"
-          description="Ensure your shipping address is correct before proceeding."
-          cancelText="Cancel"
-          className="min-w-4xl"
-        >
-          <UpdateShippingAddress />
-        </NotificationDialog>
-      )}
-      {status === "SHIPPED" && (
-        <NotificationDialog
-          triggerElement={
-            <Button size="sm" onClick={handlePay}>
-              Confirm Delivery
-            </Button>
-          }
-          title="Confirm Delivery"
-          description="Please confirm that you have received your order."
-          cancelText="Cancel"
-          className="min-w-4xl"
-          actionText="Confirm Delivery"
-          onAction={handleConfirmDelivery}
-        >
-          <ConfirmDelivery />
-        </NotificationDialog>
-      )}
-      {status === "CANCELLED" && (
-        <div>
-          <p className="font-medium">Cancelation Reason</p>
-          <p>{transactionData?.data.transaction.cancellationReason}</p>
-        </div>
-      )}
+          transactionId={Number(transactionData?.transactionId)}
+          sellerName={productDetails?.sellerName}
+          buyerName={productDetails?.currentBidderName}
+        />
+      </div>
     </div>
   );
 }

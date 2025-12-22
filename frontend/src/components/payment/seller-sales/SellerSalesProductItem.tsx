@@ -8,13 +8,14 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import type { PURCHASES } from "@/types/Transaction";
 import Spinner from "@/components/custom-ui/loading-spinner/LoadingSpinner";
-import { Ban } from "lucide-react";
+import { Ban, MessageCircle } from "lucide-react";
 import {
   toastError,
   toastSuccess,
 } from "@/components/custom-ui/toast/toast-ui";
 import CancelOrder from "../payment-steps/CancelOrder";
 import { useState } from "react";
+import Chat from "../chat/Chat";
 
 function SellerSalesProductItem({
   sale,
@@ -61,13 +62,25 @@ function SellerSalesProductItem({
           ? new Date(sale.paidAt).toLocaleDateString("en-US")
           : "N/A"}
       </TableCell>
-      <TableCell className="flex items-center justify-center">
+      <TableCell className="text-center">
+        <Chat
+          triggerElement={
+            <div className="max-w-8 flex items-center justify-center py-1 rounded-md bg-black mx-auto">
+              <MessageCircle size={16} className="text-white" />
+            </div>
+          }
+          transactionId={Number(data.transactionId)}
+          sellerName={sale.sellerName}
+          buyerName={sale.buyerName}
+        />
+      </TableCell>
+      <TableCell className="text-center">
         {sale.status === "PENDING_PAYMENT" && (
           <NotificationDialog
             triggerElement={
-              <Button variant="destructive">
-                <Ban />
-              </Button>
+              <div className="max-w-8 flex items-center justify-center py-1 rounded-md bg-destructive mx-auto">
+                <Ban size={16} className="text-white" />
+              </div>
             }
             title={`Cancel Order for ${sale.productName} bought by ${sale.buyerName}`}
             description="Are you sure you want to cancel this order? This action cannot be undone."

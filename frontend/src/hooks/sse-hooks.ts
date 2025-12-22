@@ -11,6 +11,7 @@ import {
   toastSuccess,
 } from "@/components/custom-ui/toast/toast-ui";
 import { useAuthStore } from "@/store/auth-store";
+import type { MESSAGE_SSE_RESPONSE } from "@/types/Chat";
 
 const BASE_URL = import.meta.env.VITE_API_SSE_BASE_URL;
 
@@ -62,4 +63,55 @@ export const useProductSSE = (productId: string | number) => {
   }, [productId]);
 
   return { latestBid, leaderboard, leadBidder: leaderboard[0] };
+};
+
+export const useChatSSE = (transactionId: number, enabled: boolean) => {
+  const [latestMessage, setLatestMessage] =
+    useState<MESSAGE_SSE_RESPONSE["data"] | null>(null);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    const token = useAuthStore.getState().token;
+
+    if (!transactionId || !token) return;
+
+    const controller = new AbortController();
+
+    createSSE<MESSAGE_SSE_RESPONSE["data"]>({
+      url: `${BASE_URL}${API_ENDPOINTS.CHAT_MESSAGE_SSE(transactionId)}`,
+      token,
+      signal: controller.signal,
+
+      onOpen(response) {
+        if (!response.ok) {
+          toastError(`SSE connection failed: ${response.status}`);
+          throw new Error("SSE connection failed");
+        }
+      },
+
+      onMessage(data) {
+        setLatestMessage(data);
+
+        toastSuccess(`New message: ${data.message}`);
+      },
+
+      onError(err) {
+        console.error("Chat SSE error", err);
+        toastError("Chat live updates disconnected");
+      },
+
+      onClose() {
+        console.log("Chat SSE closed");
+      },
+    });
+
+    return () => {
+      controller.abort();
+      console.log("Chat SSE aborted");
+      setLatestMessage(null);
+    };
+  }, [transactionId, enabled]);
+
+  return latestMessage;
 };

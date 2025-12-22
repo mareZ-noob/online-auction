@@ -42,12 +42,18 @@ export function createSSE<T>({
       }
 
       // Parse only JSON payloads
-      try {
-        const parsed = JSON.parse(event.data) as T;
-        onMessage(parsed, event);
-      } catch (err) {
-        console.warn("Non-JSON SSE message:", event.data);
-      }
+      // try {
+      //   const parsed = JSON.parse(event.data);
+      //   console.log(parsed);
+
+      //   onMessage(parsed as T, event);
+      //   console.log("siuu");
+      // } catch (err) {
+      //   console.warn("Non-JSON SSE message:", event.data);
+      // }
+
+      const parsed = JSON.parse(event.data);
+      onMessage(parsed as T, event);
     },
 
     onerror(err) {

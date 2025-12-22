@@ -95,6 +95,8 @@ export const API_ENDPOINTS = {
   // SSE
   PRODUCT_NOTIFICATION_SSE: (productId: string | number) =>
     `/notifications/stream/product/${productId}`,
+  CHAT_MESSAGE_SSE: (transactionId: string | number) =>
+    `/chat/stream/${transactionId}`,
 
   // Transaction
   TRANSACTION_DETAILS_BY_PRODUCT: (productId: string | number) =>
@@ -128,4 +130,9 @@ export const API_ENDPOINTS = {
   GET_SUPPORT_CURRENCIES: (transctionId: string | number) =>
     `/payment/currencies/${transctionId}`,
   GET_CURRENCIES_CONVERSION: "/payment/convert",
+
+  // Chat
+  SEND_CHAT: "/chat/send",
+  GET_ALL_CHATS: (transactionId: string | number) =>
+    `/chat/messages/${transactionId}/paged`,
 };
