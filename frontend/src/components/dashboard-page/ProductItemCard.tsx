@@ -38,7 +38,7 @@ function ProductItemCard({
     data.id
   );
   const { mutate: addToWatchList } = useAddAProductToWatchList(data.id);
-  const isAddedToWatchList = useCheckAProductInWatchList(data.id);
+  const { data: isAddedToWatchList } = useCheckAProductInWatchList(data.id);
 
   const [watchListButton, setWatchListButton] = useState("Follow");
 
@@ -47,7 +47,6 @@ function ProductItemCard({
   };
 
   const handleAddToWatchList = () => {
-    setWatchListButton("Following");
     addToWatchList(undefined, {
       onSuccess: (result) => {
         toastSuccess(result.message);
@@ -63,12 +62,12 @@ function ProductItemCard({
   };
 
   useEffect(() => {
-    if (isAddedToWatchList.data) {
+    if (isAddedToWatchList) {
       setWatchListButton("Following");
     } else {
       setWatchListButton("Follow");
     }
-  }, [isAddedToWatchList.data]);
+  }, [isAddedToWatchList]);
 
   return (
     <motion.div
