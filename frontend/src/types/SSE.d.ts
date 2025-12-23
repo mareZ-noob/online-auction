@@ -17,3 +17,12 @@ export type PRODUCT_NOTIFICATION_RESPONSE = {
   latestBid: LATEST_BID;
   leaderboard: LEADERBOARD[];
 };
+
+export type PRODUCT_NOTIFICATION_WINNER_RESPONSE = {
+  winnerName: string;
+  finalAmount: number;
+  productId: number;
+  productName: string;
+  status: TRANSACTION_STATUS;
+  timestamp: string;
+};

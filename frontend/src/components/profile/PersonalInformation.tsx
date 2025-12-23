@@ -186,11 +186,13 @@ function PersonalInformation() {
   const { data: requestsToBecomeSeller } = useFetchRequestsToBecomeSeller();
   const { mutate: upgradeToSeller } = useUpgradeToSeller();
 
+  const positiveRatings = data?.positiveRatings ?? 0;
+  const negativeRatings = data?.negativeRatings ?? 0;
+
+  const totalRatings = positiveRatings + negativeRatings;
+
   const averageRatings =
-    data?.positiveRatings && data?.negativeRatings
-      ? (data.positiveRatings / (data.positiveRatings + data.negativeRatings)) *
-        100
-      : 0;
+    totalRatings > 0 ? (positiveRatings / totalRatings) * 100 : 0;
 
   const onSubmitUpgradeToSeller = (data: UpgradeToSellerFormData) => {
     upgradeToSeller(

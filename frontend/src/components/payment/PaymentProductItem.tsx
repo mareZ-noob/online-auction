@@ -15,9 +15,9 @@ import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
 import { useFetchProductDetailsById } from "@/hooks/product-hooks";
 import { formatCurrency } from "@/lib/utils";
 import Chat from "./chat/Chat";
-import { MessageCircle } from "lucide-react";
+import PaymentRate from "./payment-rate/PaymentRate";
 
-function PaymentProductItem({ data }: { data: PURCHASES }) {
+function PaymentProductItem({ data, page }: { data: PURCHASES; page: number }) {
   const status = data.status;
   const productId = data.productId;
   const {
@@ -85,7 +85,7 @@ function PaymentProductItem({ data }: { data: PURCHASES }) {
   ]);
 
   // Step 4
-  const { mutate: confirmDelivery } = useConfirmDelivery(productId);
+  const { mutate: confirmDelivery } = useConfirmDelivery(page);
 
   const handleConfirmDelivery = () => {
     confirmDelivery(
@@ -180,6 +180,9 @@ function PaymentProductItem({ data }: { data: PURCHASES }) {
             <ConfirmDelivery />
           </NotificationDialog>
         )}
+        {status === "DELIVERED" && (
+          <PaymentRate userId={data.sellerId} productId={productId} />
+        )}
         {status === "CANCELLED" && (
           <div>
             <p className="font-medium">Cancelation Reason</p>
@@ -187,11 +190,7 @@ function PaymentProductItem({ data }: { data: PURCHASES }) {
           </div>
         )}
         <Chat
-          triggerElement={
-            <Button size="sm">
-              <MessageCircle />
-            </Button>
-          }
+          triggerElement={<Button size="sm">Message</Button>}
           transactionId={Number(transactionData?.transactionId)}
           sellerName={productDetails?.sellerName}
           buyerName={productDetails?.currentBidderName}

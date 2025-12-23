@@ -195,7 +195,7 @@ export function useCheckRatedProducts(saleProducts: SELLER_SALES[]) {
     useQueries<CHECK_A_RATED_BIDDER_ON_A_PRODUCT_RESPONSE[]>({
       queries:
         saleProducts.map((product) => ({
-          queryKey: ["check-rated-bidder-on-product", product.productId],
+          queryKey: ["check-rated-bidder-on-products", product.productId],
           queryFn: async () => {
             const { data } =
               await apiClient.get<CHECK_A_RATED_BIDDER_ON_A_PRODUCT_RESPONSE>(
@@ -227,3 +227,21 @@ export function useCheckRatedProducts(saleProducts: SELLER_SALES[]) {
     queries,
   };
 }
+
+export const useCheckARatedProductOfSeller = (
+  productId: number,
+  isSeller: boolean
+) => {
+  return useQuery<CHECK_A_RATED_BIDDER_ON_A_PRODUCT_RESPONSE>({
+    queryKey: ["check-rated-bidder-on-a-product", productId],
+    queryFn: async () => {
+      const { data } =
+        await apiClient.get<CHECK_A_RATED_BIDDER_ON_A_PRODUCT_RESPONSE>(
+          API_ENDPOINTS.CHECK_RATED_BIDDER_ON_A_PRODUCT(productId)
+        );
+
+      return data;
+    },
+    enabled: !!productId && isSeller,
+  });
+};

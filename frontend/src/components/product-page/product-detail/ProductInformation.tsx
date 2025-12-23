@@ -22,7 +22,9 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
       : t("product.notAvailable");
   const postedTime = formatDateTime(data.startTime);
   const endTime = formatDateTime(data.endTime);
-  const sellerRating = `${data.sellerRating.toFixed(2)}%`;
+  const sellerRating = data.sellerRating
+    ? `${data.sellerRating.toFixed(2)}%`
+    : "N/A";
 
   const handleSubmitBid = (productId: number, buyNowPrice: number) => {
     mutate(

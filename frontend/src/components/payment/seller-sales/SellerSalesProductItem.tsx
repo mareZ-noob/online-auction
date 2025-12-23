@@ -1,5 +1,4 @@
 import NotificationDialog from "@/components/custom-ui/dialog/NotificationDialog";
-import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import {
   useCancelTransaction,
@@ -16,6 +15,7 @@ import {
 import CancelOrder from "../payment-steps/CancelOrder";
 import { useState } from "react";
 import Chat from "../chat/Chat";
+import PaymentRate from "../payment-rate/PaymentRate";
 
 function SellerSalesProductItem({
   sale,
@@ -74,6 +74,15 @@ function SellerSalesProductItem({
           buyerName={sale.buyerName}
         />
       </TableCell>
+      {sale.status !== "COMPLETED" ? (
+        <TableCell className="text-center">
+          <PaymentRate userId={sale.buyerId} productId={sale.productId} />
+        </TableCell>
+      ) : (
+        <TableCell>
+          <p className="text-center font-semibold">Rated</p>
+        </TableCell>
+      )}
       <TableCell className="text-center">
         {sale.status === "PENDING_PAYMENT" && (
           <NotificationDialog

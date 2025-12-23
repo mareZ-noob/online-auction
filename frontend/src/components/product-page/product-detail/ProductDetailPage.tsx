@@ -19,7 +19,7 @@ import { useProductSSE } from "@/hooks/sse-hooks";
 function ProductDetailPage() {
   const productId = useParams().id as string;
 
-  useProductSSE(productId);
+  const { leadBidder } = useProductSSE(productId);
 
   const sellerId = useUserStore((state) => state.id);
   const { t } = useTranslation();
@@ -53,7 +53,11 @@ function ProductDetailPage() {
       <div className="my-8 border-b border-gray-200" />
       <section>
         <p className="text-xl mb-4">{t("productDetail.sections.bidHistory")}</p>
-        <ProductBidHistory isMine={isMine} productId={Number(productId)} />
+        <ProductBidHistory
+          isMine={isMine}
+          productId={Number(productId)}
+          leadBidder={leadBidder}
+        />
       </section>
       <div className="my-8 border-b border-gray-200" />
       <section>

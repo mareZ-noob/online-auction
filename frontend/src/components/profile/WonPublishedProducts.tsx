@@ -77,7 +77,7 @@ function WonPublishedProducts() {
           toastSuccess(result.message);
 
           queryClient.invalidateQueries({
-            queryKey: ["check-rated-bidder-on-product"],
+            queryKey: ["check-rated-bidder-on-products"],
             exact: false,
           });
         },

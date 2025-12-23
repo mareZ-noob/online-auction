@@ -71,6 +71,7 @@ export const API_ENDPOINTS = {
   RATE_A_SELLER: "/bidder/ratings",
   CHECK_RATED_SELLER_ON_A_PRODUCT: (productId: string | number) =>
     `/bidder/ratings/check/${productId}`,
+  RATE_A_SELLER_AFTER_DELIVERY: "/transactions/rate",
 
   // Seller
   CREATE_NEW_PRODUCT: "/seller/products",

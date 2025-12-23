@@ -18,24 +18,24 @@ import { useBlockABidderFromAProduct } from "@/hooks/seller-hooks";
 import NotificationDialog from "@/components/custom-ui/dialog/NotificationDialog";
 import { useUserStore } from "@/store/user-store";
 import { useTranslation } from "react-i18next";
-import { useProductSSE } from "@/hooks/sse-hooks";
 import { useEffect } from "react";
 import type { BID_HISTORY_OF_A_PRODUCT_RESPONSE } from "@/types/Bid";
+import type { LEADERBOARD } from "@/types/SSE";
 
 function ProductBidHistory({
   isMine,
   productId,
+  leadBidder,
 }: {
   isMine: boolean;
   productId: number;
+  leadBidder: LEADERBOARD | null;
 }) {
   const isSeller = useUserStore((state) => state.isSeller);
   const { t } = useTranslation();
 
   const { data: bidHistoryList } = useFetchBidHistoryOfAProduct(productId);
   const { mutate: blockABidderMutate } = useBlockABidderFromAProduct();
-
-  const { leadBidder } = useProductSSE(productId);
 
   const handleBlockABidder = (bidderId: number) => {
     blockABidderMutate(

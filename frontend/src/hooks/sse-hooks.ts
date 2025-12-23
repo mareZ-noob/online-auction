@@ -3,6 +3,7 @@ import type {
   LATEST_BID,
   LEADERBOARD,
   PRODUCT_NOTIFICATION_RESPONSE,
+  PRODUCT_NOTIFICATION_WINNER_RESPONSE,
 } from "@/types/SSE";
 import { useEffect, useState } from "react";
 import { API_ENDPOINTS } from "./endpoints";
@@ -15,6 +16,12 @@ import type { MESSAGE_SSE_RESPONSE } from "@/types/Chat";
 
 const BASE_URL = import.meta.env.VITE_API_SSE_BASE_URL;
 
+const isProductNotificationResponse = (
+  data: PRODUCT_NOTIFICATION_RESPONSE | PRODUCT_NOTIFICATION_WINNER_RESPONSE
+): data is PRODUCT_NOTIFICATION_RESPONSE => {
+  return "latestBid" in data && "leaderboard" in data;
+};
+
 export const useProductSSE = (productId: string | number) => {
   const [latestBid, setLatestBid] = useState<LATEST_BID | null>(null);
   const [leaderboard, setLeaderboard] = useState<LEADERBOARD[]>([]);
@@ -26,7 +33,9 @@ export const useProductSSE = (productId: string | number) => {
 
     const controller = new AbortController();
 
-    createSSE<PRODUCT_NOTIFICATION_RESPONSE>({
+    createSSE<
+      PRODUCT_NOTIFICATION_RESPONSE | PRODUCT_NOTIFICATION_WINNER_RESPONSE
+    >({
       url: `${BASE_URL}${API_ENDPOINTS.PRODUCT_NOTIFICATION_SSE(productId)}`,
       token,
       signal: controller.signal,
@@ -39,12 +48,18 @@ export const useProductSSE = (productId: string | number) => {
       },
 
       onMessage(data) {
-        setLatestBid(data.latestBid);
-        setLeaderboard(data.leaderboard);
+        if (isProductNotificationResponse(data)) {
+          setLatestBid(data.latestBid);
+          setLeaderboard(data.leaderboard);
 
-        toastSuccess(
-          `New bid: $${data.latestBid.amount} by ${data.latestBid.bidderName}`
-        );
+          toastSuccess(
+            `New bid: $${data.latestBid.amount} by ${data.latestBid.bidderName}`
+          );
+        } else {
+          toastSuccess(
+            `Auction won by ${data.winnerName} for $${data.finalAmount}`
+          );
+        }
       },
 
       onError(err) {
@@ -62,12 +77,17 @@ export const useProductSSE = (productId: string | number) => {
     };
   }, [productId]);
 
-  return { latestBid, leaderboard, leadBidder: leaderboard[0] };
+  return {
+    latestBid,
+    leaderboard,
+    leadBidder: leaderboard.length > 0 ? leaderboard[0] : null,
+  };
 };
 
 export const useChatSSE = (transactionId: number, enabled: boolean) => {
-  const [latestMessage, setLatestMessage] =
-    useState<MESSAGE_SSE_RESPONSE["data"] | null>(null);
+  const [latestMessage, setLatestMessage] = useState<
+    MESSAGE_SSE_RESPONSE["data"] | null
+  >(null);
 
   useEffect(() => {
     if (!enabled) return;

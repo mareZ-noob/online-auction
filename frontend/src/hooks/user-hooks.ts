@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueries } from "@tanstack/react-query";
 import apiClient from "@/query/api-client";
 import type {
-  RATE_A_SELLER_PAYLOAD,
+  RATE_A_USER_PAYLOAD,
   CHANGE_PASSWORD_RESPONSE,
-  RATE_A_SELLER_RESPONSE,
+  RATE_A_USER_RESPONSE,
   UPDATE_USER_PROFILE_RESPONSE,
   USER_BY_ID_RESPONSE,
   USER_RATINGS_RESPONSE,
@@ -191,13 +191,13 @@ export const useFetchRequestsToBecomeSeller = () => {
 
 export const useRateASeller = () => {
   return useMutation<
-    RATE_A_SELLER_RESPONSE,
+    RATE_A_USER_RESPONSE,
     AxiosError<ApiResponseError>,
-    RATE_A_SELLER_PAYLOAD
+    RATE_A_USER_PAYLOAD
   >({
     mutationKey: ["rate-a-seller"],
     mutationFn: async (payload) => {
-      const { data } = await apiClient.post<RATE_A_SELLER_RESPONSE>(
+      const { data } = await apiClient.post<RATE_A_USER_RESPONSE>(
         API_ENDPOINTS.RATE_A_SELLER,
         payload
       );
@@ -222,7 +222,7 @@ export function useCheckRatedProducts(
     useQueries<CHECK_A_RATED_SELLER_ON_A_PRODUCT_RESPONSE[]>({
       queries:
         wonProducts.map((product) => ({
-          queryKey: ["check-rated-seller-on-product", product.id],
+          queryKey: ["check-rated-seller-on-products", product.id],
           queryFn: async () => {
             const { data } =
               await apiClient.get<CHECK_A_RATED_SELLER_ON_A_PRODUCT_RESPONSE>(
@@ -254,3 +254,18 @@ export function useCheckRatedProducts(
     queries,
   };
 }
+
+export const useCheckARatedProductOfBidder = (productId: number) => {
+  return useQuery<CHECK_A_RATED_SELLER_ON_A_PRODUCT_RESPONSE>({
+    queryKey: ["check-rated-seller-on-a-product", productId],
+    queryFn: async () => {
+      const { data } =
+        await apiClient.get<CHECK_A_RATED_SELLER_ON_A_PRODUCT_RESPONSE>(
+          API_ENDPOINTS.CHECK_RATED_SELLER_ON_A_PRODUCT(productId)
+        );
+
+      return data;
+    },
+    enabled: !!productId,
+  });
+};

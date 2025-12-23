@@ -87,7 +87,7 @@ function WonProducts() {
           toastSuccess(result.message);
 
           queryClient.invalidateQueries({
-            queryKey: ["check-rated-seller-on-product"],
+            queryKey: ["check-rated-seller-on-products"],
             exact: false,
           });
         },

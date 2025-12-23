@@ -38,6 +38,7 @@ function SellerSales() {
             <TableHead>Shipping Address</TableHead>
             <TableHead>Paid At</TableHead>
             <TableHead className="text-center">Chat</TableHead>
+            <TableHead className="text-center">Rate</TableHead>
             <TableHead className="text-center">Cancel Order</TableHead>
           </TableRow>
         </TableHeader>

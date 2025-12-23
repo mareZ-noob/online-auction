@@ -20,9 +20,9 @@ const updateShippingPaymentSchema = z.object({
 type UpdateShippingAddressProps = z.infer<typeof updateShippingPaymentSchema>;
 
 function UpdateShippingAddress() {
-  const { productId, transactionId, shippingAddress, setShippingAddress } =
+  const { transactionId, shippingAddress, setShippingAddress } =
     usePaymentStore();
-  const { mutate } = useUpdateShippingAddress(Number(productId));
+  const { mutate } = useUpdateShippingAddress();
 
   const {
     register,

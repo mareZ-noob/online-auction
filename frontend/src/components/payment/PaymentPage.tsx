@@ -79,12 +79,16 @@ function PaymentPage() {
             Cancelled
           </TabsTrigger>
         </TabsList>
-        <TabsContent value={currentStatus}>
+        <TabsContent value={currentStatus} className="mt-2">
           <div className="space-y-4">
             {!isLoading &&
               filteredPurchases &&
               filteredPurchases.map((purchase) => (
-                <PaymentProductItem key={purchase.id} data={purchase} />
+                <PaymentProductItem
+                  key={purchase.id}
+                  data={purchase}
+                  page={page}
+                />
               ))}
           </div>
           {isLoading && <Spinner text="Loading products..." />}

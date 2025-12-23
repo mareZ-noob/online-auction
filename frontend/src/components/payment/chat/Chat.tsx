@@ -126,7 +126,7 @@ function Chat({
                       {chat.senderName}
                     </div>
                   )}
-                  {chat.message} {chat.senderName} {currentUserName}
+                  {chat.message}
                 </div>
               </div>
             );

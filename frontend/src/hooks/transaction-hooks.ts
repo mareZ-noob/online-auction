@@ -16,6 +16,7 @@ import { API_ENDPOINTS } from "./endpoints";
 import type { AxiosError } from "axios";
 import type { ApiResponseError } from "@/types/ApiResponse";
 import { queryClient } from "@/lib/utils";
+import type { RATE_A_USER_PAYLOAD, RATE_A_USER_RESPONSE } from "@/types/User";
 
 export const useGetTransactionByProductId = (productId: number) => {
   return useQuery<{
@@ -73,7 +74,7 @@ export const useInitiatePayment = () => {
   });
 };
 
-export const useUpdateShippingAddress = (productId?: number) => {
+export const useUpdateShippingAddress = () => {
   return useMutation<
     UPDATE_SHIPPING_ADDRESS_RESPONSE,
     AxiosError<ApiResponseError>,
@@ -93,17 +94,10 @@ export const useUpdateShippingAddress = (productId?: number) => {
 
       return data;
     },
-    onSuccess: () => {
-      if (productId) {
-        queryClient.invalidateQueries({
-          queryKey: ["transaction-by-product-id", Number(productId)],
-        });
-      }
-    },
   });
 };
 
-export const useTrackingShipment = (productId?: number) => {
+export const useTrackingShipment = () => {
   return useMutation<
     SHIP_TRACKING_RESPONSE,
     AxiosError<ApiResponseError>,
@@ -123,17 +117,10 @@ export const useTrackingShipment = (productId?: number) => {
 
       return data;
     },
-    onSuccess: (_data, _variables) => {
-      if (productId) {
-        queryClient.invalidateQueries({
-          queryKey: ["transaction-by-product-id", Number(productId)],
-        });
-      }
-    },
   });
 };
 
-export const useConfirmDelivery = (productId?: number) => {
+export const useConfirmDelivery = (page?: number) => {
   return useMutation<
     CONFITM_DELIVERY_RESPONSE,
     AxiosError<ApiResponseError>,
@@ -150,9 +137,9 @@ export const useConfirmDelivery = (productId?: number) => {
       return data;
     },
     onSuccess: (_data, _variables) => {
-      if (productId) {
+      if (page) {
         queryClient.invalidateQueries({
-          queryKey: ["transaction-by-product-id", Number(productId)],
+          queryKey: ["buyer-purchases-transactions", Number(page)],
         });
       }
     },
@@ -241,6 +228,32 @@ export const useRateTransaction = () => {
       );
 
       return data.data;
+    },
+  });
+};
+
+export const useRateAUserAfterDelivery = () => {
+  return useMutation<
+    RATE_A_USER_RESPONSE,
+    AxiosError<ApiResponseError>,
+    RATE_A_USER_PAYLOAD
+  >({
+    mutationKey: ["rate-a-seller"],
+    mutationFn: async (payload) => {
+      const { data } = await apiClient.post<RATE_A_USER_RESPONSE>(
+        API_ENDPOINTS.RATE_A_SELLER_AFTER_DELIVERY,
+        payload
+      );
+      return data;
+    },
+    onError: (error) => {
+      const apiError = error.response?.data;
+
+      if (apiError) {
+        return Promise.reject(new Error(apiError.message));
+      } else {
+        console.error("Unexpected error:", error.message);
+      }
     },
   });
 };
