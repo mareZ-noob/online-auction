@@ -10,6 +10,10 @@ import { CardItemInformationMapper } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import DashboardParallex from "./DashboardParallex";
 
+import { motion } from "framer-motion";
+import { cardVariants } from "@/lib/animation";
+import ParticleSky from "../custom-ui/particle-sky/ParticleSky";
+
 function DashboardPage() {
   const { t } = useTranslation();
 
@@ -20,19 +24,34 @@ function DashboardPage() {
   return (
     <div>
       <DashboardParallex />
-      <section className="mt-24">
-        <p className="mb-24 pb-8 mx-16 text-4xl uppercase border-b-2 border-black">
-          {t("dashboard.endingSoonProducts")}
-        </p>
-        <CarouselPlugin className="bg-gradient-background -mx-16 px-32 py-16">
-          {endingSoonProducts &&
-            endingSoonProducts.map((product) => (
-              <CarouselCardItem
-                key={product.id}
-                data={CardItemInformationMapper(product)}
-              />
-            ))}
-        </CarouselPlugin>
+      <section className="-mx-16 relative">
+        <div className="absolute inset-0 z-15 pointer-events-none">
+          <ParticleSky count={200} />
+        </div>
+
+        <div className="relative z-10">
+          <p className="mb-24 pb-8 pt-24 mx-32 text-4xl uppercase border-b-2 border-black">
+            {t("dashboard.endingSoonProducts")}
+          </p>
+
+          <motion.div
+            variants={cardVariants}
+            initial={"initial"}
+            whileInView={"visible"}
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <div className="relative z-20">
+              <CarouselPlugin className="bg-gradient-background px-32 py-16">
+                {endingSoonProducts?.map((product) => (
+                  <CarouselCardItem
+                    key={product.id}
+                    data={CardItemInformationMapper(product)}
+                  />
+                ))}
+              </CarouselPlugin>
+            </div>
+          </motion.div>
+        </div>
       </section>
       <section className="mt-24 px-16">
         <p className="mb-24 pb-8 text-4xl uppercase border-b-2 border-black">

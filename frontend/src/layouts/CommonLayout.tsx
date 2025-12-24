@@ -37,6 +37,7 @@ import { useFetchUser } from "@/hooks/user-hooks";
 import { CommonLayoutContext } from "@/store/context/common-layout-context";
 import ChangeLanguageButton from "@/components/custom-ui/change-language-button/ChangeLanguageButton";
 import { useTranslation } from "react-i18next";
+import ParticleSky from "@/components/custom-ui/particle-sky/ParticleSky";
 
 function WatchList() {
   const navigate = useNavigate();
@@ -342,15 +343,19 @@ function Category() {
 
 function Footer() {
   return (
-    <div className="bg-[#173127] flex flex-col items-center justify-center text-white mt-32 py-16">
-      <div className="max-w-lg">
-        <p>© 2025 - Online Auction - Advanced Web Development - 22KTPM1</p>
+    <footer className="relative bg-black text-white mt-32 py-16">
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <ParticleSky count={100} />
+      </div>
+
+      <div className="relative z-10 max-w-lg mx-auto text-center">
+        <p>© 2025 - Online Auction …</p>
         <div className="flex justify-center gap-8">
           <p>22127286 - Nguyễn Thanh Nam</p>
           <p>22127441 - Thái Huyễn Tùng</p>
         </div>
       </div>
-    </div>
+    </footer>
   );
 }
 
