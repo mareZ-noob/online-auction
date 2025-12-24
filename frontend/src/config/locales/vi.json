@@ -190,7 +190,9 @@
         "endTime": "Thời gian kết thúc",
         "description": "Mô tả",
         "images": "Hình ảnh sản phẩm",
-        "settings": "Thiết lập đấu giá"
+        "settings": "Thiết lập đấu giá",
+        "submit": "Đăng sản phẩm",
+        "update": "Cập nhật sản phẩm"
       },
       "placeholders": {
         "name": "Nhập tên sản phẩm",

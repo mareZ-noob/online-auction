@@ -6,9 +6,10 @@ import {
   useRemoveAProductFromWatchList,
 } from "@/hooks/watch-list-hooks";
 import { Button } from "@/components/ui/button.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
 import type { CardItemInformation } from "@/types/CardItem";
 import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
-import { cn, formatCurrency, formatDateTime } from "@/lib/utils";
+import { cn, formatCurrency, formatDateTime, isAProductNew } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
 import { motion } from "framer-motion";
@@ -40,6 +41,7 @@ function ProductItemCard({
   const { mutate: addToWatchList } = useAddAProductToWatchList(data.id);
   const { data: isAddedToWatchList } = useCheckAProductInWatchList(data.id);
 
+  const isNew = isAProductNew(data.publishedDate);
   const [watchListButton, setWatchListButton] = useState("Follow");
 
   const handleViewDetails = (id: number) => {
@@ -94,9 +96,28 @@ function ProductItemCard({
       </div>
 
       <div className="flex flex-col justify-end text-left max-w-full mt-4">
-        <p className="line-clamp-2 text-2xl mb-4 min-h-16 ">
-          {data.productName}
-        </p>
+        <div className="flex items-start justify-between">
+          <p className="line-clamp-2 text-2xl mb-4 min-h-16 ">
+            {data.productName}
+          </p>
+          {isNew && (
+            <motion.div
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              <Badge
+                className="rounded-md px-4 py-1 font-mono tabular-nums"
+                variant="destructive"
+              >
+                <span className="text-sm font-semibold">NEW</span>
+              </Badge>
+            </motion.div>
+          )}
+        </div>
         <div className="flex mb-4 justify-between">
           <p>
             {t("product.currentPrice")}: {formatCurrency(data.currentPrice)}

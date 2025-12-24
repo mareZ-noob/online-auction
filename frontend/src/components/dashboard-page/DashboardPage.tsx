@@ -24,7 +24,7 @@ function DashboardPage() {
         <p className="mb-24 pb-8 mx-16 text-4xl uppercase border-b-2 border-black">
           {t("dashboard.endingSoonProducts")}
         </p>
-        <CarouselPlugin className="bg-black -mx-16 px-32 py-16">
+        <CarouselPlugin className="bg-gradient-background -mx-16 px-32 py-16">
           {endingSoonProducts &&
             endingSoonProducts.map((product) => (
               <CarouselCardItem

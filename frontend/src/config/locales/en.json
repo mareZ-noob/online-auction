@@ -190,7 +190,9 @@
         "endTime": "End Time",
         "description": "Description",
         "images": "Product Images",
-        "settings": "Auction Settings"
+        "settings": "Auction Settings",
+        "publish": "Publish Product",
+        "update": "Update Product"
       },
       "placeholders": {
         "name": "Enter product name",

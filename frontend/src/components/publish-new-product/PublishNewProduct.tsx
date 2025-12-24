@@ -540,66 +540,78 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
             )}
           />
 
-          <Field>
-            <FieldLabel>{t("publish.form.fields.settings")}</FieldLabel>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                type="button"
-                variant={autoExtendValue ? "default" : "outline"}
-                aria-pressed={autoExtendValue}
-                onClick={() =>
-                  setValue("autoExtend", !autoExtendValue, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                {autoExtendValue
-                  ? t("publish.form.autoExtendOn")
-                  : t("publish.form.autoExtendOff")}
-              </Button>
-              <Button
-                type="button"
-                variant={allowUnratedBiddersValue ? "default" : "outline"}
-                aria-pressed={allowUnratedBiddersValue}
-                onClick={() =>
-                  setValue("allowUnratedBidders", !allowUnratedBiddersValue, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                {allowUnratedBiddersValue
-                  ? t("publish.form.allowUnratedOn")
-                  : t("publish.form.allowUnratedOff")}
-              </Button>
-            </div>
-          </Field>
-        </FieldGroup>
+          <div className="flex">
+            <Field>
+              <FieldLabel>{t("publish.form.fields.settings")}</FieldLabel>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  type="button"
+                  variant={autoExtendValue ? "default" : "outline"}
+                  aria-pressed={autoExtendValue}
+                  onClick={() =>
+                    setValue("autoExtend", !autoExtendValue, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  {autoExtendValue
+                    ? t("publish.form.autoExtendOn")
+                    : t("publish.form.autoExtendOff")}
+                </Button>
+                <Button
+                  type="button"
+                  variant={allowUnratedBiddersValue ? "default" : "outline"}
+                  aria-pressed={allowUnratedBiddersValue}
+                  onClick={() =>
+                    setValue("allowUnratedBidders", !allowUnratedBiddersValue, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  {allowUnratedBiddersValue
+                    ? t("publish.form.allowUnratedOn")
+                    : t("publish.form.allowUnratedOff")}
+                </Button>
+              </div>
+            </Field>
+            <Field>
+              <div className="flex flex-col items-end gap-3">
+                {mode === "create" && (
+                  <FieldLabel>{t("publish.form.fields.publish")}</FieldLabel>
+                )}
+                {mode === "edit" && (
+                  <FieldLabel>{t("publish.form.fields.update")}</FieldLabel>
+                )}
 
-        {mode === "create" && (
-          <Button
-            type="submit"
-            disabled={isPending}
-            className="w-full md:w-auto"
-          >
-            {isPending
-              ? t("publish.form.actions.publishing")
-              : t("publish.form.actions.publish")}
-          </Button>
-        )}
-        {mode === "edit" && (
-          <Button
-            type="button"
-            disabled={isUpdatingProductDescription}
-            className="w-full md:w-auto"
-            onClick={handleUpdatePublishedProduct}
-          >
-            {isUpdatingProductDescription
-              ? t("publish.form.actions.updating")
-              : t("publish.form.actions.update")}
-          </Button>
-        )}
+                {mode === "create" && (
+                  <Button
+                    type="submit"
+                    disabled={isPending}
+                    className="w-full md:w-auto"
+                  >
+                    {isPending
+                      ? t("publish.form.actions.publishing")
+                      : t("publish.form.actions.publish")}
+                  </Button>
+                )}
+                {mode === "edit" && (
+                  <Button
+                    type="button"
+                    disabled={isUpdatingProductDescription}
+                    className="w-full md:w-auto"
+                    onClick={handleUpdatePublishedProduct}
+                  >
+                    {isUpdatingProductDescription
+                      ? t("publish.form.actions.updating")
+                      : t("publish.form.actions.update")}
+                  </Button>
+                )}
+              </div>
+            </Field>
+          </div>
+        </FieldGroup>
       </form>
     </div>
   );

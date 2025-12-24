@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import ProductyContainer from "./ProductContainer";
+import ProductContainer from "./ProductContainer";
 import ProductyFilter from "./ProductFilter";
 import {
   useFetchProductsyBySubCategoryId,
@@ -13,7 +13,7 @@ import { ProductListContext } from "@/store/context/product-list-context";
 
 function ProductListPage() {
   const [filterWithEndTime, setFilterWithEndTime] = useState<"desc" | "asc">(
-    "asc"
+    "desc"
   );
   const [filterWithPrice, setFilterWithPrice] = useState<"desc" | "asc">("asc");
   const [filterWithNewPublish, setFilterWithNewPublish] =
@@ -93,7 +93,7 @@ function ProductListPage() {
         <ProductyFilter />
 
         <div className="col-span-3 flex flex-col gap-4">
-          {products && <ProductyContainer data={products} />}
+          {products && <ProductContainer data={products} />}
 
           {products && products.length > 0 && (
             <div className="mt-12 flex justify-center">

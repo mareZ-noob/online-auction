@@ -71,9 +71,25 @@ export function filterAndSortProducts(
   return result;
 }
 
+export function isAProductNew(
+  publishedDate: string,
+  currentTime = new Date()
+): boolean {
+  const published = new Date(publishedDate);
+
+  if (isNaN(published.getTime())) return false;
+
+  const diffMs = currentTime.getTime() - published.getTime();
+  const CONSTRAINT_MINUTES_MS = 30 * 60 * 1000;
+  const res = diffMs >= 0 && diffMs <= CONSTRAINT_MINUTES_MS;
+  console.log(published.getTime());
+
+  return res;
+}
+
 export function formatDateTime(
   dateInput: Date | string | null | undefined,
-  location: string = "vi-VN"
+  location: string = "en-US"
 ): string {
   if (!dateInput) return "";
 
