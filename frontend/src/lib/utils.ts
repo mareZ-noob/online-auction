@@ -82,7 +82,6 @@ export function isAProductNew(
   const diffMs = currentTime.getTime() - published.getTime();
   const CONSTRAINT_MINUTES_MS = 30 * 60 * 1000;
   const res = diffMs >= 0 && diffMs <= CONSTRAINT_MINUTES_MS;
-  console.log(published.getTime());
 
   return res;
 }

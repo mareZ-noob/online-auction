@@ -14,10 +14,12 @@ import {
   useSendChat,
 } from "@/hooks/chat-hooks";
 import { useChatSSE } from "@/hooks/sse-hooks";
-import { cn } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import type { SEND_CHAT } from "@/types/Chat";
 import { useEffect, useState } from "react";
+
+import ChatItem from "./ChatItem";
+import InfiniteScroll from "@/components/custom-ui/infinite-scroll/InfiniteScroll";
 
 function Chat({
   triggerElement,
@@ -31,18 +33,27 @@ function Chat({
   buyerName?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   const isSeller = useUserStore((state) => state.isSeller);
+  const currentUserName = isSeller ? sellerName : buyerName;
 
   const { mutate: sendMessage } = useSendChat();
-  const { data: chats } = useFetchAllChatsByTransactionId(transactionId);
+  const { data: chats, isPending } = useFetchAllChatsByTransactionId(
+    transactionId,
+    page
+  );
 
   const latestMessage = useChatSSE(transactionId, open);
+  const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<SEND_CHAT[]>([]);
 
   useEffect(() => {
     if (!chats?.content) return;
+
+    setPage(chats.page);
+    setHasMore(chats.page < chats.totalPages);
 
     setMessages((prev) => {
       const next = [...chats.content];
@@ -56,7 +67,7 @@ function Chat({
 
       return next;
     });
-  }, [chats?.content]);
+  }, [chats]);
 
   useEffect(() => {
     if (!latestMessage) return;
@@ -86,7 +97,11 @@ function Chat({
     );
   };
 
-  const currentUserName = isSeller ? sellerName : buyerName;
+  const handleFetchMore = () => {
+    if (isPending) return;
+
+    setPage((prev) => prev + 1);
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -101,36 +116,21 @@ function Chat({
           </SheetDescription>
         </SheetHeader>
 
-        {/* messages */}
-        <div className="h-full overflow-y-auto px-2 py-3 space-y-2">
-          {/* Chat history */}
-          {messages.map((chat) => {
-            const isOwn =
-              chat.isOwnMessage && chat.senderName === currentUserName;
-
-            return (
-              <div
-                key={chat.id}
-                className={cn("flex", isOwn ? "justify-end" : "justify-start")}
-              >
-                <div
-                  className={cn(
-                    "max-w-[70%] px-4 py-2 rounded-2xl wrap-break-word",
-                    isOwn
-                      ? "bg-black text-white rounded-br-sm"
-                      : "bg-gray-200 text-gray-900 rounded-bl-sm"
-                  )}
-                >
-                  {!isOwn && (
-                    <div className="text-xs font-semibold mb-1">
-                      {chat.senderName}
-                    </div>
-                  )}
-                  {chat.message}
-                </div>
-              </div>
-            );
-          })}
+        <div className="flex-1 min-h-0 overflow-auto">
+          <InfiniteScroll
+            fetchMore={handleFetchMore}
+            hasMore={hasMore}
+            isLoading={isPending}
+            loader={<div className="text-center text-xs py-2">Loading...</div>}
+            endMessage={
+              <div className="text-center text-xs py-2">No more messages</div>
+            }
+          >
+            <ChatItem
+              messages={messages}
+              currentUserName={currentUserName || ""}
+            />
+          </InfiniteScroll>
         </div>
 
         <SheetFooter className="mt-4">

@@ -26,10 +26,10 @@ function DashboardPage() {
       <DashboardParallex />
       <section className="-mx-16 relative">
         <div className="absolute inset-0 z-15 pointer-events-none">
-          <ParticleSky count={200} />
+          <ParticleSky count={100} />
         </div>
 
-        <div className="relative z-10">
+        <div className="relative">
           <p className="mb-24 pb-8 pt-24 mx-32 text-4xl uppercase border-b-2 border-black">
             {t("dashboard.endingSoonProducts")}
           </p>
@@ -40,7 +40,7 @@ function DashboardPage() {
             whileInView={"visible"}
             viewport={{ once: true, amount: 0.3 }}
           >
-            <div className="relative z-20">
+            <div className="relative">
               <CarouselPlugin className="bg-gradient-background px-32 py-16">
                 {endingSoonProducts?.map((product) => (
                   <CarouselCardItem

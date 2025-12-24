@@ -63,16 +63,18 @@ function SellerSalesProductItem({
           : "N/A"}
       </TableCell>
       <TableCell className="text-center">
-        <Chat
-          triggerElement={
-            <div className="max-w-8 flex items-center justify-center py-1 rounded-md bg-black mx-auto">
-              <MessageCircle size={16} className="text-white" />
-            </div>
-          }
-          transactionId={Number(data.transactionId)}
-          sellerName={sale.sellerName}
-          buyerName={sale.buyerName}
-        />
+        {sale.status !== "COMPLETED" && (
+          <Chat
+            triggerElement={
+              <div className="max-w-8 flex items-center justify-center py-1 rounded-md bg-black mx-auto">
+                <MessageCircle size={16} className="text-white" />
+              </div>
+            }
+            transactionId={Number(data.transactionId)}
+            sellerName={sale.sellerName}
+            buyerName={sale.buyerName}
+          />
+        )}
       </TableCell>
       {sale.status !== "COMPLETED" ? (
         <TableCell className="text-center">

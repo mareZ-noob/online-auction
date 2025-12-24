@@ -26,13 +26,25 @@ export const useSendChat = () => {
   });
 };
 
-export const useFetchAllChatsByTransactionId = (transactionId: number) => {
+export const useFetchAllChatsByTransactionId = (
+  transactionId: number,
+  page: number,
+  size: number = 15
+) => {
   return useQuery<GET_ALL_CHATS_RESPONSE["data"], AxiosError<ApiResponseError>>(
     {
-      queryKey: ["all-chats", transactionId],
+      queryKey: ["all-chats", transactionId, page],
       queryFn: async () => {
+        console.log("abc");
+
         const { data } = await apiClient.get<GET_ALL_CHATS_RESPONSE>(
-          API_ENDPOINTS.GET_ALL_CHATS(transactionId)
+          API_ENDPOINTS.GET_ALL_CHATS(transactionId),
+          {
+            params: {
+              page,
+              size,
+            },
+          }
         );
         return data.data;
       },

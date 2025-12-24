@@ -4,7 +4,7 @@ import {
   Heart,
   LogOut,
   Mail,
-  Moon,
+  // Moon,
   SearchIcon,
   User,
   UserPen,
@@ -307,7 +307,7 @@ function Category() {
         </div>
       )}
 
-      {activeCategory && (
+      {isActiveFilter && activeCategory && (
         <div
           className="absolute left-0 top-full w-full bg-white px-16 border-b border-[#ddd] flex gap-10 z-1"
           onClick={() => setActiveCategory(activeCategory)}
