@@ -129,7 +129,7 @@ public class RatingService {
     public RatingDto getMyRatingForProduct(Long productId) {
         Long currentUserId = CurrentUser.getUserId();
 
-        Optional<Rating> rating = ratingRepository.findByRatedByIdAndProductId(currentUserId, productId);
+        Optional<Rating> rating = ratingRepository.findFirstByRatedByIdAndProductId(currentUserId, productId);
 
         return rating.map(RatingMapper::toDto).orElse(null);
     }

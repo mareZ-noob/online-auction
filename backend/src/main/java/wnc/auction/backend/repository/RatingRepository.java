@@ -25,4 +25,6 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
 
     // Find rating by the person who rated (ratedBy) and the product
     Optional<Rating> findByRatedByIdAndProductId(Long ratedById, Long productId);
+
+    Optional<Rating> findFirstByRatedByIdAndProductId(Long ratedById, Long productId);
 }
