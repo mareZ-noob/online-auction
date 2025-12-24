@@ -63,6 +63,7 @@ function PaymentRate({
         onSuccess: (result) => {
           setComment("");
           toastSuccess(result.message);
+          setUpdateRate(true);
 
           queryClient.invalidateQueries({
             queryKey: ["check-rated-seller-on-products"],

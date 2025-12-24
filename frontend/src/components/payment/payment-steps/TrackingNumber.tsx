@@ -18,8 +18,14 @@ const trackingNumberSchema = z.object({
 
 type TrackingNumberProps = z.infer<typeof trackingNumberSchema>;
 
-function TrackingNumber({ transactionId }: { transactionId: number }) {
-  const { mutate } = useTrackingShipment();
+function TrackingNumber({
+  transactionId,
+  page,
+}: {
+  transactionId: number;
+  page?: number;
+}) {
+  const { mutate } = useTrackingShipment(page);
 
   const {
     register,

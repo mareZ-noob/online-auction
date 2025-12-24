@@ -49,7 +49,7 @@ function SellerPayment() {
         </TableHeader>
         <TableBody>
           {filteredData?.map((sale) => (
-            <SellerPaymentProductItem sale={sale} />
+            <SellerPaymentProductItem sale={sale} page={page} />
           ))}
         </TableBody>
       </Table>

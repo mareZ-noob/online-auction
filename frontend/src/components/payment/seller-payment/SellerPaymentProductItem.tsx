@@ -7,7 +7,13 @@ import type { PURCHASES } from "@/types/Transaction";
 import TrackingNumber from "../payment-steps/TrackingNumber";
 import Spinner from "@/components/custom-ui/loading-spinner/LoadingSpinner";
 
-function SellerPaymentProductItem({ sale }: { sale: PURCHASES }) {
+function SellerPaymentProductItem({
+  sale,
+  page,
+}: {
+  sale: PURCHASES;
+  page?: number;
+}) {
   const { data } = useGetTransactionByProductId(sale.productId);
 
   if (!data || !data?.transactionId) {
@@ -35,7 +41,7 @@ function SellerPaymentProductItem({ sale }: { sale: PURCHASES }) {
           cancelText="Cancel"
           className="min-w-4xl"
         >
-          <TrackingNumber transactionId={data?.transactionId} />
+          <TrackingNumber transactionId={data?.transactionId} page={page} />
         </NotificationDialog>
       </TableCell>
     </TableRow>

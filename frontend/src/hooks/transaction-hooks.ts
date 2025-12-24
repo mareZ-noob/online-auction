@@ -97,7 +97,7 @@ export const useUpdateShippingAddress = () => {
   });
 };
 
-export const useTrackingShipment = () => {
+export const useTrackingShipment = (page?: number) => {
   return useMutation<
     SHIP_TRACKING_RESPONSE,
     AxiosError<ApiResponseError>,
@@ -116,6 +116,13 @@ export const useTrackingShipment = () => {
       );
 
       return data;
+    },
+    onSuccess: (_data, _variables) => {
+      if (page === undefined || isNaN(Number(page))) return;
+
+      queryClient.invalidateQueries({
+        queryKey: ["seller-sales-transactions", Number(page)],
+      });
     },
   });
 };
@@ -137,11 +144,11 @@ export const useConfirmDelivery = (page?: number) => {
       return data;
     },
     onSuccess: (_data, _variables) => {
-      if (page) {
-        queryClient.invalidateQueries({
-          queryKey: ["buyer-purchases-transactions", Number(page)],
-        });
-      }
+      if (page === undefined || isNaN(Number(page))) return;
+
+      queryClient.invalidateQueries({
+        queryKey: ["buyer-purchases-transactions", Number(page)],
+      });
     },
   });
 };
