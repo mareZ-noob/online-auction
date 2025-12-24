@@ -5,15 +5,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import wnc.auction.backend.dto.model.ChatMessageDto;
 import wnc.auction.backend.dto.request.SendChatMessageRequest;
 import wnc.auction.backend.dto.response.ApiResponse;
 import wnc.auction.backend.dto.response.PageResponse;
+import wnc.auction.backend.model.enumeration.MessageType;
 import wnc.auction.backend.service.ChatService;
+import wnc.auction.backend.service.FileStorageService;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -23,6 +27,7 @@ import wnc.auction.backend.service.ChatService;
 public class ChatController {
 
     private final ChatService chatService;
+    private final FileStorageService fileStorageService;
 
     @PostMapping("/send")
     @Operation(summary = "Send a chat message")
@@ -31,6 +36,28 @@ public class ChatController {
         ChatMessageDto message = chatService.sendMessage(request);
 
         return ResponseEntity.ok(ApiResponse.success("Message sent", message));
+    }
+
+    @PostMapping(value = "/send-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Send an image chat message")
+    public ResponseEntity<ApiResponse<ChatMessageDto>> sendImageMessage(
+            @RequestParam("transactionId") Long transactionId,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "message", required = false, defaultValue = "Sent an image") String messageText) {
+
+        String fileUrl = fileStorageService.storeFile(file);
+
+        // Create the request object
+        SendChatMessageRequest request = new SendChatMessageRequest();
+        request.setTransactionId(transactionId);
+        request.setMessage(messageText); // Optional caption
+        request.setMessageType(MessageType.IMAGE);
+        request.setAttachmentUrl(fileUrl);
+
+        // Delegate to existing chat service logic
+        ChatMessageDto message = chatService.sendMessage(request);
+
+        return ResponseEntity.ok(ApiResponse.success("Image sent", message));
     }
 
     @GetMapping("/messages/{transactionId}")
@@ -72,7 +99,7 @@ public class ChatController {
         return ResponseEntity.ok(ApiResponse.success("Messages marked as read", null));
     }
 
-    @GetMapping(value = "/stream/{transactionId}", produces = "text/event-stream")
+    @GetMapping(value = "/stream/{transactionId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "Subscribe to chat updates (SSE)")
     public SseEmitter subscribeToChatUpdates(@PathVariable Long transactionId) {
 
