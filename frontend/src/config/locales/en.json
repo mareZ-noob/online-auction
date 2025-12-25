@@ -223,9 +223,9 @@
     "validation": {
       "imageInvalid": "Invalid image file.",
       "nameRequired": "Product name is required.",
-      "startingPricePositive": "Starting price must be greater than 0.",
-      "stepPricePositive": "Step price must be greater than 0.",
-      "buyNowPricePositive": "Buy now price must be greater than 0.",
+      "startingPricePositive": "Starting price must be greater than 20.000 VND.",
+      "stepPricePositive": "Step price must be greater than 10.000 VND.",
+      "buyNowPricePositive": "Buy now price must be greater than 20.000 VND.",
       "categoryRequired": "Please select a category.",
       "subcategoryRequired": "Please select a subcategory.",
       "endTimeRequired": "End time is required.",

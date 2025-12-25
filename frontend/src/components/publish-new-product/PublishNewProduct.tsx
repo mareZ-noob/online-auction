@@ -57,13 +57,13 @@ const publishNewProductSchema = z
       .min(1, { message: "publish.validation.nameRequired" }),
     startingPrice: z.coerce
       .number()
-      .gt(0, { message: "publish.validation.startingPricePositive" }),
+      .gt(20000, { message: "publish.validation.startingPricePositive" }),
     stepPrice: z.coerce
       .number()
-      .gt(0, { message: "publish.validation.stepPricePositive" }),
+      .gt(1000, { message: "publish.validation.stepPricePositive" }),
     buyNowPrice: z.coerce
       .number()
-      .gt(0, { message: "publish.validation.buyNowPricePositive" }),
+      .gt(20000, { message: "publish.validation.buyNowPricePositive" }),
     parentCategoryId: z
       .number()
       .int()

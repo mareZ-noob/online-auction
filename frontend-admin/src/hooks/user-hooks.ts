@@ -42,6 +42,12 @@ export const useReviewUpgradeRequest = () => {
 			);
 			return data;
 		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["upgrade-requests"],
+				exact: false,
+			});
+		},
 	});
 };
 

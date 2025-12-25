@@ -39,6 +39,8 @@ function ProductDetailPage() {
   }
 
   const { images, ...rest } = productDetails;
+
+  // isMine is checked for if the current product belongs to the logged-in seller
   const isMine = productDetails.sellerId === Number(sellerId);
 
   return (
@@ -85,6 +87,7 @@ function ProductDetailPage() {
           <CarouselPlugin>
             {relatedProducts.map((product) => (
               <RelatedProductItemCard
+                className="my-8"
                 key={product.id}
                 data={CardItemInformationMapper(product)}
               />

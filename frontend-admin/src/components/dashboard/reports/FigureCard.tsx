@@ -23,7 +23,7 @@ function FigureCard({
 }: {
 	title: string;
 	description: string;
-	figure: number;
+	figure: number | string;
 	children?: React.ReactNode;
 }) {
 	return (

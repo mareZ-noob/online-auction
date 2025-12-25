@@ -179,6 +179,8 @@ export const useCancelTransaction = (page?: number) => {
       queryClient.invalidateQueries({
         queryKey: ["seller-sales-transactions", page],
       });
+
+      // negative rate for buyer
     },
   });
 };

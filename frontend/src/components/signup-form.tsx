@@ -18,18 +18,38 @@ import MyReCAPTCHA from "@/components/auth-page/ReCAPTCHA.tsx";
 import { useAuthStatus, useRegister } from "@/hooks/auth-hooks.ts";
 import { toastError } from "./custom-ui/toast/toast-ui";
 
-const signup_schema = z.object({
-  fullName: z.string().min(3, {
-    message: "Please enter your full name with at least 3 characters",
-  }),
-  address: z.string().min(1, {
-    message: "Please enter your address with at least 1 characters",
-  }),
-  email: z.email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
-});
+const passwordSchema = z
+  .string()
+  .min(8, { message: "Password must be at least 8 characters" })
+  .regex(/[A-Z]/, {
+    message: "Password must contain at least 1 uppercase letter",
+  })
+  .regex(/[a-z]/, {
+    message: "Password must contain at least 1 lowercase letter",
+  })
+  .regex(/[0-9]/, { message: "Password must contain at least 1 number" })
+  .regex(/[^A-Za-z0-9]/, {
+    message: "Password must contain at least 1 special character",
+  });
+
+const signup_schema = z
+  .object({
+    fullName: z.string().min(3, {
+      message: "Please enter your full name with at least 3 characters",
+    }),
+    address: z.string().min(1, {
+      message: "Please enter your address with at least 1 characters",
+    }),
+    email: z.email({ message: "Invalid email address" }),
+    password: passwordSchema,
+    confirmPassword: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 type SignUpFormData = z.infer<typeof signup_schema>;
 
@@ -59,7 +79,14 @@ export function SignupForm({
       return;
     }
 
-    const credentials = Object.assign(data, { ...data, recaptchaToken: token });
+    // const credentials = Object.assign(data, { ...data, recaptchaToken: token });
+    const credentials = {
+      fullName: data.fullName,
+      address: data.address,
+      email: data.email,
+      password: data.password,
+      recaptchaToken: token,
+    };
 
     mutate(credentials, {
       onSuccess: () => {
@@ -133,33 +160,41 @@ export function SignupForm({
           </FieldDescription>
         </Field>
         <Field>
-          <Field className="grid grid-cols-2 gap-4">
-            <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input
-                id="password"
-                type="password"
-                required
-                {...register("password")}
-                aria-invalid={!!errors.password}
-              />
+          <Field>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <Input
+              id="password"
+              type="password"
+              required
+              {...register("password")}
+              aria-invalid={!!errors.password}
+            />
 
-              {errors.password && (
-                <p className="text-destructive text-xs">
-                  {errors.password.message}
-                </p>
-              )}
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="confirm-password">
-                Confirm Password
-              </FieldLabel>
-              <Input id="confirm-password" type="password" required />
-            </Field>
+            {errors.password && (
+              <p className="text-destructive text-xs">
+                {errors.password.message}
+              </p>
+            )}
           </Field>
+
           <FieldDescription>
             Must be at least 8 characters long.
           </FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
+          <Input
+            id="confirm-password"
+            type="password"
+            {...register("confirmPassword")}
+            required
+            aria-invalid={!!errors.confirmPassword}
+          />
+          {errors.confirmPassword && (
+            <p className="text-destructive text-xs">
+              {errors.confirmPassword.message}
+            </p>
+          )}
         </Field>
         <Field>
           <MyReCAPTCHA captchaRef={captchaRef} />

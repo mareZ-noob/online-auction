@@ -3,6 +3,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import {
   useCancelTransaction,
   useGetTransactionByProductId,
+  useRateTransaction,
 } from "@/hooks/transaction-hooks";
 import { formatCurrency } from "@/lib/utils";
 import type { PURCHASES } from "@/types/Transaction";
@@ -25,22 +26,36 @@ function SellerSalesProductItem({
   page: number;
 }) {
   const { data } = useGetTransactionByProductId(sale.productId);
-  const { mutate } = useCancelTransaction(page);
-  const [reason, setReason] = useState("User requested cancellation");
+  const { mutate: cancelTransaction } = useCancelTransaction(page);
+  const { mutate: rateBadBuyer } = useRateTransaction(); // For buyer who forgot to pay
+
+  const [reason, setReason] = useState("Buyer did not complete the payment.");
 
   if (!data || !data?.transactionId) {
     return <Spinner text="Loading Content..." />;
   }
 
   const handleCancelOrder = () => {
-    mutate(
+    cancelTransaction(
       {
         transactionId: data.transactionId,
         reason,
       },
       {
         onSuccess: (result) => {
-          toastSuccess(result.message || "Order cancelled successfully");
+          rateBadBuyer(
+            {
+              userId: sale.buyerId,
+              productId: sale.productId,
+              isPositive: false,
+              comment: reason,
+            },
+            {
+              onSuccess: () => {
+                toastSuccess(result.message || "Order cancelled successfully");
+              },
+            }
+          );
         },
         onError: (error) => {
           toastError(error || "Failed to cancel order");
@@ -63,7 +78,7 @@ function SellerSalesProductItem({
           : "N/A"}
       </TableCell>
       <TableCell className="text-center">
-        {sale.status !== "COMPLETED" && (
+        {sale.status !== "COMPLETED" && sale.status !== "CANCELLED" && (
           <Chat
             triggerElement={
               <div className="max-w-8 flex items-center justify-center py-1 rounded-md bg-black mx-auto">
@@ -76,7 +91,7 @@ function SellerSalesProductItem({
           />
         )}
       </TableCell>
-      {sale.status !== "COMPLETED" ? (
+      {sale.status !== "COMPLETED" && sale.status !== "CANCELLED" ? (
         <TableCell className="text-center">
           <PaymentRate userId={sale.buyerId} productId={sale.productId} />
         </TableCell>

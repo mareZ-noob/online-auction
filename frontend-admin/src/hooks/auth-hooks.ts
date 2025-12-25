@@ -29,7 +29,6 @@ export const useLogin = () => {
 		},
 		onSuccess: async (data) => {
 			const decoded = jwtDecode<AccessTokenPayload>(data.accessToken);
-			const sub = decoded.sub;
 			const expireIn = decoded.exp - Math.floor(Date.now() / 1000); // seconds left
 
 			// store tokens and id in zustand stores

@@ -41,12 +41,12 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
   const [selectedBidPrice, setSelectedBidPrice] = useState(
     validBidPriceRange[0]
   );
-  const [autoBidPrice, setAutoBidPrice] = useState<number | null>(null);
+
   const [maxAutoBidPrice, setMaxAutoBidPrice] = useState<number | null>(null);
 
   const [isCheckedAutoBid, setIsCheckedAutoBid] = useState(false);
 
-  const { mutate, isPending, isError, error } = usePlaceABid();
+  const { mutate, isPending } = usePlaceABid();
   const { t } = useTranslation();
   const minBid = validBidPriceRange[0] ?? 0;
 
@@ -80,7 +80,7 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
     mutate(
       {
         productId: productId,
-        amount: autoBidPrice || 0,
+        amount: currentPrice + stepPrice,
         maxAutoBidAmount: maxAutoBidPrice || 0,
       },
       {
@@ -152,20 +152,7 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
           </AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col items-end justify-between px-1">
-              {validBidPriceRange.length > 0 && (
-                <NumberInput
-                  label={t("productDetail.bid.autoBidLabel", {
-                    value: minBid,
-                  })}
-                  placeholder={t("productDetail.bid.autoBidPlaceholder", {
-                    value: minBid,
-                  })}
-                  validBid={minBid}
-                  onValidBid={setAutoBidPrice}
-                />
-              )}
               <NumberInput
-                className="mt-4"
                 label={t("productDetail.bid.maxBudgetLabel")}
                 placeholder={t("productDetail.bid.autoBidPlaceholder", {
                   value: minBid,

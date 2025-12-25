@@ -78,7 +78,7 @@ function ProductBidHistory({
 
   return (
     <Table className="max-w-xl">
-      <TableCaption>{t("productDetail.bidHistory.caption")}</TableCaption>
+      <TableCaption>{t("productDetail.bidHistory.caption")} </TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="max-w-sm">#</TableHead>

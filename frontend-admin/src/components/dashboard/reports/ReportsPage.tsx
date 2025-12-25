@@ -2,6 +2,7 @@ import { useFetchDashboardStatistics } from "@/hooks/dashboard-hooks";
 import { FigureCard, ChildFigureCard } from "./FigureCard";
 import { ReportChart } from "./ReportChart";
 import LiveStats from "../live-stats/LiveStats";
+import { formatCurrency } from "@/lib/utils";
 
 function ReportsPage() {
 	const { data } = useFetchDashboardStatistics();
@@ -46,7 +47,7 @@ function ReportsPage() {
 				<FigureCard
 					title="Total Revenue"
 					description="Total number of revenue"
-					figure={data.totalRevenue}
+					figure={formatCurrency(data.totalRevenue)}
 				>
 					<ChildFigureCard
 						title="Upgrade Requests Pending"

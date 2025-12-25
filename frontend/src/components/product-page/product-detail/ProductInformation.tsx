@@ -67,7 +67,11 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
           {t("productDetail.info.highestBidder", { value: bidderName })}
         </p>
         <p className="mb-4 text-lg">
-          {t("productDetail.info.bidderRating", { value: bidderRating })}
+          {t("productDetail.info.bidderRating", {
+            value: Number(bidderRating)
+              ? Number(bidderRating).toFixed(2) + "%"
+              : "N/A",
+          })}
         </p>
       </div>
 

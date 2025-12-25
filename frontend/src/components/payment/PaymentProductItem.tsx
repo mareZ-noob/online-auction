@@ -184,17 +184,23 @@ function PaymentProductItem({ data, page }: { data: PURCHASES; page: number }) {
           <PaymentRate userId={data.sellerId} productId={productId} />
         )}
         {status === "CANCELLED" && (
-          <div>
+          <div className="flex flex-col items-end">
             <p className="font-medium">Cancelation Reason</p>
             <p>{transactionData?.data.transaction.cancellationReason}</p>
           </div>
         )}
-        <Chat
-          triggerElement={<Button size="sm">Message</Button>}
-          transactionId={Number(transactionData?.transactionId)}
-          sellerName={productDetails?.sellerName}
-          buyerName={productDetails?.currentBidderName}
-        />
+        {status !== "COMPLETED" && (
+          <Chat
+            triggerElement={
+              <Button size="sm" className="max-w-18 ml-auto">
+                Message
+              </Button>
+            }
+            transactionId={Number(transactionData?.transactionId)}
+            sellerName={productDetails?.sellerName}
+            buyerName={productDetails?.currentBidderName}
+          />
+        )}
       </div>
     </div>
   );
