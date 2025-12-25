@@ -34,6 +34,7 @@ function Chat({
 }) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
   const isSeller = useUserStore((state) => state.isSeller);
@@ -53,19 +54,17 @@ function Chat({
     if (!chats?.content) return;
 
     setPage(chats.page);
+    setTotalPages(chats.totalPages);
     setHasMore(chats.page < chats.totalPages);
 
     setMessages((prev) => {
-      const next = [...chats.content];
-      const existingIds = new Set(next.map((chat) => chat.id));
+      const prevIds = new Set(prev.map((chat) => chat.id));
 
-      prev.forEach((chat) => {
-        if (!existingIds.has(chat.id)) {
-          next.push(chat);
-        }
-      });
+      // only take chats we don't already have
+      const newChats = chats.content.filter((chat) => !prevIds.has(chat.id));
 
-      return next;
+      // append older chats to the bottom
+      return [...prev, ...newChats];
     });
   }, [chats]);
 
@@ -77,7 +76,7 @@ function Chat({
         return prev;
       }
 
-      return [...prev, latestMessage];
+      return [latestMessage, ...prev];
     });
   }, [latestMessage]);
 
@@ -98,10 +97,11 @@ function Chat({
   };
 
   const handleFetchMore = () => {
-    if (isPending) return;
+    if (isPending || page >= totalPages) return;
 
     setPage((prev) => prev + 1);
   };
+  // console.log(messages);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

@@ -45,6 +45,8 @@ export const useProductSSE = (productId: string | number) => {
           toastError(`SSE connection failed: ${response.status}`);
           throw new Error("SSE connection failed");
         }
+
+        console.log("Product SSE connected");
       },
 
       onMessage(data) {
@@ -74,6 +76,7 @@ export const useProductSSE = (productId: string | number) => {
 
     return () => {
       controller.abort();
+      console.log("Product SSE aborted");
     };
   }, [productId]);
 
@@ -108,12 +111,12 @@ export const useChatSSE = (transactionId: number, enabled: boolean) => {
           toastError(`SSE connection failed: ${response.status}`);
           throw new Error("SSE connection failed");
         }
+
+        console.log("Chat SSE connected");
       },
 
       onMessage(data) {
         setLatestMessage(data);
-
-        toastSuccess(`New message: ${data.message}`);
       },
 
       onError(err) {

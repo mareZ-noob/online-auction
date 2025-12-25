@@ -35,8 +35,6 @@ export const useFetchAllChatsByTransactionId = (
     {
       queryKey: ["all-chats", transactionId, page],
       queryFn: async () => {
-        console.log("abc");
-
         const { data } = await apiClient.get<GET_ALL_CHATS_RESPONSE>(
           API_ENDPOINTS.GET_ALL_CHATS(transactionId),
           {
