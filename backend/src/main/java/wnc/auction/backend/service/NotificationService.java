@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import wnc.auction.backend.dto.model.BidHistoryDto;
@@ -93,6 +94,42 @@ public class NotificationService {
         emitter.onError((e) -> removeChatEmitter(transactionId, emitter));
 
         return emitter;
+    }
+
+    @Scheduled(fixedRate = 30000)
+    public void sendHeartbeat() {
+        // Ping users
+        for (List<SseEmitter> emitters : userEmitters.values()) {
+            for (SseEmitter emitter : emitters) {
+                try {
+                    emitter.send(SseEmitter.event().name("ping").data("keep-alive"));
+                } catch (IOException e) {
+                    // Dead emitters will be cleaned up by onError/onTimeout
+                }
+            }
+        }
+
+        // Ping product watchers
+        for (List<SseEmitter> emitters : productEmitters.values()) {
+            for (SseEmitter emitter : emitters) {
+                try {
+                    emitter.send(SseEmitter.event().name("ping").data("keep-alive"));
+                } catch (IOException e) {
+                    // Ignore
+                }
+            }
+        }
+
+        // Ping chat participants
+        for (List<SseEmitter> emitters : chatEmitters.values()) {
+            for (SseEmitter emitter : emitters) {
+                try {
+                    emitter.send(SseEmitter.event().name("ping").data("keep-alive"));
+                } catch (IOException e) {
+                    // Ignore
+                }
+            }
+        }
     }
 
     // Send bid update to all clients watching a product
