@@ -27,12 +27,18 @@ import { formatCurrency } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
 type ProductBidProps = {
+  isCurrentUserBlocked: boolean;
   productId: number;
   currentPrice: number;
   stepPrice: number;
 };
 
-function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
+function ProductBid({
+  isCurrentUserBlocked,
+  productId,
+  currentPrice,
+  stepPrice,
+}: ProductBidProps) {
   const validBidPriceRange = useMemo(() => {
     const start = currentPrice + stepPrice;
     return Array.from({ length: 11 }, (_, i) => start + i * stepPrice);
@@ -99,7 +105,7 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
       <div className="flex items-center justify-between mb-4">
         <Select
           defaultValue={String(minBid)}
-          disabled={isCheckedAutoBid}
+          disabled={isCheckedAutoBid || isCurrentUserBlocked}
           onValueChange={(value) => handleSelectBidPrice(value)}
         >
           <SelectTrigger className="w-full text-lg">
@@ -126,7 +132,7 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
         </Select>
         <Button
           className="ml-4"
-          disabled={isCheckedAutoBid}
+          disabled={isCheckedAutoBid || isCurrentUserBlocked}
           onClick={handleSubmitBid}
         >
           {isPending
@@ -134,7 +140,12 @@ function ProductBid({ productId, currentPrice, stepPrice }: ProductBidProps) {
             : t("productDetail.bid.placeBid")}
         </Button>
       </div>
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full"
+        disabled={isCurrentUserBlocked}
+      >
         <AccordionItem value="item-1">
           <AccordionTrigger className="text-left" onClick={handleToggleAutoBid}>
             <div className="flex items-center gap-3">

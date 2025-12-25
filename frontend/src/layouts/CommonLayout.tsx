@@ -349,7 +349,7 @@ function Footer() {
       </div>
 
       <div className="relative z-10 max-w-lg mx-auto text-center">
-        <p>© 2025 - Online Auction …</p>
+        <p>© 2025 - Online Auction - Advanced Web Project - 22KTPM1</p>
         <div className="flex justify-center gap-8">
           <p>22127286 - Nguyễn Thanh Nam</p>
           <p>22127441 - Thái Huyễn Tùng</p>

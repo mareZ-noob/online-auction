@@ -22,15 +22,16 @@ import type {
 import type { AxiosError } from "axios";
 import type { ApiResponseError } from "@/types/ApiResponse";
 
-export const useFetchUser = (id: number) => {
+export const useFetchUser = (id: number | null) => {
   return useQuery<USER_BY_ID_RESPONSE["data"]>({
     queryKey: ["user", id],
     queryFn: async () => {
       const { data } = await apiClient.get<USER_BY_ID_RESPONSE>(
-        API_ENDPOINTS.USER_BY_ID(id)
+        API_ENDPOINTS.USER_BY_ID(id!)
       );
       return data.data;
     },
+    enabled: !!id,
   });
 };
 

@@ -179,7 +179,13 @@ function QuestionComment({ questions }: { questions: USER_QUESTIONS[] }) {
   );
 }
 
-function ProductComments({ productId }: { productId: number }) {
+function ProductComments({
+  isCurrentUserBlocked,
+  productId,
+}: {
+  isCurrentUserBlocked: boolean;
+  productId: number;
+}) {
   const isSeller = useUserStore((state) => state.isSeller);
   const { t } = useTranslation();
 
@@ -208,7 +214,9 @@ function ProductComments({ productId }: { productId: number }) {
 
   return (
     <div>
-      {!isSeller && <CreateComment productId={productId} page={page} />}
+      {!isSeller && !isCurrentUserBlocked && (
+        <CreateComment productId={productId} page={page} />
+      )}
       <QuestionComment questions={data?.content} />
       <ProductPagination
         className="mt-12"

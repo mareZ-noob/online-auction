@@ -76,7 +76,10 @@ function ProductDetailPage() {
       <div className="my-8 border-b border-gray-200" />
       <section>
         <p className="text-xl mb-4">{t("productDetail.sections.comments")}</p>
-        <ProductComments productId={Number(productId)} />
+        <ProductComments
+          isCurrentUserBlocked={productDetails.isCurrentUserBlocked}
+          productId={Number(productId)}
+        />
       </section>
       <div className="my-8 border-b border-gray-200" />
       <section>

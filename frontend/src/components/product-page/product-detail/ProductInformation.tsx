@@ -12,6 +12,8 @@ import { useTranslation } from "react-i18next";
 
 const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
   const productStatus = data.status;
+  const isCurrentUserBlocked = data.isCurrentUserBlocked;
+
   const { mutate, isPending } = usePlaceABid();
   const { t } = useTranslation();
 
@@ -46,7 +48,33 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
 
   return (
     <div>
-      <p className="text-2xl mr-auto">{data.name}</p>
+      {isCurrentUserBlocked && (
+        <div className="mb-4">
+          <div className="flex items-start justify-between gap-16">
+            <p className="text-destructive text-sm">
+              Your are blocked by the seller of this product. You can not place
+              a bid or comment in this product.
+            </p>
+            <p className="uppercase text-sm bg-destructive px-4 py-2 rounded-sm text-accent">
+              Blocked
+            </p>
+          </div>
+          <div className="border-b border-gray-200 my-4" />
+        </div>
+      )}
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-2xl">{data.name}</p>
+        <p
+          className={cn(
+            "py-2 px-4 rounded-md",
+            productStatus === "COMPLETED"
+              ? "bg-[#E30B5C] text-white text-sm"
+              : "bg-[#50C878] text-white text-sm"
+          )}
+        >
+          {productStatus}
+        </p>
+      </div>
       <div className="border-b border-gray-200 my-4" />
 
       <div className="flex justify-between mb-4 text-lg">
@@ -86,20 +114,11 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
       </p>
 
       <div className="flex items-center justify-end">
-        <p
-          className={cn(
-            "mr-4 py-2 px-4 rounded-md",
-            productStatus === "COMPLETED"
-              ? "bg-[#E30B5C] text-white text-sm"
-              : "bg-[#50C878] text-white text-sm"
-          )}
-        >
-          {productStatus}
-        </p>
         {productStatus !== "COMPLETED" && (
           <Button
             variant="default"
             onClick={() => handleSubmitBid(data.id, data.buyNowPrice)}
+            disabled={isCurrentUserBlocked || isPending}
           >
             {isPending
               ? t("productDetail.actions.buying")
@@ -117,6 +136,7 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
             })}
           </p>
           <ProductBid
+            isCurrentUserBlocked={isCurrentUserBlocked}
             productId={data.id}
             currentPrice={data.currentPrice}
             stepPrice={data.stepPrice}

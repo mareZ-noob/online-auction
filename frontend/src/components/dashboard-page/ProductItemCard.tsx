@@ -60,7 +60,14 @@ function ProductItemCard({
   };
 
   const handleRemoveFromWatchList = () => {
-    removeFromWatchList();
+    removeFromWatchList(undefined, {
+      onSuccess: (result) => {
+        toastSuccess(result.message);
+      },
+      onError: (error) => {
+        toastError(error);
+      },
+    });
   };
 
   useEffect(() => {
@@ -78,7 +85,7 @@ function ProductItemCard({
         className
       )}
       variants={cardVariants}
-      initial={animation?.reveal ? "initial" : undefined}
+      initial={animation?.reveal ? "initial" : "visible"}
       whileInView={animation?.reveal ? "visible" : undefined}
       viewport={{ once: true, amount: 0.3 }}
       whileHover="hover"

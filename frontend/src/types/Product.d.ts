@@ -84,6 +84,7 @@ export type PRODUCT_DETAILS = {
   isNew: boolean;
   isWatched: boolean;
   createdAt: string; // ISO datetime
+  isCurrentUserBlocked: boolean;
 };
 
 export type PRODUCT_DETAILS_RESPONSE = ApiResponse<PRODUCT_DETAILS>;

@@ -64,7 +64,7 @@ function PersonalInformation() {
 
   const id = useUserStore((state) => state.id);
   const isSeller = useUserStore((state) => state.isSeller);
-  const { data } = useFetchUser(id ?? 0);
+  const { data } = useFetchUser(id);
 
   const {
     register,
@@ -74,10 +74,10 @@ function PersonalInformation() {
   } = useForm<PersonalInformationFormData>({
     resolver: zodResolver(personal_information_schema),
     defaultValues: {
-      fullName: "",
-      email: "",
-      address: "",
-      dateOfBirth: "",
+      fullName: data?.fullName ?? "",
+      email: data?.email ?? "",
+      address: data?.address ?? "",
+      dateOfBirth: data?.dateOfBirth ?? "",
       oldPassword: "",
       newPassword: "",
     },
@@ -118,26 +118,6 @@ function PersonalInformation() {
       return next;
     });
   };
-
-  useEffect(() => {
-    if (data) {
-      reset({
-        fullName: data.fullName ?? "",
-        email: data.email ?? "",
-        address: data.address ?? "",
-        dateOfBirth: data.dateOfBirth
-          ? new Date(
-              new Date(data.dateOfBirth).getTime() -
-                new Date(data.dateOfBirth).getTimezoneOffset() * 60000
-            )
-              .toISOString()
-              .slice(0, 16)
-          : "",
-        oldPassword: "",
-        newPassword: "",
-      });
-    }
-  }, [data, reset]);
 
   const { mutate: changeProfile } = useChangeProfile();
   const { mutate: changePassword } = useChangePassword();
@@ -181,7 +161,7 @@ function PersonalInformation() {
     }
   };
 
-  const [upgradeTpSellerStatus, setUpgradeToSellerStatus] =
+  const [upgradeToSellerStatus, setUpgradeToSellerStatus] =
     useState<boolean>(false);
   const { data: requestsToBecomeSeller } = useFetchRequestsToBecomeSeller();
   const { mutate: upgradeToSeller } = useUpgradeToSeller();
@@ -363,7 +343,7 @@ function PersonalInformation() {
               <CardTitle>
                 <div className="flex items-center">
                   <p>{t("profile.personalInformation.sellerUpgrade.title")}</p>
-                  {upgradeTpSellerStatus ? (
+                  {upgradeToSellerStatus ? (
                     <p className="ml-2 px-2 py-1 bg-black text-white rounded-sm font-normal text-sm">
                       {t("profile.personalInformation.sellerUpgrade.pending")}
                     </p>
