@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wnc.auction.backend.annotation.RateLimited;
 import wnc.auction.backend.dto.request.*;
 import wnc.auction.backend.dto.response.ApiResponse;
 import wnc.auction.backend.dto.response.AuthResponse;
@@ -23,6 +24,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
+    @RateLimited(limit = 5, windowSeconds = 300, keyPrefix = "auth:register")
     public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
         return ResponseEntity.ok(
@@ -31,6 +33,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Login")
+    @RateLimited(limit = 10, windowSeconds = 300, keyPrefix = "auth:login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
@@ -52,6 +55,7 @@ public class AuthController {
 
     @PostMapping("/resend-verification")
     @Operation(summary = "Resend email verification OTP")
+    @RateLimited(limit = 3, windowSeconds = 300, keyPrefix = "auth:resend-verification")
     public ResponseEntity<ApiResponse<Void>> resendVerification(@RequestParam String email) {
         authService.sendEmailVerificationOtp(email);
         return ResponseEntity.ok(ApiResponse.success("Verification code sent", null));
@@ -59,6 +63,7 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     @Operation(summary = "Request password reset OTP")
+    @RateLimited(limit = 3, windowSeconds = 300, keyPrefix = "auth:forgot-password")
     public ResponseEntity<ApiResponse<Void>> forgotPassword(@RequestParam String email) {
         authService.sendPasswordResetOtp(email);
         return ResponseEntity.ok(ApiResponse.success("Password reset code sent", null));
@@ -66,6 +71,7 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     @Operation(summary = "Reset password with OTP")
+    @RateLimited(limit = 5, windowSeconds = 300, keyPrefix = "auth:reset-password")
     public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request);
         return ResponseEntity.ok(ApiResponse.success("Password reset successful", null));

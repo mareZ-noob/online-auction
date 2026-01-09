@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import wnc.auction.backend.annotation.RateLimited;
 import wnc.auction.backend.dto.response.*;
 import wnc.auction.backend.service.StripePaymentService;
 
@@ -23,6 +24,7 @@ public class PaymentController {
 
     @PostMapping("/create-checkout-session")
     @Operation(summary = "Create Stripe checkout session", description = "Supports both VND and USD currencies")
+    @RateLimited(limit = 20, windowSeconds = 300, keyPrefix = "payment:create-session")
     public ResponseEntity<ApiResponse<StripeCheckoutResponse>> createCheckoutSession(
             @RequestParam Long transactionId, @RequestParam(defaultValue = "vnd") String currency) {
 

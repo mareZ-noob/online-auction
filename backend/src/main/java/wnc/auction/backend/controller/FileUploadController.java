@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import wnc.auction.backend.annotation.RateLimited;
 import wnc.auction.backend.dto.response.ApiResponse;
 import wnc.auction.backend.service.FileStorageService;
 
@@ -28,6 +29,7 @@ public class FileUploadController {
 
     @PostMapping(value = "/api/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload a single file")
+    @RateLimited(limit = 50, windowSeconds = 300, keyPrefix = "file:upload")
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileUrl = fileStorageService.storeFile(file);
 

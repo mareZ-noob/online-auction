@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import wnc.auction.backend.annotation.RateLimited;
 import wnc.auction.backend.dto.model.*;
 import wnc.auction.backend.dto.request.*;
 import wnc.auction.backend.dto.response.ApiResponse;
@@ -32,6 +33,7 @@ public class BidderController {
     // Bid Operations
     @PostMapping("/bids")
     @Operation(summary = "Place a bid on a product")
+    @RateLimited(limit = 30, windowSeconds = 60, keyPrefix = "bidder:place-bid")
     public ResponseEntity<ApiResponse<BidDto>> placeBid(@Valid @RequestBody PlaceBidRequest request) {
         BidDto bid = bidService.placeBid(request);
         return ResponseEntity.ok(ApiResponse.success("Bid placed successfully", bid));
@@ -85,6 +87,7 @@ public class BidderController {
     // Question Operations
     @PostMapping("/questions")
     @Operation(summary = "Ask a question about a product")
+    @RateLimited(limit = 10, windowSeconds = 300, keyPrefix = "bidder:ask-question")
     public ResponseEntity<ApiResponse<QuestionDto>> askQuestion(@Valid @RequestBody AskQuestionRequest request) {
         QuestionDto question = questionService.askQuestion(request);
         return ResponseEntity.ok(ApiResponse.success("Question submitted", question));
@@ -141,6 +144,7 @@ public class BidderController {
     // Rating Operations
     @PostMapping("/ratings")
     @Operation(summary = "Rate a user (seller)")
+    @RateLimited(limit = 20, windowSeconds = 300, keyPrefix = "bidder:rate-user")
     public ResponseEntity<ApiResponse<RatingDto>> rateUser(@Valid @RequestBody RateUserRequest request) {
         RatingDto rating = ratingService.rateUser(request);
         return ResponseEntity.ok(ApiResponse.success("Rating submitted", rating));

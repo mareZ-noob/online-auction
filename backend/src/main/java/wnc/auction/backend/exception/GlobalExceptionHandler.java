@@ -127,6 +127,28 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), ex);
     }
 
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ApiResponse<Object>> handleRateLimitExceededException(RateLimitExceededException ex) {
+        log.warn(
+                "Rate limit exceeded: {}, retryAfter: {}, remaining: {}",
+                ex.getMessage(),
+                ex.getRetryAfter(),
+                ex.getRemaining());
+
+        ApiResponse<Object> response = ApiResponse.<Object>builder()
+                .success(false)
+                .message(ex.getMessage())
+                .data(null)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("X-RateLimit-Retry-After", String.valueOf(ex.getRetryAfter()))
+                .header("X-RateLimit-Remaining", String.valueOf(ex.getRemaining()))
+                .header("Retry-After", String.valueOf(ex.getRetryAfter()))
+                .body(response);
+    }
+
     // Fallback for uncaught runtime exceptions
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException ex) {
