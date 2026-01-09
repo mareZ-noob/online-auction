@@ -185,6 +185,11 @@ management:
         enabled: true
 
   metrics:
+    enable:
+      jvm: true
+      process: true
+      system: true
+      kafka: true
     distribution:
       percentiles-histogram:
         http.server.requests: true

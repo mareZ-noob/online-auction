@@ -187,15 +187,13 @@ services:
     ports:
       - "9100:9100"
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/host'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
+      - /:/host:ro
     networks:
       - online-auction
+    privileged: true
 
   kafka-exporter:
     image: danielqsj/kafka-exporter:v1.7.0

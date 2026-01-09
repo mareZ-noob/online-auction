@@ -61,7 +61,8 @@ public class SecurityConfig {
                                 "/api/categories/**",
                                 "/swagger-ui/**",
                                 "/api-docs/**",
-                                "/v3/api-docs/**")
+                                "/v3/api-docs/**",
+                                "/actuator/**")
                         .permitAll()
 
                         // Bidder endpoints
@@ -82,7 +83,8 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2.authorizationEndpoint(auth -> auth.baseUri("/api/auth/oauth2/authorize"))
                         .redirectionEndpoint(red -> red.baseUri("/login/oauth2/code/*"))
                         .userInfoEndpoint(
-                                userInfo -> userInfo.oidcUserService(customOidcUserService) // For Keycloak/OIDC
+                                userInfo -> userInfo.oidcUserService(customOidcUserService) // For
+                                // Keycloak/OIDC
                                 )
                         .successHandler(oAuth2AuthenticationSuccessHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

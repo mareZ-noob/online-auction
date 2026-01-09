@@ -97,15 +97,15 @@ public class PublicController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                             description = "Search criteria. Set status to null to get all history.",
                             content = @Content(examples = @ExampleObject(value = """
-											{
-											"keyword": "",
-											"categoryId": null,
-											"status": null,
-											"sortBy": "endTime",
-											"sortDirection": "desc",
-											"page": 0,
-											"size": 20
-											}""")))
+					{
+					"keyword": "",
+					"categoryId": null,
+					"status": null,
+					"sortBy": "endTime",
+					"sortDirection": "desc",
+					"page": 0,
+					"size": 20
+					}""")))
                     @RequestBody
                     SearchRequest request) {
         PageResponse<ProductListDto> products = productService.searchProducts(request);
@@ -147,6 +147,13 @@ public class PublicController {
     public ResponseEntity<ApiResponse<List<CategoryDto>>> getSubCategories(
             @Parameter(description = "Parent Category ID", example = "1") @PathVariable Long id) {
         List<CategoryDto> categories = categoryService.getSubCategories(id);
+        return ResponseEntity.ok(ApiResponse.success(categories));
+    }
+
+    @GetMapping("/categories/without-products")
+    @Operation(summary = "Get categories without products")
+    public ResponseEntity<ApiResponse<List<CategoryDto>>> getCategoriesWithoutProducts() {
+        List<CategoryDto> categories = categoryService.getCategoriesWithoutProducts();
         return ResponseEntity.ok(ApiResponse.success(categories));
     }
 

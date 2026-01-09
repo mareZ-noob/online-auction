@@ -19,4 +19,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT COUNT(p) FROM Product p WHERE p.category.id = :categoryId")
     long countProductsByCategory(@Param("categoryId") Long categoryId);
+
+    @Query("SELECT c FROM Category c WHERE c.products IS EMPTY")
+    List<Category> findCategoriesWithoutProducts();
 }

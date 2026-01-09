@@ -99,4 +99,9 @@ public class CategoryService {
         categoryRepository.delete(category);
         log.info("Category deleted: {}", id);
     }
+
+    public List<CategoryDto> getCategoriesWithoutProducts() {
+        List<Category> categories = categoryRepository.findCategoriesWithoutProducts();
+        return categories.stream().map(CategoryMapper::toDto).toList();
+    }
 }

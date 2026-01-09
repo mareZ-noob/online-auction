@@ -6,11 +6,13 @@ import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics;
 import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.ProducerFactory;
 
 @Configuration
 public class MetricsConfig {
@@ -53,5 +55,10 @@ public class MetricsConfig {
     @Bean
     public FileDescriptorMetrics fileDescriptorMetrics() {
         return new FileDescriptorMetrics();
+    }
+
+    @Bean
+    public KafkaClientMetrics kafkaClientMetrics(ProducerFactory<?, ?> producerFactory) {
+        return new KafkaClientMetrics(producerFactory.createProducer());
     }
 }
