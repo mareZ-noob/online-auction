@@ -37,6 +37,7 @@ export const API_ENDPOINTS = {
 	GET_USER_BY_ID: (id: string | number) => `/admin/users/${id}`,
 	ENABLE_USER: (id: string | number) => `/admin/${id}/enable`,
 	DISABLE_USER: (id: string | number) => `/admin/${id}/disable`,
+	RESET_PASSWORD_USER: (id: string | number) => `/admin/users/${id}/reset-password`,
 
 	// Dashboard
 	GET_DASHBOARD_STATISTICS: "/admin/dashboard",

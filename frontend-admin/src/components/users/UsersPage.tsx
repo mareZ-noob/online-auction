@@ -15,7 +15,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useDisableUser, useEnableUser, useFetchUsers } from "@/hooks/user-hooks";
+import { useDisableUser, useEnableUser, useFetchUsers, useResetPasswordUser } from "@/hooks/user-hooks";
 import { useEffect, useState } from "react";
 import Spinner from "../custom-ui/loading-spinner/LoadingSpinner";
 import CustomPagination from "../custom-ui/pagination/CustomPagination";
@@ -24,6 +24,7 @@ import { Eye, ThumbsDown, ThumbsUp } from "lucide-react";
 import UserDetails from "./UserDetails";
 import { cn, formatDateTime } from "@/lib/utils";
 import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
+import { Button } from "../ui/button";
 
 function UsersPage() {
 	const [page, setPage] = useState(0);
@@ -44,6 +45,7 @@ function UsersPage() {
 
 	const { mutate: enableUser, isPending: enableUserLoading } = useEnableUser(page);
 	const { mutate: disableUser, isPending: disableUserLoading } = useDisableUser(page);
+	const { mutate: resetPasswordUser, isPending: resetPasswordUserLoading } = useResetPasswordUser(page);
 
 	useEffect(() => {
 		if (users) {
@@ -69,6 +71,22 @@ function UsersPage() {
 			},
 			onError: (error) => {
 				toastError(error);
+			}
+		});
+	};
+
+	const [resettingUserId, setResettingUserId] = useState<string | number | null>(null);
+
+	const handleResetPasswordUser = (userId: string | number) => {
+		setResettingUserId(userId);
+		resetPasswordUser({ id: userId }, {
+			onSuccess: (result) => {
+				toastSuccess(result.message);
+				setResettingUserId(null);
+			},
+			onError: (error) => {
+				toastError(error);
+				setResettingUserId(null);
 			}
 		});
 	};
@@ -114,6 +132,7 @@ function UsersPage() {
 						<TableHead className="text-center">Active</TableHead>
 						<TableHead className="text-center">Details</TableHead>
 						<TableHead className="text-center">Enable/Disable</TableHead>
+						<TableHead className="text-center">Reset Password</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -218,22 +237,32 @@ function UsersPage() {
 										)}
 									</div>
 								</TableCell>
+								<TableCell>
+									<div className="flex items-center justify-center">
+										<Button variant="default" size="sm" onClick={() => handleResetPasswordUser(user.id)}>
+											{resetPasswordUserLoading && resettingUserId === user.id ? "Resetting..." : "Reset"}
+										</Button>
+									</div>
+								</TableCell>
 							</TableRow>
 						))}
 				</TableBody>
-			</Table>
+			</Table >
 			{isLoading && (
 				<Spinner className="mt-12 flex items-center justify-center" />
-			)}
-			{!isLoading && (
-				<CustomPagination
-					className="mt-12"
-					page={page}
-					totalPages={totalPages}
-					onPageChange={(page) => setPage(page)}
-				/>
-			)}
-		</div>
+			)
+			}
+			{
+				!isLoading && (
+					<CustomPagination
+						className="mt-12"
+						page={page}
+						totalPages={totalPages}
+						onPageChange={(page) => setPage(page)}
+					/>
+				)
+			}
+		</div >
 	);
 }
 

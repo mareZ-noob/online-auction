@@ -3,6 +3,7 @@ import type { ApiResponse, ApiResponseError } from "@/types/ApiResponse";
 import type {
 	DISABLE_USER_RESPONSE,
 	ENABLE_USER_RESPONSE,
+	RESET_PASSWORD_USER_RESPONSE,
 	REVIEW_UPGRADE_REQUEST_RESPONSE,
 	UPGRADE_REQUESTS_RESPONSE,
 	USER_BY_ID_RESPONSE,
@@ -124,6 +125,30 @@ export const useDisableUser = (page: number) => {
 			const { data } = await apiClient.put<
 				DISABLE_USER_RESPONSE
 			>(API_ENDPOINTS.DISABLE_USER(id));
+			return data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["users", page],
+			});
+		}
+	});
+};
+
+export const useResetPasswordUser = (page: number) => {
+	return useMutation<
+		RESET_PASSWORD_USER_RESPONSE,
+		AxiosError<ApiResponseError>,
+		{
+			id: string | number;
+		}
+	>({
+		mutationKey: ["reset-password-user"],
+		mutationFn: async ({ id }) => {
+			const { data } = await apiClient.post<
+				RESET_PASSWORD_USER_RESPONSE
+			>(API_ENDPOINTS.RESET_PASSWORD_USER(id));
+
 			return data;
 		},
 		onSuccess: () => {

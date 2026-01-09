@@ -40,3 +40,5 @@ export type USER_RESPONSE = ApiResponse<Pagination<USER>>;
 export type USER_BY_ID_RESPONSE = ApiResponse<USER>;
 export type ENABLE_USER_RESPONSE = ApiResponse<string>;
 export type DISABLE_USER_RESPONSE = ApiResponse<string>;
+
+export type RESET_PASSWORD_USER_RESPONSE = ApiResponse<{ temporaryPassword: string }>;
