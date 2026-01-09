@@ -32,6 +32,7 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final CustomOidcUserService customOidcUserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Value("${app.frontend.url}")
@@ -86,7 +87,8 @@ public class SecurityConfig {
                                 userInfo -> userInfo.oidcUserService(customOidcUserService) // For
                                 // Keycloak/OIDC
                                 )
-                        .successHandler(oAuth2AuthenticationSuccessHandler))
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint));
 

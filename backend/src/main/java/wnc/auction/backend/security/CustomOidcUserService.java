@@ -37,6 +37,9 @@ public class CustomOidcUserService extends OidcUserService {
         OidcUser oidcUser = super.loadUser(userRequest);
         try {
             return processOidcUser(userRequest, oidcUser);
+        } catch (OAuth2AuthenticationException ex) {
+            // Re-throw OAuth2 exceptions directly so the failure handler can catch them
+            throw ex;
         } catch (Exception ex) {
             throw new InternalAuthenticationServiceException(ex.getMessage(), ex.getCause());
         }
@@ -73,8 +76,15 @@ public class CustomOidcUserService extends OidcUserService {
                         "User {} attempted to access admin frontend without ADMIN role. Roles: {}",
                         email,
                         keycloakRoles);
-                throw new OAuth2AuthenticationException(
-                        "Access denied: Administrator privileges required to access admin portal");
+                // Throw custom exception with ID token so the failure handler can logout from
+                // Keycloak
+                String idToken = oidcUser.getIdToken().getTokenValue();
+                throw new OAuth2AdminAccessDeniedException(
+                        new org.springframework.security.oauth2.core.OAuth2Error(
+                                "access_denied",
+                                "Access denied: Administrator privileges required to access admin portal",
+                                null),
+                        idToken);
             }
             log.info("ADMIN role verified for user: {}", email);
         }
@@ -217,8 +227,8 @@ public class CustomOidcUserService extends OidcUserService {
     }
 
     /**
-     * Extract roles from Keycloak OIDC token
-     * Keycloak typically stores roles in realm_access.roles claim
+     * Extract roles from Keycloak OIDC token Keycloak typically stores roles in
+     * realm_access.roles claim
      */
     private List<String> extractRoles(OidcUser oidcUser) {
         // Try to get roles from realm_access.roles (Keycloak default structure)
