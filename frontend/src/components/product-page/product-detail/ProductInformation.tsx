@@ -9,6 +9,7 @@ import type { PRODUCT_DETAILS } from "@/types/Product";
 
 import ProductBid from "./product-bid/ProductBid";
 import { useTranslation } from "react-i18next";
+import NotificationDialog from "@/components/custom-ui/dialog/NotificationDialog";
 
 const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
   const productStatus = data.status;
@@ -115,15 +116,23 @@ const ProductInfo = ({ data }: { data: Omit<PRODUCT_DETAILS, "images"> }) => {
 
       <div className="flex items-center justify-end">
         {productStatus !== "COMPLETED" && (
-          <Button
-            variant="default"
-            onClick={() => handleSubmitBid(data.id, data.buyNowPrice)}
-            disabled={isCurrentUserBlocked || isPending}
-          >
-            {isPending
-              ? t("productDetail.actions.buying")
-              : t("productDetail.actions.buyNow")}
-          </Button>
+          <NotificationDialog
+            triggerElement={
+              <Button
+                variant="default"
+                disabled={isCurrentUserBlocked || isPending}
+              >
+                {isPending
+                  ? t("productDetail.actions.buying")
+                  : t("productDetail.actions.buyNow")}
+              </Button>
+            }
+            title={t("productDetail.actions.buyNowTitle")}
+            description={t("productDetail.actions.buyNowDescription")}
+            actionText={t("productDetail.actions.buyNow")}
+            cancelText={t("productDetail.actions.cancel")}
+            onAction={() => handleSubmitBid(data.id, data.buyNowPrice)}
+          />
         )}
       </div>
 

@@ -265,7 +265,10 @@
     },
     "actions": {
       "buyNow": "Buy Now",
-      "buying": "Buying..."
+      "buying": "Buying...",
+      "buyNowTitle": "Buy Now",
+      "buyNowDescription": "Are you sure you want to buy this product?",
+      "cancel": "Cancel"
     },
     "bid": {
       "selectPricePlaceholder": "Select Price",
@@ -275,7 +278,12 @@
       "activateAutoBid": "Activate Auto Bid",
       "autoBidLabel": "Enter max auto-bid price (must be >= {{value}})",
       "autoBidPlaceholder": "e.g., {{value}}",
-      "maxBudgetLabel": "Enter your maximum budget"
+      "maxBudgetLabel": "Enter your maximum budget",
+      "autoBidTitle": "Auto Bid",
+      "autoBidDescription": "Are you sure you want to activate auto bid?",
+      "manualBidTitle": "Manual Bid",
+      "manualBidDescription": "Are you sure you want to place a manual bid?",
+      "cancel": "Cancel"
     },
     "bidHistory": {
       "caption": "A list of bid history in this product.",

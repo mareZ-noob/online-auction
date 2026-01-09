@@ -265,7 +265,10 @@
     },
     "actions": {
       "buyNow": "Mua ngay",
-      "buying": "Đang mua..."
+      "buying": "Đang mua...",
+      "buyNowTitle": "Mua ngay",
+      "buyNowDescription": "Bạn có chắc chắn muốn mua ngay sản phẩm này không?",
+      "cancel": "Hủy"
     },
     "bid": {
       "selectPricePlaceholder": "Chọn mức giá",
@@ -275,7 +278,12 @@
       "activateAutoBid": "Kích hoạt tự động đặt giá",
       "autoBidLabel": "Nhập mức giá tự động tối đa (phải >= {{value}})",
       "autoBidPlaceholder": "ví dụ: {{value}}",
-      "maxBudgetLabel": "Nhập ngân sách tối đa của bạn"
+      "maxBudgetLabel": "Nhập ngân sách tối đa của bạn",
+      "autoBidTitle": "Tự động đặt giá",
+      "autoBidDescription": "Bạn có chắc chắn muốn kích hoạt tự động đặt giá không?",
+      "manualBidTitle": "Đặt giá thủ công",
+      "manualBidDescription": "Bạn có chắc chắn muốn đặt giá thủ công không?",
+      "cancel": "Hủy"
     },
     "bidHistory": {
       "caption": "Danh sách lịch sử đấu giá của sản phẩm này.",

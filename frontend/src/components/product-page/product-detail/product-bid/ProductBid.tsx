@@ -25,6 +25,7 @@ import {
 } from "@/components/custom-ui/toast/toast-ui";
 import { formatCurrency } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import NotificationDialog from "@/components/custom-ui/dialog/NotificationDialog";
 
 type ProductBidProps = {
   isCurrentUserBlocked: boolean;
@@ -130,15 +131,23 @@ function ProductBid({
             </SelectGroup>
           </SelectContent>
         </Select>
-        <Button
-          className="ml-4"
-          disabled={isCheckedAutoBid || isCurrentUserBlocked}
-          onClick={handleSubmitBid}
-        >
-          {isPending
-            ? t("productDetail.bid.placingBid")
-            : t("productDetail.bid.placeBid")}
-        </Button>
+        <NotificationDialog
+          triggerElement={
+            <Button
+              className="ml-4"
+              disabled={isCheckedAutoBid || isCurrentUserBlocked}
+            >
+              {isPending
+                ? t("productDetail.bid.placingBid")
+                : t("productDetail.bid.placeBid")}
+            </Button>
+          }
+          title={t("productDetail.bid.manualBidTitle")}
+          description={t("productDetail.bid.manualBidDescription")}
+          actionText={t("productDetail.bid.placeBid")}
+          cancelText={t("productDetail.bid.cancel")}
+          onAction={handleSubmitBid}
+        />
       </div>
       <Accordion
         type="single"
@@ -171,15 +180,23 @@ function ProductBid({
                 validBid={minBid}
                 onValidBid={setMaxAutoBidPrice}
               />
-              <Button
-                className="ml-4 mt-4"
-                disabled={!isCheckedAutoBid}
-                onClick={handleSubmitAutoBid}
-              >
-                {isPending
-                  ? t("productDetail.bid.placingBid")
-                  : t("productDetail.bid.placeBid")}
-              </Button>
+              <NotificationDialog
+                triggerElement={
+                  <Button
+                    className="ml-4 mt-4"
+                    disabled={!isCheckedAutoBid}
+                  >
+                    {isPending
+                      ? t("productDetail.bid.placingBid")
+                      : t("productDetail.bid.placeBid")}
+                  </Button>
+                }
+                title={t("productDetail.bid.autoBidTitle")}
+                description={t("productDetail.bid.autoBidDescription")}
+                actionText={t("productDetail.bid.placeBid")}
+                cancelText={t("productDetail.bid.cancel")}
+                onAction={handleSubmitAutoBid}
+              />
             </div>
           </AccordionContent>
         </AccordionItem>
