@@ -16,6 +16,7 @@ import { API_ENDPOINTS } from "./endpoints";
 import { queryClient } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import type {
+  BIDDING_PRODUCTS_RESPONSE,
   PRODUCTS_BY_SUB_CATEGORY_ID,
   PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE,
 } from "@/types/Product";
@@ -124,13 +125,12 @@ export const useFetchBiddingProducts = (
 ) => {
   const userId = useUserStore((state) => state.id ?? 0);
 
-  return useQuery<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE["data"]>({
+  return useQuery<BIDDING_PRODUCTS_RESPONSE["data"]>({
     queryKey: ["user-bidding-products", userId, page, size],
     queryFn: async () => {
-      const { data } =
-        await apiClient.get<PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE>(
-          API_ENDPOINTS.GET_CURRENT_BIDS(page, size)
-        );
+      const { data } = await apiClient.get<BIDDING_PRODUCTS_RESPONSE>(
+        API_ENDPOINTS.GET_CURRENT_BIDS(page, size)
+      );
       return data.data;
     },
   });

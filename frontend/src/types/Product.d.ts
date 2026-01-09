@@ -36,6 +36,14 @@ export type PRODUCTS_BY_SUB_CATEGORY_ID = {
   sellerName: string;
 };
 
+export type BIDDING_PRODUCTS_RESPONSE = ApiResponse<
+  Pagination<
+    PRODUCTS_BY_SUB_CATEGORY_ID & {
+      currentUserRank: number;
+    }
+  >
+>;
+
 export type PRODUCTS_BY_SUB_CATEGORY_ID_RESPONSE = ApiResponse<
   Pagination<PRODUCTS_BY_SUB_CATEGORY_ID>
 >;

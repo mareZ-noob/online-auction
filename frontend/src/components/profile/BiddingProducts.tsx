@@ -1,4 +1,4 @@
-import { Eye } from "lucide-react";
+import { Eye, Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -65,11 +65,20 @@ function BiddingProducts() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {biddingProducts?.content.map((product, index) => (
+          {biddingProducts?.content.map((product) => (
             <TableRow key={product.id}>
               <TableCell className="max-w-sm">
                 <p className="font-light whitespace-normal wrap-break-word text-gray-400">
-                  {index + 1 + page * biddingProducts.size}
+                  {product.currentUserRank === 1 ? (
+                    <div className="flex items-center gap-1 bg-[#FDDA0D] px-2 py-1 rounded-md">
+                      <p className="font-semibold text-black">
+                        {product.currentUserRank}
+                      </p>
+                      <Trophy className="text-black" size={12} />
+                    </div>
+                  ) : (
+                    product.currentUserRank
+                  )}
                 </p>
               </TableCell>
               <TableCell className="max-w-sm">
