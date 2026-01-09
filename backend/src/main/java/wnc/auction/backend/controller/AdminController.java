@@ -86,6 +86,21 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success("User logged out from all devices", null));
     }
 
+    @DeleteMapping("/users/{userId}")
+    @Operation(summary = "Delete user account (soft delete)")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
+        adminService.deleteUser(userId);
+        return ResponseEntity.ok(ApiResponse.success("User deleted successfully", null));
+    }
+
+    @PostMapping("/users/{userId}/reset-password")
+    @Operation(summary = "Reset user password and send email notification")
+    public ResponseEntity<ApiResponse<Map<String, String>>> resetPassword(@PathVariable Long userId) {
+        String tempPassword = adminService.resetUserPassword(userId);
+        return ResponseEntity.ok(ApiResponse.success(
+                "Password reset successfully. Email sent to user.", Map.of("temporaryPassword", tempPassword)));
+    }
+
     @GetMapping("/config/auction-settings")
     @Operation(summary = "Get current auction auto-extend settings")
     public ResponseEntity<ApiResponse<AuctionConfigResponse>> getAuctionSettings() {

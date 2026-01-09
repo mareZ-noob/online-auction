@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import wnc.auction.backend.model.Bid;
+import wnc.auction.backend.model.User;
 
 @Repository
 public interface BidRepository extends JpaRepository<Bid, Long> {
@@ -48,4 +49,8 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
             + ") "
             + "ORDER BY b.amount DESC, b.createdAt ASC")
     Page<Bid> findBidRankingByProduct(@Param("productId") Long productId, Pageable pageable);
+
+    // Get all distinct users who bid on a product
+    @Query("SELECT DISTINCT b.user FROM Bid b WHERE b.product.id = :productId")
+    List<User> findDistinctBiddersByProductId(@Param("productId") Long productId);
 }

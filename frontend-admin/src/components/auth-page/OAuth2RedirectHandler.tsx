@@ -11,10 +11,10 @@ function OAuth2RedirectHandler() {
 
 	const handleComplete = () => {
 		console.log("Exchange complete callback triggered!");
-		console.log("Navigating to /me in 100ms...");
+		console.log("Navigating to /admin in 100ms...");
 		setTimeout(() => {
 			console.log("Executing navigation NOW!");
-			navigate("/me", { replace: true });
+			navigate("/admin", { replace: true });
 		}, 100);
 	};
 

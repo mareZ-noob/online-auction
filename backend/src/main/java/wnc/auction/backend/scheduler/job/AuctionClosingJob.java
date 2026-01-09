@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import wnc.auction.backend.model.Product;
 import wnc.auction.backend.model.enumeration.ProductStatus;
+import wnc.auction.backend.repository.BidRepository;
 import wnc.auction.backend.repository.ProductRepository;
 import wnc.auction.backend.service.EmailService;
 import wnc.auction.backend.service.NotificationService;
@@ -26,6 +27,7 @@ public class AuctionClosingJob extends QuartzJobBean {
     private final EmailService emailService;
     private final NotificationService notificationService;
     private final TransactionService transactionService;
+    private final BidRepository bidRepository;
 
     @Override
     @Transactional
@@ -86,10 +88,36 @@ public class AuctionClosingJob extends QuartzJobBean {
             emailService.sendAuctionEndedNotification(
                     sellerId, product.getId(), productName, false, finalPrice.toString());
             notificationService.notifyAuctionEnded(sellerId, product.getId(), productName, false, finalPrice);
+
+            // Notify all other participants who placed bids
+            notifyAllParticipants(product, winnerId, sellerId, finalPrice);
         } else {
             // Notify Seller (Fail - No bids)
             emailService.sendAuctionEndedNotification(sellerId, product.getId(), productName, false, "0");
             notificationService.notifyAuctionEnded(sellerId, product.getId(), productName, false, BigDecimal.ZERO);
         }
+    }
+
+    private void notifyAllParticipants(Product product, Long winnerId, Long sellerId, BigDecimal finalPrice) {
+        // Get all distinct bidders for this product
+        var allBidders = bidRepository.findDistinctBiddersByProductId(product.getId());
+
+        // Send email to all bidders except winner and seller
+        allBidders.stream()
+                .filter(bidder ->
+                        !bidder.getId().equals(winnerId) && !bidder.getId().equals(sellerId))
+                .forEach(bidder -> {
+                    try {
+                        emailService.sendAuctionEndedNotification(
+                                bidder.getId(),
+                                product.getId(),
+                                product.getName(),
+                                false, // They didn't win
+                                finalPrice.toString());
+                        log.info("Sent auction ended notification to participant: {}", bidder.getId());
+                    } catch (Exception e) {
+                        log.error("Failed to send auction ended notification to participant: {}", bidder.getId(), e);
+                    }
+                });
     }
 }

@@ -18,4 +18,5 @@ public class BidHistoryDto {
     private BigDecimal amount;
     private LocalDateTime createdAt;
     private boolean isBlocked;
+    private Integer rank; // User's ranking position in the auction (1 = highest bidder)
 }

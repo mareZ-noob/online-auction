@@ -56,6 +56,26 @@
     "user": "",
     "password": ""
   },
+  "roles": {
+    "realm": [
+      {
+        "name": "USER",
+        "description": "Regular user role"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrator role with full access"
+      },
+      {
+        "name": "BIDDER",
+        "description": "User who can bid on auctions"
+      },
+      {
+        "name": "SELLER",
+        "description": "User who can create auctions"
+      }
+    ]
+  },
   "users": [
     {
       "username": "user",
@@ -64,10 +84,35 @@
       "firstName": "Demo",
       "lastName": "User",
       "emailVerified": true,
+      "realmRoles": [
+        "USER",
+        "BIDDER"
+      ],
       "credentials": [
         {
           "type": "password",
           "value": "password",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "admin",
+      "email": "admin@auction.com",
+      "enabled": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "emailVerified": true,
+      "realmRoles": [
+        "USER",
+        "ADMIN",
+        "BIDDER",
+        "SELLER"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
           "temporary": false
         }
       ]
@@ -86,34 +131,60 @@
       "serviceAccountsEnabled": true,
       "authorizationServicesEnabled": true,
       "redirectUris": [
-        "http://localhost:8088/login/oauth2/code/*",
-        "http://localhost:5173/*",
-        "http://localhost:5173/oauth2/redirect"
+        "http://localhost:8088/login/oauth2/code/*"
       ],
       "webOrigins": [
-        "http://localhost:5173",
         "http://localhost:8088"
       ],
-      "attributes": {
-        "post.logout.redirect.uris": "http://localhost:5173##http://localhost:5173/*"
-      }
+      "protocolMappers": [
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
     },
     {
-      "clientId": "swagger-ui",
-      "name": "Swagger UI",
+      "clientId": "auction-admin-backend",
+      "name": "Auction Admin Backend Service",
       "protocol": "openid-connect",
-      "publicClient": true,
+      "publicClient": false,
       "clientAuthenticatorType": "client-secret",
+      "secret": "auction-admin-client-secret",
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
-      "rootUrl": "http://localhost:8088",
-      "baseUrl": "http://localhost:8088",
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
       "redirectUris": [
-        "http://localhost:8088/swagger-ui/oauth2-redirect.html"
+        "http://localhost:8088/login/oauth2/code/*"
       ],
       "webOrigins": [
-        "http://localhost:8088",
-        "+"
+        "http://localhost:8088"
+      ],
+      "protocolMappers": [
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
       ]
     }
   ]

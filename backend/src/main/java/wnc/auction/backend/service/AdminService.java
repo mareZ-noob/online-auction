@@ -4,12 +4,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wnc.auction.backend.dto.model.UserDto;
@@ -39,6 +41,8 @@ public class AdminService {
     private final CategoryRepository categoryRepository;
     private final UpgradeRequestRepository upgradeRequestRepository;
     private final SystemConfigService systemConfigService;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     public DashboardStats getDashboardStats() {
         long totalUsers = userRepository.count();
@@ -178,5 +182,46 @@ public class AdminService {
     public void updateAuctionConfig(int threshold, int duration) {
         systemConfigService.updateConfig("AUCTION_EXTEND_THRESHOLD", String.valueOf(threshold));
         systemConfigService.updateConfig("AUCTION_EXTEND_DURATION", String.valueOf(duration));
+    }
+
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+
+        // Soft delete by marking as inactive
+        user.setIsActive(false);
+        userRepository.save(user);
+
+        log.info("User {} (email: {}) deleted by admin", userId, user.getEmail());
+    }
+
+    public String resetUserPassword(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+
+        // Generate a random temporary password
+        String tempPassword = generateTemporaryPassword();
+
+        // Encode and save the new password
+        user.setPassword(passwordEncoder.encode(tempPassword));
+        userRepository.save(user);
+
+        // Send email notification to user
+        emailService.sendPasswordResetNotification(userId, tempPassword);
+
+        log.info("Password reset for user {} (email: {}) by admin", userId, user.getEmail());
+
+        return tempPassword;
+    }
+
+    private String generateTemporaryPassword() {
+        // Generate a secure random password
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
+        StringBuilder password = new StringBuilder();
+        Random random = new Random();
+
+        for (int i = 0; i < 12; i++) {
+            password.append(chars.charAt(random.nextInt(chars.length())));
+        }
+
+        return password.toString();
     }
 }

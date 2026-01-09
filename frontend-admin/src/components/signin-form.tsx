@@ -63,8 +63,8 @@ export function SigninForm({
 		const baseURL =
 			import.meta.env.VITE_API_BASE_URL || "http://localhost:8088/api";
 
-		// Full URL: http://localhost:8088/api/auth/oauth2/authorize/keycloak
-		window.location.href = `${baseURL}/auth/oauth2/authorize/keycloak`;
+		// Full URL: http://localhost:8088/api/auth/oauth2/authorize/keycloak-admin
+		window.location.href = `${baseURL}/auth/oauth2/authorize/keycloak-admin`;
 	};
 
 	return (
@@ -94,6 +94,7 @@ export function SigninForm({
 					)}
 				</Field>
 				<Field>
+					<FieldLabel htmlFor="password">Password</FieldLabel>
 					<Input
 						id="password"
 						type="password"

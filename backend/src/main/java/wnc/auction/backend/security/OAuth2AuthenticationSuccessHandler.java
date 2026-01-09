@@ -38,6 +38,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Value("${app.frontend.url}")
     private String frontendURL;
 
+    @Value("${app.frontend.admin-url}")
+    private String adminFrontendURL;
+
     @Value("${app.jwt.refresh-token-expiration}")
     private long refreshTokenDurationMs;
 
@@ -105,8 +108,30 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         log.info("Stored auth tokens in Redis with code: {}", code);
 
+        // Determine which frontend to redirect to based on OAuth2 client
+        String targetFrontendUrl = frontendURL; // Default to regular frontend
+
+        // Check if this is an OAuth2 authentication
+        if (authentication
+                instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+            org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauth2Token =
+                    (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken)
+                            authentication;
+            String registrationId = oauth2Token.getAuthorizedClientRegistrationId();
+
+            log.info("OAuth2 client registration ID: {}", registrationId);
+
+            // If authenticated via keycloak-admin, redirect to admin frontend
+            if ("keycloak-admin".equals(registrationId)) {
+                targetFrontendUrl = adminFrontendURL;
+                log.info("Redirecting to admin frontend: {}", targetFrontendUrl);
+            } else {
+                log.info("Redirecting to regular frontend: {}", targetFrontendUrl);
+            }
+        }
+
         // Build frontend redirect URL with ONLY the code
-        return UriComponentsBuilder.fromUriString(frontendURL)
+        return UriComponentsBuilder.fromUriString(targetFrontendUrl)
                 .path("/oauth2/redirect")
                 .queryParam("code", code)
                 .build()

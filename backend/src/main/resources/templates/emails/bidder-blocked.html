@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #e74c3c;
+        }
+        .content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .detail-row {
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .label {
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+        .value {
+            color: #2c3e50;
+            margin-top: 5px;
+            font-size: 18px;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning-box p {
+            margin: 5px 0;
+            color: #856404;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚫 <span th:text="#{email.blocked.title}">Access Restricted</span></h1>
+        </div>
+
+        <p th:text="#{email.blocked.greeting}">Hello,</p>
+
+        <div class="warning-box">
+            <p><strong th:text="#{email.blocked.notice}">Notice:</strong></p>
+            <p th:text="#{email.blocked.message}">You have been removed from bidding on the following product by the seller.</p>
+        </div>
+
+        <div class="content">
+            <div class="detail-row">
+                <div class="label" th:text="#{email.common.product}">Product:</div>
+                <div class="value" th:text="${productName}">Product Name</div>
+            </div>
+            <div class="detail-row">
+                <div class="label" th:text="#{email.blocked.seller}">Seller:</div>
+                <div class="value" th:text="${sellerName}">Seller Name</div>
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <p th:text="#{email.blocked.consequence}">You will no longer be able to place bids on this product. If you had an active bid, it has been cancelled.</p>
+        </div>
+
+        <div style="text-align: center;">
+            <a th:href="${productUrl}" class="btn" th:text="#{email.blocked.action}">View Product</a>
+        </div>
+
+        <div class="footer">
+            <p th:text="#{email.footer.automated}">This is an automated message, please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>

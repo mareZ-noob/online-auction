@@ -6,6 +6,9 @@ import CommonLayout from "@/layouts/CommonLayout.tsx";
 import { ProtectedRoute } from "./protected-route";
 
 const SignInPage = lazy(() => import("@/components/auth-page/SignInPage"));
+const OAuth2RedirectHandler = lazy(
+	() => import("@/components/auth-page/OAuth2RedirectHandler"),
+);
 
 // admin
 const ReportsPage = lazy(
@@ -45,6 +48,15 @@ const router = createBrowserRouter([
 				),
 			},
 		],
+	},
+	{
+		path: "/oauth2/redirect",
+		element: (
+			<Suspense fallback={<LoadingPage />}>
+				<OAuth2RedirectHandler />
+			</Suspense>
+		),
+		errorElement: <ErrorPage />,
 	},
 	{
 		path: "/",

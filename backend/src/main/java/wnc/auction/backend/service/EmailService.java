@@ -87,6 +87,25 @@ public class EmailService {
         sendRoleExpirationEmailWithLocale(getUserEmail(userId), locale);
     }
 
+    public void sendBidderBlockedNotification(Long userId, Long productId, String productName, String sellerName) {
+        Locale locale = localeService.getLocaleByUserId(userId);
+        String productUrl = String.format("%s/products/%d", frontendUrl, productId);
+        sendBidderBlockedNotificationWithLocale(getUserEmail(userId), productName, sellerName, productUrl, locale);
+    }
+
+    public void sendPasswordResetNotification(Long userId, String newPassword) {
+        Locale locale = localeService.getLocaleByUserId(userId);
+        sendPasswordResetNotificationWithLocale(getUserEmail(userId), newPassword, locale);
+    }
+
+    public void sendProductUpdatedNotification(
+            Long userId, Long productId, String productName, String updateDescription) {
+        Locale locale = localeService.getLocaleByUserId(userId);
+        String productUrl = String.format("%s/products/%d", frontendUrl, productId);
+        sendProductUpdatedNotificationWithLocale(
+                getUserEmail(userId), productName, updateDescription, productUrl, locale);
+    }
+
     private void sendOtpEmailWithLocale(String to, String code, String purpose, Locale locale) {
         try {
             Context context = new Context(locale);
@@ -217,6 +236,58 @@ public class EmailService {
             log.info("Order shipped notification sent to: {} in locale: {}", to, locale);
         } catch (Exception e) {
             log.error("Failed to send order shipped notification", e);
+        }
+    }
+
+    private void sendBidderBlockedNotificationWithLocale(
+            String to, String productName, String sellerName, String productUrl, Locale locale) {
+        try {
+            Context context = new Context(locale);
+            context.setVariable("productName", productName);
+            context.setVariable("sellerName", sellerName);
+            context.setVariable("productUrl", productUrl);
+
+            String htmlContent = templateEngine.process("bidder-blocked", context);
+            String subject = messageSource.getMessage("email.blocked.subject", new Object[] {productName}, locale);
+
+            sendHtmlEmail(to, subject, htmlContent);
+            log.info("Bidder blocked notification sent to: {} in locale: {}", to, locale);
+        } catch (Exception e) {
+            log.error("Failed to send bidder blocked notification", e);
+        }
+    }
+
+    private void sendPasswordResetNotificationWithLocale(String to, String newPassword, Locale locale) {
+        try {
+            Context context = new Context(locale);
+            context.setVariable("newPassword", newPassword);
+
+            String htmlContent = templateEngine.process("password-reset", context);
+            String subject = messageSource.getMessage("email.password.reset.subject", null, locale);
+
+            sendHtmlEmail(to, subject, htmlContent);
+            log.info("Password reset notification sent to: {} in locale: {}", to, locale);
+        } catch (Exception e) {
+            log.error("Failed to send password reset notification", e);
+        }
+    }
+
+    private void sendProductUpdatedNotificationWithLocale(
+            String to, String productName, String updateDescription, String productUrl, Locale locale) {
+        try {
+            Context context = new Context(locale);
+            context.setVariable("productName", productName);
+            context.setVariable("updateDescription", updateDescription);
+            context.setVariable("productUrl", productUrl);
+
+            String htmlContent = templateEngine.process("product-updated", context);
+            String subject =
+                    messageSource.getMessage("email.product.updated.subject", new Object[] {productName}, locale);
+
+            sendHtmlEmail(to, subject, htmlContent);
+            log.info("Product updated notification sent to: {} in locale: {}", to, locale);
+        } catch (Exception e) {
+            log.error("Failed to send product updated notification", e);
         }
     }
 

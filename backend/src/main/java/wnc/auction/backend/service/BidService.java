@@ -139,9 +139,35 @@ public class BidService {
         notificationService.notifyAuctionEnded(
                 product.getSeller().getId(), product.getId(), product.getName(), false, finalAmount);
 
+        // Notify all other participants who placed bids
+        notifyAllParticipants(product, winner.getId(), product.getSeller().getId(), finalAmount);
+
         // Broadcast to everyone watching the product (Public Product Stream)
         notificationService.broadcastAuctionEnded(
                 product.getId(), product.getName(), winner.getFullName(), finalAmount);
+    }
+
+    private void notifyAllParticipants(Product product, Long winnerId, Long sellerId, BigDecimal finalAmount) {
+        // Get all distinct bidders for this product
+        List<User> allBidders = bidRepository.findDistinctBiddersByProductId(product.getId());
+
+        // Send email to all bidders except winner and seller
+        allBidders.stream()
+                .filter(bidder ->
+                        !bidder.getId().equals(winnerId) && !bidder.getId().equals(sellerId))
+                .forEach(bidder -> {
+                    try {
+                        emailService.sendAuctionEndedNotification(
+                                bidder.getId(),
+                                product.getId(),
+                                product.getName(),
+                                false, // They didn't win
+                                finalAmount.toString());
+                        log.info("Sent auction ended notification to participant: {}", bidder.getId());
+                    } catch (Exception e) {
+                        log.error("Failed to send auction ended notification to participant: {}", bidder.getId(), e);
+                    }
+                });
     }
 
     private Bid createAndSaveBid(Product product, User bidder, BigDecimal amount, BigDecimal maxAuto, Boolean isAuto) {
@@ -246,7 +272,8 @@ public class BidService {
             log.info("Direct Auto-Bid: User {} wins against others with price {}", winner.getId(), finalPrice);
 
             // Create the final winning bid
-            // Note: If winner is currentUser, we theoretically should update their existing bid or create new.
+            // Note: If winner is currentUser, we theoretically should update their existing
+            // bid or create new.
             // Here we create a new one to simplify history logic.
             createAndSaveBid(product, winner, finalPrice, winnerMax, true);
 
@@ -371,6 +398,18 @@ public class BidService {
                 .map(blocked -> blocked.getBidder().getId())
                 .toList();
 
+        // Get all bids sorted by amount to calculate rank
+        List<Bid> rankedBids = bidRepository.findByProductOrderByAmountDesc(productId);
+        Map<Long, Integer> userRankMap = new HashMap<>();
+
+        // Calculate rank for each unique user (based on their highest bid)
+        int rank = 1;
+        for (Bid bid : rankedBids) {
+            if (!userRankMap.containsKey(bid.getUser().getId())) {
+                userRankMap.put(bid.getUser().getId(), rank++);
+            }
+        }
+
         return bids.getContent().stream()
                 .map(bid -> {
                     BidHistoryDto dto = BidMapper.toHistoryDto(bid);
@@ -379,6 +418,9 @@ public class BidService {
                     if (blockedUserIds.contains(bid.getUser().getId())) {
                         dto.setBlocked(true);
                     }
+
+                    // Set rank based on user's highest bid
+                    dto.setRank(userRankMap.getOrDefault(bid.getUser().getId(), null));
 
                     return dto;
                 })
@@ -426,6 +468,10 @@ public class BidService {
             reassignHighestBidder(product);
         }
 
+        // Send email notification to the blocked bidder
+        emailService.sendBidderBlockedNotification(
+                bidderId, productId, product.getName(), product.getSeller().getFullName());
+
         log.info("Bidder {} blocked from product {}", bidderId, productId);
     }
 
@@ -461,10 +507,16 @@ public class BidService {
 
         Page<Bid> bidPage = bidRepository.findByProductOrderByAmountDesc(productId, pageable);
 
-        // Page<Bid> bidPage = bidRepository.findBidRankingByProduct(productId, pageable);
+        // Calculate rank for each bid
+        int startRank = page * size + 1; // Starting rank for this page
+        List<BidHistoryDto> content = new ArrayList<>();
 
-        List<BidHistoryDto> content =
-                bidPage.getContent().stream().map(BidMapper::toHistoryDto).toList();
+        for (int i = 0; i < bidPage.getContent().size(); i++) {
+            Bid bid = bidPage.getContent().get(i);
+            BidHistoryDto dto = BidMapper.toHistoryDto(bid);
+            dto.setRank(startRank + i); // Assign rank based on position
+            content.add(dto);
+        }
 
         return PageResponse.<BidHistoryDto>builder()
                 .content(content)

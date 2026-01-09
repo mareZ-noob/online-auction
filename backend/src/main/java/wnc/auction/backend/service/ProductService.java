@@ -85,9 +85,9 @@ public class ProductService {
                 .findById(request.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
-        // if (request.getEndTime().isBefore(LocalDateTime.now().plusHours(1))) {
-        //     throw new BadRequestException("End time must be at least 1 hour from now");
-        // }
+        if (request.getEndTime().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new BadRequestException("End time must be at least 1 hour from now");
+        }
 
         if (request.getImages() == null || request.getImages().size() < 3) {
             throw new BadRequestException("At least 3 images are required");
@@ -156,8 +156,27 @@ public class ProductService {
 
         product = productRepository.save(product);
 
+        // Notify all bidders about the product update
+        notifyBiddersAboutProductUpdate(product, request.getAdditionalDescription());
+
         log.info("Product description updated: {}", id);
         return ProductMapper.toDto(product, sellerId, false);
+    }
+
+    private void notifyBiddersAboutProductUpdate(Product product, String updateDescription) {
+        // Get all distinct bidders for this product
+        List<User> bidders = bidRepository.findDistinctBiddersByProductId(product.getId());
+
+        // Send email to each bidder
+        bidders.forEach(bidder -> {
+            try {
+                emailService.sendProductUpdatedNotification(
+                        bidder.getId(), product.getId(), product.getName(), updateDescription);
+                log.info("Product update notification sent to bidder: {}", bidder.getId());
+            } catch (Exception e) {
+                log.error("Failed to send product update notification to bidder: {}", bidder.getId(), e);
+            }
+        });
     }
 
     public void deleteProduct(Long id) {
@@ -203,7 +222,8 @@ public class ProductService {
                                 "currentPrice");
                     case "created" -> Sort.by(Sort.Direction.DESC, "createdAt");
                     default -> {
-                        // If fetching ALL or COMPLETED, sorting by endTime DESC makes more sense (newest ended first)
+                        // If fetching ALL or COMPLETED, sorting by endTime DESC makes more sense
+                        // (newest ended first)
                         // If fetching ACTIVE, sorting by endTime ASC makes sense (ending soonest first)
                         if (request.getStatus() == ProductStatus.COMPLETED || request.getStatus() == null) {
                             yield Sort.by(Sort.Direction.DESC, "endTime");

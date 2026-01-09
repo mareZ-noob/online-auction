@@ -1,5 +1,8 @@
 package wnc.auction.backend.security;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +52,32 @@ public class CustomOidcUserService extends OidcUserService {
         log.info("Email Verified: {}", oidcUser.getEmailVerified());
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        AuthProvider provider = AuthProvider.valueOf(registrationId.toUpperCase());
+
+        // Normalize registration ID to provider enum
+        // Both 'keycloak' and 'keycloak-admin' use the same KEYCLOAK provider
+        String normalizedRegistrationId = registrationId;
+        if (registrationId.startsWith("keycloak")) {
+            normalizedRegistrationId = "keycloak";
+        }
+
+        AuthProvider provider = AuthProvider.valueOf(normalizedRegistrationId.toUpperCase());
+
+        // Extract roles from Keycloak token
+        List<String> keycloakRoles = extractRoles(oidcUser);
+        log.info("User roles from Keycloak: {}", keycloakRoles);
+
+        // If logging in via admin client, check for ADMIN role
+        if ("keycloak-admin".equals(registrationId)) {
+            if (!keycloakRoles.contains("ADMIN")) {
+                log.warn(
+                        "User {} attempted to access admin frontend without ADMIN role. Roles: {}",
+                        email,
+                        keycloakRoles);
+                throw new OAuth2AuthenticationException(
+                        "Access denied: Administrator privileges required to access admin portal");
+            }
+            log.info("ADMIN role verified for user: {}", email);
+        }
 
         // Check if social account already exists
         Optional<SocialAccount> socialAccountOptional =
@@ -186,5 +214,31 @@ public class CustomOidcUserService extends OidcUserService {
     private void updateExistingUser(User user, OidcUser oidcUser) {
         user.setFullName(oidcUser.getFullName());
         userRepository.save(user);
+    }
+
+    /**
+     * Extract roles from Keycloak OIDC token
+     * Keycloak typically stores roles in realm_access.roles claim
+     */
+    private List<String> extractRoles(OidcUser oidcUser) {
+        // Try to get roles from realm_access.roles (Keycloak default structure)
+        Map<String, Object> realmAccess = oidcUser.getAttribute("realm_access");
+        if (realmAccess != null && realmAccess.get("roles") instanceof List) {
+            @SuppressWarnings("unchecked")
+            List<String> roles = (List<String>) realmAccess.get("roles");
+            return roles;
+        }
+
+        // Try to get roles from direct "roles" claim (alternative structure)
+        Object rolesClaim = oidcUser.getAttribute("roles");
+        if (rolesClaim instanceof List) {
+            @SuppressWarnings("unchecked")
+            List<String> roles = (List<String>) rolesClaim;
+            return roles;
+        }
+
+        // No roles found
+        log.warn("No roles found in token for user: {}", oidcUser.getEmail());
+        return Collections.emptyList();
     }
 }
