@@ -39,6 +39,7 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenBlacklistRepository tokenBlacklistRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final KeycloakService keycloakService;
 
     public UserDto getCurrentUser() {
         Long userId = CurrentUser.getUserId();
@@ -100,6 +101,9 @@ public class UserService {
         // Invalidate all sessions
         invalidateAllUserSessions(userId, "ACCOUNT_DISABLED");
 
+        // Disable in Keycloak
+        keycloakService.disableUser(user.getEmail());
+
         log.info("Account disabled for user: {} (email: {})", userId, user.getEmail());
     }
 
@@ -110,6 +114,9 @@ public class UserService {
 
         user.setIsActive(true);
         userRepository.save(user);
+
+        // Enable in Keycloak
+        keycloakService.enableUser(user.getEmail());
 
         log.info("Account enabled for user: {} (email: {})", userId, user.getEmail());
     }

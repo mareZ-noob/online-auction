@@ -51,9 +51,14 @@ export const useReviewUpgradeRequest = () => {
 	});
 };
 
-export const useFetchUsers = (page: number, size: number = 20) => {
+export const useFetchUsers = (
+	page: number,
+	size: number = 20,
+	search?: string,
+	role?: string,
+) => {
 	return useQuery<USER_RESPONSE["data"]>({
-		queryKey: ["users", page, size],
+		queryKey: ["users", page, size, search, role],
 		queryFn: async () => {
 			const { data } = await apiClient.get<ApiResponse<USER_RESPONSE["data"]>>(
 				API_ENDPOINTS.GET_USERS,
@@ -61,6 +66,8 @@ export const useFetchUsers = (page: number, size: number = 20) => {
 					params: {
 						page,
 						size,
+						search,
+						role,
 					},
 				},
 			);

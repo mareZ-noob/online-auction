@@ -17,6 +17,7 @@ import wnc.auction.backend.dto.request.CategoryRequest;
 import wnc.auction.backend.dto.request.ReviewUpgradeRequest;
 import wnc.auction.backend.dto.response.*;
 import wnc.auction.backend.exception.BadRequestException;
+import wnc.auction.backend.model.enumeration.UserRole;
 import wnc.auction.backend.service.*;
 
 @RestController
@@ -53,8 +54,11 @@ public class AdminController {
     @GetMapping("/users")
     @Operation(summary = "Get all users")
     public ResponseEntity<ApiResponse<PageResponse<UserDto>>> getAllUsers(
-            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-        PageResponse<UserDto> users = adminService.getAllUsers(page, size);
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) UserRole role) {
+        PageResponse<UserDto> users = adminService.getAllUsers(page, size, search, role);
         return ResponseEntity.ok(ApiResponse.success(users));
     }
 

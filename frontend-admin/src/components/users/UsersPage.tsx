@@ -7,6 +7,14 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { useDisableUser, useEnableUser, useFetchUsers } from "@/hooks/user-hooks";
 import { useEffect, useState } from "react";
 import Spinner from "../custom-ui/loading-spinner/LoadingSpinner";
@@ -20,11 +28,22 @@ import { toastError, toastSuccess } from "../custom-ui/toast/toast-ui";
 function UsersPage() {
 	const [page, setPage] = useState(0);
 	const [totalPages, setTotalPages] = useState(0);
+	const [search, setSearch] = useState("");
+	const [role, setRole] = useState<string | undefined>(undefined);
+	const [debouncedSearch, setDebouncedSearch] = useState("");
 
-	const { data: users, isLoading } = useFetchUsers(page);
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setDebouncedSearch(search);
+			setPage(0);
+		}, 500);
+		return () => clearTimeout(timer);
+	}, [search]);
 
-	const {mutate: enableUser, isPending: enableUserLoading} = useEnableUser(page);
-	const {mutate: disableUser, isPending: disableUserLoading} = useDisableUser(page);
+	const { data: users, isLoading } = useFetchUsers(page, 20, debouncedSearch, role);
+
+	const { mutate: enableUser, isPending: enableUserLoading } = useEnableUser(page);
+	const { mutate: disableUser, isPending: disableUserLoading } = useDisableUser(page);
 
 	useEffect(() => {
 		if (users) {
@@ -56,6 +75,31 @@ function UsersPage() {
 
 	return (
 		<div>
+			<div className="flex gap-4 mb-4">
+				<Input
+					placeholder="Search by name or email..."
+					value={search}
+					onChange={(e) => setSearch(e.target.value)}
+					className="max-w-sm"
+				/>
+				<Select
+					value={role || "ALL"}
+					onValueChange={(val) => {
+						setRole(val === "ALL" ? undefined : val);
+						setPage(0);
+					}}
+				>
+					<SelectTrigger className="w-[180px]">
+						<SelectValue placeholder="Filter by Role" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="ALL">All Roles</SelectItem>
+						<SelectItem value="BIDDER">Bidder</SelectItem>
+						<SelectItem value="SELLER">Seller</SelectItem>
+						<SelectItem value="ADMIN">Admin</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
 			<Table>
 				{!isLoading && <TableCaption>A list of users.</TableCaption>}
 				<TableHeader>
@@ -86,9 +130,9 @@ function UsersPage() {
 											user.role === "SELLER" && "bg-[#50C878]",
 											user.role === "ADMIN" && "bg-[#DE3163]",
 											user.role !== "BIDDER" &&
-												user.role !== "SELLER" &&
-												user.role !== "ADMIN" &&
-												"bg-gray-500",
+											user.role !== "SELLER" &&
+											user.role !== "ADMIN" &&
+											"bg-gray-500",
 										)}
 									>
 										<p className="text-center">{user.role}</p>

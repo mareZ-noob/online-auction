@@ -92,9 +92,9 @@ public class AdminService {
                 .build();
     }
 
-    public PageResponse<UserDto> getAllUsers(int page, int size) {
+    public PageResponse<UserDto> getAllUsers(int page, int size, String keyword, UserRole role) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<User> userPage = userRepository.findAll(pageable);
+        Page<User> userPage = userRepository.searchUsers(keyword, role, pageable);
 
         List<UserDto> content =
                 userPage.getContent().stream().map(UserMapper::toDto).toList();
