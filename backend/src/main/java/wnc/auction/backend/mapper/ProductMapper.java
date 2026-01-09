@@ -10,12 +10,16 @@ import wnc.auction.backend.model.Product;
 @UtilityClass
 public class ProductMapper {
 
-    public static ProductDto toDto(Product product, Long currentUserId, boolean isBlocked) {
+    public static ProductDto toDto(Product product, Long currentUserId, boolean isBlocked, Integer currentUserRank) {
         boolean isWatched = false;
         if (currentUserId != null) {
             // Check if product is in user's watchlist
             // This would require WatchListRepository injection
         }
+
+        boolean isHoldingPrice = currentUserId != null
+                && product.getCurrentBidder() != null
+                && product.getCurrentBidder().getId().equals(currentUserId);
 
         return ProductDto.builder()
                 .id(product.getId())
@@ -61,6 +65,8 @@ public class ProductMapper {
                 .isNew(product.isNew())
                 .isWatched(isWatched)
                 .isCurrentUserBlocked(isBlocked)
+                .isHoldingPrice(isHoldingPrice)
+                .currentUserRank(currentUserRank)
                 .createdAt(product.getCreatedAt())
                 .build();
     }

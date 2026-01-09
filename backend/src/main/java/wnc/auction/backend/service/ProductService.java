@@ -25,6 +25,7 @@ import wnc.auction.backend.exception.BadRequestException;
 import wnc.auction.backend.exception.ForbiddenException;
 import wnc.auction.backend.exception.NotFoundException;
 import wnc.auction.backend.mapper.ProductMapper;
+import wnc.auction.backend.model.Bid;
 import wnc.auction.backend.model.Category;
 import wnc.auction.backend.model.Product;
 import wnc.auction.backend.model.User;
@@ -118,7 +119,7 @@ public class ProductService {
         auctionSchedulerService.scheduleAuctionClose(product.getId(), product.getEndTime());
 
         log.info("Product created: {} by seller: {}", product.getId(), sellerId);
-        return ProductMapper.toDto(product, sellerId, false);
+        return ProductMapper.toDto(product, sellerId, false, null);
     }
 
     public ProductDto getProductById(Long id) {
@@ -132,7 +133,7 @@ public class ProductService {
             isBlocked = blockedBidderRepository.existsByProductIdAndBidderId(id, currentUserId);
         }
 
-        return ProductMapper.toDto(product, currentUserId, isBlocked);
+        return ProductMapper.toDto(product, currentUserId, isBlocked, calculateUserRank(id, currentUserId));
     }
 
     public ProductDto updateProductDescription(Long id, UpdateProductDescriptionRequest request) {
@@ -149,8 +150,7 @@ public class ProductService {
 
         // Append to main description
         String updatedDescription = product.getDescription() + "\n\n✏️ "
-                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                + "\n\n- "
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n\n- "
                 + request.getAdditionalDescription();
         product.setDescription(updatedDescription);
 
@@ -160,7 +160,7 @@ public class ProductService {
         notifyBiddersAboutProductUpdate(product, request.getAdditionalDescription());
 
         log.info("Product description updated: {}", id);
-        return ProductMapper.toDto(product, sellerId, false);
+        return ProductMapper.toDto(product, sellerId, false, null);
     }
 
     private void notifyBiddersAboutProductUpdate(Product product, String updateDescription) {
@@ -255,7 +255,9 @@ public class ProductService {
 
         // Call the new universal repository method
         Page<Product> productPage = productRepository.findProductsWithFilters(
-                request.getStatus(), // If null, it returns all statuses
+                request.getStatus(), // If null, it
+                // returns all
+                // statuses
                 categoryIds, // If null, it searches all categories
                 keyword, // If null, it ignores keyword
                 pageable);
@@ -316,7 +318,47 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("endTime").ascending());
         Page<Product> productPage = productRepository.findProductsBiddedByUser(userId, LocalDateTime.now(), pageable);
 
-        return mapToPageResponse(productPage);
+        List<ProductListDto> content = productPage.getContent().stream()
+                .map(product -> {
+                    ProductListDto dto = ProductMapper.toListDto(product);
+
+                    boolean isHolding = product.getCurrentBidder() != null
+                            && product.getCurrentBidder().getId().equals(userId);
+                    dto.setIsHoldingPrice(isHolding);
+
+                    if (isHolding) {
+                        dto.setCurrentUserRank(1);
+                    } else {
+                        dto.setCurrentUserRank(calculateUserRank(product.getId(), userId));
+                    }
+                    return dto;
+                })
+                .toList();
+
+        return PageResponse.<ProductListDto>builder()
+                .content(content)
+                .page(productPage.getNumber())
+                .size(productPage.getSize())
+                .totalElements(productPage.getTotalElements())
+                .totalPages(productPage.getTotalPages())
+                .last(productPage.isLast())
+                .build();
+    }
+
+    private Integer calculateUserRank(Long productId, Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        List<Bid> ranking = bidRepository
+                .findBidRankingByProduct(productId, PageRequest.of(0, 1000))
+                .getContent();
+
+        for (int i = 0; i < ranking.size(); i++) {
+            if (ranking.get(i).getUser().getId().equals(userId)) {
+                return i + 1;
+            }
+        }
+        return null;
     }
 
     public void extendAuction(Long productId, int minutes) {
@@ -388,7 +430,7 @@ public class ProductService {
         productRepository.save(product);
 
         log.info("Image added to product {}: {}", productId, imageUrl);
-        return ProductMapper.toDto(product, sellerId, false);
+        return ProductMapper.toDto(product, sellerId, false, null);
     }
 
     public ProductDto removeProductImage(Long productId, String imageUrl) {
@@ -413,6 +455,6 @@ public class ProductService {
         }
 
         log.info("Image removed from product {}: {}", productId, imageUrl);
-        return ProductMapper.toDto(product, sellerId, false);
+        return ProductMapper.toDto(product, sellerId, false, null);
     }
 }

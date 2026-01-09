@@ -29,4 +29,6 @@ public class ProductListDto {
     private LocalDateTime createdAt;
     private Long sellerId;
     private String sellerName;
+    private Boolean isHoldingPrice;
+    private Integer currentUserRank;
 }

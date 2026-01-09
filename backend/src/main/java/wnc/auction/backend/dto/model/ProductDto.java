@@ -43,4 +43,6 @@ public class ProductDto {
     private Boolean isWatched;
     private LocalDateTime createdAt;
     private Boolean isCurrentUserBlocked;
+    private Boolean isHoldingPrice;
+    private Integer currentUserRank;
 }

@@ -40,14 +40,9 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     @Query("SELECT b FROM Bid b WHERE b.product.id = :productId ORDER BY b.amount DESC, b.createdAt ASC")
     Page<Bid> findByProductOrderByAmountDesc(@Param("productId") Long productId, Pageable pageable);
 
-    @Query("SELECT b FROM Bid b " + "WHERE b.product.id = :productId "
-            + "AND b.amount = ("
-            + "SELECT MAX(b2.amount) "
-            + "FROM Bid b2 "
-            + "WHERE b2.product.id = :productId "
-            + "AND b2.user.id = b.user.id"
-            + ") "
-            + "ORDER BY b.amount DESC, b.createdAt ASC")
+    @Query("SELECT b FROM Bid b " + "WHERE b.product.id = :productId " + "AND b.amount = ("
+            + "SELECT MAX(b2.amount) " + "FROM Bid b2 " + "WHERE b2.product.id = :productId "
+            + "AND b2.user.id = b.user.id" + ") " + "ORDER BY b.amount DESC, b.createdAt ASC")
     Page<Bid> findBidRankingByProduct(@Param("productId") Long productId, Pageable pageable);
 
     // Get all distinct users who bid on a product

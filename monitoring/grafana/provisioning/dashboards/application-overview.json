@@ -1,0 +1,154 @@
+{
+    "dashboard": {
+        "title": "Online Auction - Application Overview",
+        "tags": [
+            "auction",
+            "application"
+        ],
+        "timezone": "browser",
+        "panels": [
+            {
+                "id": 1,
+                "title": "Request Rate",
+                "type": "graph",
+                "gridPos": {
+                    "x": 0,
+                    "y": 0,
+                    "w": 12,
+                    "h": 8
+                },
+                "targets": [
+                    {
+                        "expr": "rate(http_server_requests_seconds_count{application=\"online-auction\"}[5m])",
+                        "legendFormat": "{{uri}}"
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "title": "Error Rate",
+                "type": "graph",
+                "gridPos": {
+                    "x": 12,
+                    "y": 0,
+                    "w": 12,
+                    "h": 8
+                },
+                "targets": [
+                    {
+                        "expr": "rate(http_server_requests_seconds_count{application=\"online-auction\",status=~\"5..\"}[5m])",
+                        "legendFormat": "{{uri}}"
+                    }
+                ]
+            },
+            {
+                "id": 3,
+                "title": "Response Time (95th percentile)",
+                "type": "graph",
+                "gridPos": {
+                    "x": 0,
+                    "y": 8,
+                    "w": 12,
+                    "h": 8
+                },
+                "targets": [
+                    {
+                        "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{application=\"online-auction\"}[5m]))",
+                        "legendFormat": "{{uri}}"
+                    }
+                ]
+            },
+            {
+                "id": 4,
+                "title": "JVM Memory Usage",
+                "type": "graph",
+                "gridPos": {
+                    "x": 12,
+                    "y": 8,
+                    "w": 12,
+                    "h": 8
+                },
+                "targets": [
+                    {
+                        "expr": "jvm_memory_used_bytes{application=\"online-auction\",area=\"heap\"} / jvm_memory_max_bytes{application=\"online-auction\",area=\"heap\"}",
+                        "legendFormat": "Heap Usage"
+                    }
+                ]
+            },
+            {
+                "id": 5,
+                "title": "Active Auctions",
+                "type": "stat",
+                "gridPos": {
+                    "x": 0,
+                    "y": 16,
+                    "w": 6,
+                    "h": 4
+                },
+                "targets": [
+                    {
+                        "expr": "auction_active_count{application=\"online-auction\"}"
+                    }
+                ]
+            },
+            {
+                "id": 6,
+                "title": "Total Bids",
+                "type": "stat",
+                "gridPos": {
+                    "x": 6,
+                    "y": 16,
+                    "w": 6,
+                    "h": 4
+                },
+                "targets": [
+                    {
+                        "expr": "bid_placed_total{application=\"online-auction\"}"
+                    }
+                ]
+            },
+            {
+                "id": 7,
+                "title": "Payment Success Rate",
+                "type": "gauge",
+                "gridPos": {
+                    "x": 12,
+                    "y": 16,
+                    "w": 6,
+                    "h": 4
+                },
+                "targets": [
+                    {
+                        "expr": "rate(payment_success_total{application=\"online-auction\"}[5m]) / (rate(payment_success_total{application=\"online-auction\"}[5m]) + rate(payment_failure_total{application=\"online-auction\"}[5m]))"
+                    }
+                ]
+            },
+            {
+                "id": 8,
+                "title": "Database Connections",
+                "type": "graph",
+                "gridPos": {
+                    "x": 18,
+                    "y": 16,
+                    "w": 6,
+                    "h": 4
+                },
+                "targets": [
+                    {
+                        "expr": "hikaricp_connections_active{application=\"online-auction\"}",
+                        "legendFormat": "Active"
+                    },
+                    {
+                        "expr": "hikaricp_connections_max{application=\"online-auction\"}",
+                        "legendFormat": "Max"
+                    }
+                ]
+            }
+        ],
+        "refresh": "10s",
+        "time": {
+            "from": "now-1h",
+            "to": "now"
+        }
+    }
+}
