@@ -17,6 +17,8 @@ export const API_ENDPOINTS = {
 	SUB_CATEGORIES: (id: string | number) => `/public/categories/${id}/children`,
 	CREATE_CATEGORY: "/admin/categories",
 	UPDATE_CATEGORY: (id: string | number) => `/admin/categories/${id}`,
+	DELETE_CATEGORY: (id: string | number) => `/admin/categories/${id}`,
+	CATEGORIES_WITHOUT_PRODUCTS: "/public/categories/without-products",
 
 	// Products
 	ALL_PRODUCTS: "/public/products",

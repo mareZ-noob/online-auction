@@ -23,3 +23,4 @@ export type CATEGORY_PAYLOAD = {
 };
 
 export type CATEGORY_RESPONSE = ApiResponse<CATEGORY[]>;
+export type DELETE_CATEGORY_RESPONSE = ApiResponse<string>;

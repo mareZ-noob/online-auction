@@ -57,8 +57,12 @@ const data = {
 					url: "/admin/categories",
 				},
 				{
-					title: "Create a category",
-					url: "/admin/categories/create",
+					title: "Create categories",
+					url: "/admin/categories/creation",
+				},
+				{
+					title: "Delete categories",
+					url: "/admin/categories/deletion",
 				},
 			],
 		},

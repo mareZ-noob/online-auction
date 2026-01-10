@@ -38,7 +38,7 @@ function Ratings() {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">
-              {t("profile.common.sellerName")}
+              {t("profile.common.ratedBy")}
             </TableHead>
             <TableHead>{t("profile.common.productName")}</TableHead>
             <TableHead>{t("profile.common.isPositive")}</TableHead>
@@ -49,7 +49,9 @@ function Ratings() {
         <TableBody>
           {ratings?.content.map((rating) => (
             <TableRow key={rating.id}>
-              <TableCell className="font-medium">{rating.userName}</TableCell>
+              <TableCell className="font-medium">
+                {rating.ratedByName}
+              </TableCell>
               <TableCell>{rating.productName}</TableCell>
               <TableCell>
                 {rating.isPositive

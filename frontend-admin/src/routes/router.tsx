@@ -21,6 +21,9 @@ const CategoriesPage = lazy(
 const CreateCategoryPage = lazy(
 	() => import("@/components/categories/CreateCategoryPage"),
 );
+const DeleteCategoryPage = lazy(
+	() => import("@/components/categories/DeletecategoryPage"),
+);
 const ProductsPage = lazy(() => import("@/components/products/ProductsPage"));
 const AuctionSettingsPage = lazy(
 	() => import("@/components/products/AuctionSettings.tsx"),
@@ -96,9 +99,13 @@ const router = createBrowserRouter([
 								element: <CategoriesPage />,
 							},
 							{
-								path: "create",
+								path: "creation",
 								element: <CreateCategoryPage />,
 							},
+							{
+								path: "deletion",
+								element: <DeleteCategoryPage />,
+							}
 						],
 					},
 					{
