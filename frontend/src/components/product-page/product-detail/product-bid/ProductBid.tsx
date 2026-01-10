@@ -156,20 +156,25 @@ function ProductBid({
         disabled={isCurrentUserBlocked}
       >
         <AccordionItem value="item-1">
-          <AccordionTrigger className="text-left" onClick={handleToggleAutoBid}>
-            <div className="flex items-center gap-3">
-              <Checkbox id="terms" checked={isCheckedAutoBid} />
+          <div className="flex items-center gap-3 border-b">
+            <Checkbox
+              id="terms"
+              checked={isCheckedAutoBid}
+              onCheckedChange={handleToggleAutoBid}
+              className="ml-4"
+            />
+            <AccordionTrigger
+              className="text-left flex-1 py-4"
+              onClick={handleToggleAutoBid}
+            >
               <Label
                 htmlFor="terms"
-                onClick={(e: React.MouseEvent<HTMLLabelElement>) =>
-                  e.stopPropagation()
-                }
-                className="text-lg"
+                className="text-lg cursor-pointer"
               >
                 {t("productDetail.bid.activateAutoBid")}
               </Label>
-            </div>
-          </AccordionTrigger>
+            </AccordionTrigger>
+          </div>
           <AccordionContent>
             <div className="flex flex-col items-end justify-between px-1">
               <NumberInput

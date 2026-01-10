@@ -22,7 +22,7 @@ const CreateCategoryPage = lazy(
 	() => import("@/components/categories/CreateCategoryPage"),
 );
 const DeleteCategoryPage = lazy(
-	() => import("@/components/categories/DeletecategoryPage"),
+	() => import("@/components/categories/DeleteCategoryPage"),
 );
 const ProductsPage = lazy(() => import("@/components/products/ProductsPage"));
 const AuctionSettingsPage = lazy(
@@ -129,6 +129,6 @@ const router = createBrowserRouter([
 		],
 		loader: ProtectedRoute,
 	},
-], { basename: "/admin" });
+], { basename: "/admin/" });
 
 export default router;

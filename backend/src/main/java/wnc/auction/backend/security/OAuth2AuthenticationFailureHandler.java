@@ -47,7 +47,10 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
             String targetFrontendUrl = isFromAdminFrontend ? adminFrontendURL : frontendURL;
 
             // Build post-logout redirect URI (clean URL without params)
-            String postLogoutRedirectUri = targetFrontendUrl + "/auth/sign-in";
+            // For admin frontend, include /admin base path
+            String postLogoutRedirectUri = isFromAdminFrontend
+                    ? targetFrontendUrl + "/admin/auth/sign-in"
+                    : targetFrontendUrl + "/auth/sign-in";
 
             String errorMessage = exception.getMessage() != null ? exception.getMessage() : "Access denied";
 
@@ -79,8 +82,10 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
                 exception.getMessage() != null ? exception.getMessage() : "Authentication failed. Please try again.";
 
         // Build redirect URL - always redirect back to the same frontend
+        // For admin frontend, include /admin base path
+        String authPath = isFromAdminFrontend ? "/admin/auth/sign-in" : "/auth/sign-in";
         String targetUrl = UriComponentsBuilder.fromUriString(targetFrontendUrl)
-                .path("/auth/sign-in")
+                .path(authPath)
                 .queryParam("error", URLEncoder.encode(errorMessage, StandardCharsets.UTF_8))
                 .build()
                 .toUriString();

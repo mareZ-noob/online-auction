@@ -112,6 +112,19 @@ public class CustomOidcUserService extends OidcUserService {
         if (socialAccountOptional.isPresent()) {
             // Already logged in with this social account before
             user = socialAccountOptional.get().getUser();
+
+            // Check if user account is disabled
+            if (!user.getIsActive()) {
+                log.warn("Disabled user {} attempted to login via Keycloak", user.getEmail());
+                String idToken = oidcUser.getIdToken().getTokenValue();
+                throw new OAuth2AdminAccessDeniedException(
+                        new OAuth2Error(
+                                "access_denied",
+                                "Access denied: Your account has been disabled. Please contact support.",
+                                null),
+                        idToken);
+            }
+
             updateExistingUser(user, oidcUser, keycloakRoles);
             log.info("Existing social account found, user logged in: {}", user.getEmail());
         } else {
@@ -121,6 +134,18 @@ public class CustomOidcUserService extends OidcUserService {
             if (userOptional.isPresent()) {
                 // Existing local account - Require email verification for linking
                 user = userOptional.get();
+
+                // Check if user account is disabled
+                if (!user.getIsActive()) {
+                    log.warn("Disabled user {} attempted to login via Keycloak", user.getEmail());
+                    String idToken = oidcUser.getIdToken().getTokenValue();
+                    throw new OAuth2AdminAccessDeniedException(
+                            new OAuth2Error(
+                                    "access_denied",
+                                    "Access denied: Your account has been disabled. Please contact support.",
+                                    null),
+                            idToken);
+                }
 
                 Boolean emailVerified = oidcUser.getEmailVerified();
                 if (emailVerified == null) {
