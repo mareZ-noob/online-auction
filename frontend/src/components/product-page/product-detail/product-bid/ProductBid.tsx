@@ -52,8 +52,10 @@ function ProductBid({
   const [maxAutoBidPrice, setMaxAutoBidPrice] = useState<number | null>(null);
 
   const [isCheckedAutoBid, setIsCheckedAutoBid] = useState(false);
+  const [isAutoBidSubmit, setIsAutoBidSubmit] = useState(false);
+  const [isManualBidSubmit, setIsManualBidSubmit] = useState(false);
 
-  const { mutate, isPending } = usePlaceABid();
+  const { mutate } = usePlaceABid();
   const { t } = useTranslation();
   const minBid = validBidPriceRange[0] ?? 0;
 
@@ -66,6 +68,7 @@ function ProductBid({
   };
 
   const handleSubmitBid = () => {
+    setIsManualBidSubmit(true);
     mutate(
       {
         productId: productId,
@@ -75,15 +78,18 @@ function ProductBid({
       {
         onSuccess: (result) => {
           toastSuccess(result.message);
+          setIsManualBidSubmit(false);
         },
         onError: (error) => {
           toastError(error);
+          setIsManualBidSubmit(false);
         },
       }
     );
   };
 
   const handleSubmitAutoBid = () => {
+    setIsAutoBidSubmit(true);
     mutate(
       {
         productId: productId,
@@ -93,9 +99,11 @@ function ProductBid({
       {
         onSuccess: (result) => {
           toastSuccess(result.message);
+          setIsAutoBidSubmit(false);
         },
         onError: (error) => {
           toastError(error);
+          setIsAutoBidSubmit(false);
         },
       }
     );
@@ -137,7 +145,7 @@ function ProductBid({
               className="ml-4"
               disabled={isCheckedAutoBid || isCurrentUserBlocked}
             >
-              {isPending
+              {isManualBidSubmit
                 ? t("productDetail.bid.placingBid")
                 : t("productDetail.bid.placeBid")}
             </Button>
@@ -182,11 +190,8 @@ function ProductBid({
               />
               <NotificationDialog
                 triggerElement={
-                  <Button
-                    className="ml-4 mt-4"
-                    disabled={!isCheckedAutoBid}
-                  >
-                    {isPending
+                  <Button className="ml-4 mt-4" disabled={!isCheckedAutoBid}>
+                    {isAutoBidSubmit
                       ? t("productDetail.bid.placingBid")
                       : t("productDetail.bid.placeBid")}
                   </Button>
