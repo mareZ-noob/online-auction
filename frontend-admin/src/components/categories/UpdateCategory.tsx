@@ -1,7 +1,7 @@
 import { Pencil } from "lucide-react";
 import NotificationDialog from "../custom-ui/dialog/NotificationDialog";
 import { Field } from "../ui/field";
-import { Label } from "@radix-ui/react-dropdown-menu";
+import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { useUpdateCategory } from "@/hooks/category-hooks";
 import z from "zod";

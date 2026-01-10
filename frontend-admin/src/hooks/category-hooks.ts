@@ -1,7 +1,7 @@
 import apiClient from "@/query/api-client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "./endpoints";
-import type { CATEGORY_PAYLOAD, CATEGORY_RESPONSE } from "@/types/Categories";
+import type { CATEGORY_PAYLOAD, CATEGORY_RESPONSE, DELETE_CATEGORY_RESPONSE } from "@/types/Categories";
 import type { AxiosError } from "axios";
 import type { ApiResponseError } from "@/types/ApiResponse";
 import { queryClient } from "@/lib/utils";
@@ -17,6 +17,18 @@ export const useFetchCategories = () => {
 		},
 	});
 };
+
+export const useFetchCategoriesWithoutProducts = () => {
+	return useQuery<CATEGORY_RESPONSE["data"]>({
+		queryKey: ["categories-without-products"],
+		queryFn: async () => {
+			const { data } = await apiClient.get<CATEGORY_RESPONSE>(
+				API_ENDPOINTS.CATEGORIES_WITHOUT_PRODUCTS,
+			);
+			return data.data;
+		},
+	});
+}
 
 export const useCreateCategory = () => {
 	return useMutation<
@@ -56,3 +68,24 @@ export const useUpdateCategory = () => {
 		},
 	});
 };
+
+export const useDeleteCategory = () => {
+	return useMutation<
+		DELETE_CATEGORY_RESPONSE,
+		AxiosError<ApiResponseError>,
+		{ id: number }
+	>({
+		mutationKey: ["delete-category"],
+		mutationFn: async ({ id }) => {
+			const { data } = await apiClient.delete<DELETE_CATEGORY_RESPONSE>(
+				API_ENDPOINTS.DELETE_CATEGORY(id),
+			);
+			return data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["categories-without-products"],
+			});
+		},
+	});
+}
