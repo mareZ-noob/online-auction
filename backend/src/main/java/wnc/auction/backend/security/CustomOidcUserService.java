@@ -10,6 +10,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,13 +81,27 @@ public class CustomOidcUserService extends OidcUserService {
                 // Keycloak
                 String idToken = oidcUser.getIdToken().getTokenValue();
                 throw new OAuth2AdminAccessDeniedException(
-                        new org.springframework.security.oauth2.core.OAuth2Error(
+                        new OAuth2Error(
                                 "access_denied",
                                 "Access denied: Administrator privileges required to access admin portal",
                                 null),
                         idToken);
             }
             log.info("ADMIN role verified for user: {}", email);
+        }
+
+        // If logging in via user client, restrict ADMIN users
+        if ("keycloak".equals(registrationId)) {
+            if (keycloakRoles.contains("ADMIN")) {
+                log.warn("User {} attempted to access user frontend with ADMIN role. Roles: {}", email, keycloakRoles);
+                // Throw custom exception with ID token so the failure handler can logout from
+                // Keycloak
+                String idToken = oidcUser.getIdToken().getTokenValue();
+                throw new OAuth2AdminAccessDeniedException(
+                        new OAuth2Error(
+                                "access_denied", "Access denied: Administrators cannot access the user portal", null),
+                        idToken);
+            }
         }
 
         // Check if social account already exists

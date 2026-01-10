@@ -8,7 +8,7 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -53,11 +53,29 @@ export function SigninForm({
     });
   };
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/me");
     }
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    const state = searchParams.get("state");
+
+    if (error) {
+      toastError(error);
+      searchParams.delete("error");
+      setSearchParams(searchParams);
+    } else if (state) {
+      // We use state to pass error messages during logout redirect
+      toastError(state);
+      searchParams.delete("state");
+      setSearchParams(searchParams);
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleSocialLogin = () => {
     const baseURL =

@@ -40,16 +40,24 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
             OAuth2AdminAccessDeniedException adminException = (OAuth2AdminAccessDeniedException) exception;
             String idToken = adminException.getIdToken();
 
-            // Build post-logout redirect URI (simple URL without error params)
-            // We'll add error params after Keycloak redirects back
-            String postLogoutRedirectUri = adminFrontendURL + "/auth/sign-in";
+            // Determine which frontend based on the OAuth2 registration ID (from request
+            // URI)
+            String requestUri = request.getRequestURI();
+            boolean isFromAdminFrontend = requestUri != null && requestUri.contains("keycloak-admin");
+            String targetFrontendUrl = isFromAdminFrontend ? adminFrontendURL : frontendURL;
 
-            // Build Keycloak logout URL with id_token_hint
-            // UriComponentsBuilder handles encoding automatically
+            // Build post-logout redirect URI (clean URL without params)
+            String postLogoutRedirectUri = targetFrontendUrl + "/auth/sign-in";
+
+            String errorMessage = exception.getMessage() != null ? exception.getMessage() : "Access denied";
+
+            // Build Keycloak logout URL with id_token_hint and state
+            // Use state param to pass the error message
             String logoutUrl = UriComponentsBuilder.fromUriString(keycloakIssuerUri)
                     .path("/protocol/openid-connect/logout")
                     .queryParam("id_token_hint", idToken)
                     .queryParam("post_logout_redirect_uri", postLogoutRedirectUri)
+                    .queryParam("state", errorMessage)
                     .build()
                     .toUriString();
 

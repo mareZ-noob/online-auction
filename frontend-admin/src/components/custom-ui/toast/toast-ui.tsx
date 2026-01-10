@@ -24,5 +24,10 @@ export function toastError(error: unknown) {
 		return;
 	}
 
+	if (typeof error === "string") {
+		toast.error(error);
+		return;
+	}
+
 	toast.error("Something went wrong");
 }
