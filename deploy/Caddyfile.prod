@@ -1,0 +1,107 @@
+web-hcmus.club {
+    # Automatic HTTPS with Let's Encrypt
+    tls {
+        email admin@web-hcmus.club
+    }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Frontend User
+    handle / {
+        reverse_proxy frontend:80
+    }
+
+    # Frontend Admin
+    handle /admin* {
+        reverse_proxy frontend-admin:80
+    }
+
+
+    # Swagger UI (strip /api prefix)
+    handle /api/swagger-ui* {
+        uri strip_prefix /api
+        reverse_proxy backend:8088 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    handle /api/api-docs* {
+        uri strip_prefix /api
+        reverse_proxy backend:8088 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    handle /api/v3/api-docs* {
+        uri strip_prefix /api
+        reverse_proxy backend:8088 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    handle /api/swagger-resources* {
+        uri strip_prefix /api
+        reverse_proxy backend:8088 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    handle /api/webjars* {
+        uri strip_prefix /api
+        reverse_proxy backend:8088 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Backend API
+    handle /api/* {
+        reverse_proxy backend:8088 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Keycloak
+    handle /keycloak* {
+        reverse_proxy keycloak:8080 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # SSE endpoint
+    handle /sse/* {
+        reverse_proxy backend:8088 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+            flush_interval -1
+        }
+    }
+
+    # Health check
+    handle /health {
+        respond "OK" 200
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+}

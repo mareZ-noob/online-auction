@@ -95,12 +95,18 @@ spring:
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           keycloak:
-            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/auction-realm}
-            user-info-uri: ${KEYCLOAK_USER_INFO_URI:http://localhost:8180/realms/auction-realm/protocol/openid-connect/userinfo}
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/keycloak/realms/auction-realm}
+            authorization-uri: ${KEYCLOAK_AUTHORIZATION_URI:http://localhost:8180/keycloak/realms/auction-realm/protocol/openid-connect/auth}
+            token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8180/keycloak/realms/auction-realm/protocol/openid-connect/token}
+            user-info-uri: ${KEYCLOAK_USER_INFO_URI:}
+            jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8180/keycloak/realms/auction-realm/protocol/openid-connect/certs}
             user-name-attribute: preferred_username
           keycloak-admin:
-            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/auction-realm}
-            user-info-uri: ${KEYCLOAK_USER_INFO_URI:http://localhost:8180/realms/auction-realm/protocol/openid-connect/userinfo}
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/keycloak/realms/auction-realm}
+            authorization-uri: ${KEYCLOAK_AUTHORIZATION_URI:http://localhost:8180/keycloak/realms/auction-realm/protocol/openid-connect/auth}
+            token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8180/keycloak/realms/auction-realm/protocol/openid-connect/token}
+            user-info-uri: ${KEYCLOAK_USER_INFO_URI:}
+            jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8180/keycloak/realms/auction-realm/protocol/openid-connect/certs}
             user-name-attribute: preferred_username
 
 server:
@@ -154,6 +160,8 @@ app:
   recaptcha:
     secret: ${RECAPTCHA_SECRET_KEY:}
     verify-url: https://www.google.com/recaptcha/api/siteverify
+  keycloak:
+    public-url: ${KEYCLOAK_PUBLIC_URL:http://localhost:8180/keycloak}
 
 springdoc:
   api-docs:
@@ -161,6 +169,9 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
+    url: ${SWAGGER_API_DOCS_URL:/api-docs}
+    operationsSorter: alpha
+    tagsSorter: alpha
   show-actuator: true
 
 management:

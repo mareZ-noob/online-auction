@@ -25,8 +25,8 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
     @Value("${app.frontend.admin-url}")
     private String adminFrontendURL;
 
-    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
-    private String keycloakIssuerUri;
+    @Value("${app.keycloak.public-url}")
+    private String keycloakPublicUrl;
 
     @Override
     public void onAuthenticationFailure(
@@ -53,8 +53,8 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
             // Build Keycloak logout URL with id_token_hint and state
             // Use state param to pass the error message
-            String logoutUrl = UriComponentsBuilder.fromUriString(keycloakIssuerUri)
-                    .path("/protocol/openid-connect/logout")
+            String logoutUrl = UriComponentsBuilder.fromUriString(keycloakPublicUrl)
+                    .path("/realms/auction-realm/protocol/openid-connect/logout")
                     .queryParam("id_token_hint", idToken)
                     .queryParam("post_logout_redirect_uri", postLogoutRedirectUri)
                     .queryParam("state", errorMessage)

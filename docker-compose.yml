@@ -23,7 +23,7 @@ services:
       - KC_PROXY_HEADERS=xforwarded
       - KC_HTTP_RELATIVE_PATH=/
     volumes:
-      - ./keycloak/realm-dev.json:/opt/keycloak/data/import/realm-dev.json:ro
+      - ./keycloak/realm-local.json:/opt/keycloak/data/import/realm-local.json:ro
     networks:
       - online-auction
 

@@ -61,77 +61,67 @@ const router = createBrowserRouter([
 	{
 		path: "/",
 		errorElement: <ErrorPage />,
+		element: <Suspense fallback={<LoadingPage />}><CommonLayout /></Suspense>,
 		children: [
 			{
 				index: true,
-				element: <Navigate to="admin" replace />,
+				element: <Navigate to="dashboard" replace />,
 			},
 			{
-				path: "/admin",
-				errorElement: <ErrorPage />,
-				element: <Suspense fallback={<LoadingPage />}><CommonLayout /></Suspense>,
+				path: "dashboard",
 				children: [
 					{
 						index: true,
-						element: <Navigate to="dashboard" replace />,
+						element: <Navigate to="reports" replace />,
 					},
 					{
-						path: "dashboard",
-						children: [
-							{
-								index: true,
-								element: <Navigate to="reports" replace />,
-							},
-							{
-								path: "reports",
-								element: <ReportsPage />
-							},
-						],
+						path: "reports",
+						element: <ReportsPage />
+					},
+				],
+			},
+			{
+				path: "categories",
+				children: [
+					{
+						index: true,
+						element: <CategoriesPage />,
 					},
 					{
-						path: "categories",
-						children: [
-							{
-								index: true,
-								element: <CategoriesPage />,
-							},
-							{
-								path: "create",
-								element: <CreateCategoryPage />,
-							},
-						],
+						path: "create",
+						element: <CreateCategoryPage />,
+					},
+				],
+			},
+			{
+				path: "products",
+				children: [
+					{
+						index: true,
+						element: <ProductsPage />,
 					},
 					{
-						path: "products",
-						children: [
-							{
-								index: true,
-								element: <ProductsPage />,
-							},
-							{
-								path: "auction-settings",
-								element: <AuctionSettingsPage />,
-							},
-						],
+						path: "auction-settings",
+						element: <AuctionSettingsPage />,
+					},
+				],
+			},
+			{
+				path: "users",
+				children: [
+					{
+						index: true,
+						element: <UsersPage />,
 					},
 					{
-						path: "users",
-						children: [
-							{
-								index: true,
-								element: <UsersPage />,
-							},
-							{
-								path: "upgrade-requests",
-								element: <UpgradeRequestsPage />,
-							},
-						],
+						path: "upgrade-requests",
+						element: <UpgradeRequestsPage />,
 					},
 				],
 			},
 		],
 		loader: ProtectedRoute,
 	},
-]);
+], { basename: "/admin" });
 
 export default router;

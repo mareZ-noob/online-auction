@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStatus, useLogin } from "@/hooks/auth-hooks.ts";
 import { toastError, toastSuccess } from "./custom-ui/toast/toast-ui";
+import env from "@/config/env";
 
 const signin_schema = z.object({
   email: z.email({ message: "Invalid email address" }),
@@ -78,11 +79,7 @@ export function SigninForm({
   }, [searchParams, setSearchParams]);
 
   const handleSocialLogin = () => {
-    const baseURL =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:8088/api";
-
-    // Full URL: http://localhost:8088/api/auth/oauth2/authorize/keycloak
-    window.location.href = `${baseURL}/auth/oauth2/authorize/keycloak`;
+    window.location.href = `${env.API_BASE_URL}/auth/oauth2/authorize/keycloak`;
   };
 
   return (

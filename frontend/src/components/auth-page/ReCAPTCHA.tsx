@@ -1,7 +1,8 @@
 import React from "react";
 import ReCAPTCHA from "react-google-recaptcha";
+import env from "@/config/env";
 
-const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+const SITE_KEY = env.RECAPTCHA_SITE_KEY;
 
 type MyReCAPTCHAProps = {
 	captchaRef: React.RefObject<ReCAPTCHA | null>;

@@ -4,6 +4,28 @@ networks:
     name: online-auction
 
 services:
+  # Reverse Proxy with HTTPS
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy-dev
+    hostname: caddy
+    restart: unless-stopped
+    ports:
+      - "8443:443"
+      - "8080:80"
+    volumes:
+      - ./deploy/Caddyfile.dev:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - online-auction
+    depends_on:
+      - backend
+      - frontend
+      - frontend-admin
+      - keycloak
+
+  # Keycloak
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
     container_name: keycloak
@@ -12,21 +34,85 @@ services:
       start-dev
       --http-enabled=true
       --http-port=8080
-      --hostname=localhost
       --hostname-strict=false
+      --proxy-headers=xforwarded
+      --http-relative-path=/keycloak
       --import-realm
-    ports:
-      - "8180:8080"
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_PROXY_HEADERS=xforwarded
-      - KC_HTTP_RELATIVE_PATH=/
+      - KC_HTTP_RELATIVE_PATH=/keycloak
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+      - KC_HTTP_METRICS_HISTOGRAMS_ENABLED=true
+      - KC_CACHE_METRICS_HISTOGRAMS_ENABLED=true
+      - KC_HOSTNAME_URL=https://localhost:8443/keycloak
+      - KC_HOSTNAME_ADMIN_URL=https://localhost:8443/keycloak
     volumes:
-      - ./keycloak/realm-dev.json:/opt/keycloak/data/import/realm-dev.json:ro
+      - ./deploy/realm-dev.json:/opt/keycloak/data/import/realm-dev.json:ro
+    networks:
+      - online-auction
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-prod
+    container_name: backend
+    hostname: backend
+    volumes:
+      - ./deploy/logback-spring.xml:/app-config/logback-spring.xml:ro
+    env_file:
+      - .env.dev
+    networks:
+      - online-auction
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  # Frontend User
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile-prod
+    container_name: frontend
+    hostname: frontend
+    environment:
+      - VITE_API_BASE_URL=https://localhost:8443/api
+      - VITE_API_SSE_BASE_URL=https://localhost:8443/sse
+      - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY:-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}
     networks:
       - online-auction
 
+  # Frontend Admin
+  frontend-admin:
+    build:
+      context: ./frontend-admin
+      dockerfile: Dockerfile-prod
+    container_name: frontend-admin
+    hostname: frontend-admin
+    environment:
+      - VITE_API_BASE_URL=https://localhost:8443/api
+      - VITE_API_SSE_BASE_URL=https://localhost:8443/sse
+    networks:
+      - online-auction
+
+  # Redis
   redis:
     image: redis:8-alpine
     hostname: redis
@@ -39,6 +125,7 @@ services:
     networks:
       - online-auction
 
+  # PostgreSQL
   postgres:
     image: postgres:15
     hostname: postgres
@@ -60,25 +147,27 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./quartz/quartz-schema.sql:/docker-entrypoint-initdb.d/quartz-schema.sql
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    hostname: pgadmin
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - online-auction
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
+  # PgAdmin
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   hostname: pgadmin
+  #   container_name: pgadmin
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #   ports:
+  #     - "5050:80"
+  #   volumes:
+  #     - pgadmin_data:/var/lib/pgadmin
+  #   networks:
+  #     - online-auction
+  #   restart: unless-stopped
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
   
+  # MinIO
   minio:
     image: quay.io/minio/minio:RELEASE.2025-03-12T18-04-18Z
     hostname: minio
@@ -95,6 +184,7 @@ services:
     networks:
       - online-auction
 
+  # MinIO Buckets Setup
   minio-buckets:
     image: quay.io/minio/mc:RELEASE.2025-03-12T17-29-24Z
     hostname: minio-buckets
@@ -111,6 +201,7 @@ services:
     networks:
       - online-auction
 
+  # MailHog
   mailhog:
     image: mailhog/mailhog:latest
     hostname: mailhog
@@ -122,6 +213,7 @@ services:
     networks:
       - online-auction
 
+  # Kafka
   kafka:
     image: apache/kafka:4.1.0
     hostname: kafka
@@ -162,16 +254,16 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
 
+  # Kafka UI
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     hostname: kafka-ui
     container_name: kafka-ui
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9091
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
       DYNAMIC_CONFIG_ENABLED: true
     networks:
       - online-auction
@@ -179,29 +271,32 @@ services:
       kafka:
         condition: service_healthy
 
-  control-center:
-    image: confluentinc/cp-enterprise-control-center:7.9.5
-    container_name: control-center
-    hostname: control-center
-    depends_on:
-      - kafka
-    ports:
-      - "9021:9021"
-    environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9091
-      CONTROL_CENTER_MODE_ENABLE: management
-      CONTROL_CENTER_REPLICATION_FACTOR: 1
-      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
-      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
-      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
-      PORT: 9021
-      TZ: "Asia/Ho_Chi_Minh"
-    networks:
-      - online-auction
+  # Confluent Control Center
+  # control-center:
+  #   image: confluentinc/cp-enterprise-control-center:7.9.5
+  #   container_name: control-center
+  #   hostname: control-center
+  #   depends_on:
+  #     - kafka
+  #   ports:
+  #     - "9021:9021"
+  #   environment:
+  #     CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9091
+  #     CONTROL_CENTER_MODE_ENABLE: management
+  #     CONTROL_CENTER_REPLICATION_FACTOR: 1
+  #     CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+  #     CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+  #     CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+  #     PORT: 9021
+  #     TZ: "Asia/Ho_Chi_Minh"
+  #   networks:
+  #     - online-auction
 
 volumes:
   postgres_data:
   redis_data:
-  pgadmin_data:
+  # pgadmin_data:
   minio_data:
   kafka_data:
+  caddy_data:
+  caddy_config:

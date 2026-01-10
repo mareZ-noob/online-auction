@@ -112,7 +112,7 @@ public class CustomOidcUserService extends OidcUserService {
         if (socialAccountOptional.isPresent()) {
             // Already logged in with this social account before
             user = socialAccountOptional.get().getUser();
-            updateExistingUser(user, oidcUser);
+            updateExistingUser(user, oidcUser, keycloakRoles);
             log.info("Existing social account found, user logged in: {}", user.getEmail());
         } else {
             // Never logged in with this social account before
@@ -134,6 +134,8 @@ public class CustomOidcUserService extends OidcUserService {
                     log.info("Auto linking Local Account {} to Provider {}", email, provider);
                     try {
                         linkSocialAccount(user, provider, providerId, oidcUser);
+                        // Also update user details including roles
+                        updateExistingUser(user, oidcUser, keycloakRoles);
                     } catch (Exception e) {
                         log.error("Failed to link social account: {}", e.getMessage(), e);
                         throw new OAuth2AuthenticationException("Failed to link accounts: " + e.getMessage());
@@ -164,7 +166,7 @@ public class CustomOidcUserService extends OidcUserService {
                     // Continue with registration - Keycloak will require verification
                 }
 
-                user = registerNewUser(userRequest, oidcUser, provider, providerId);
+                user = registerNewUser(userRequest, oidcUser, provider, providerId, keycloakRoles);
             }
         }
 
@@ -172,7 +174,11 @@ public class CustomOidcUserService extends OidcUserService {
     }
 
     private User registerNewUser(
-            OidcUserRequest userRequest, OidcUser oidcUser, AuthProvider provider, String providerId) {
+            OidcUserRequest userRequest,
+            OidcUser oidcUser,
+            AuthProvider provider,
+            String providerId,
+            List<String> keycloakRoles) {
         Boolean emailVerified = oidcUser.getEmailVerified();
         if (emailVerified == null) {
             emailVerified = false;
@@ -182,7 +188,13 @@ public class CustomOidcUserService extends OidcUserService {
         user.setFullName(oidcUser.getFullName());
         user.setEmail(oidcUser.getEmail());
         user.setEmailVerified(emailVerified); // Set based on Keycloak's status
-        user.setRole(UserRole.BIDDER);
+
+        if (keycloakRoles.contains("ADMIN")) {
+            user.setRole(UserRole.ADMIN);
+        } else {
+            user.setRole(UserRole.BIDDER);
+        }
+
         user.setPassword("");
         user.setIsActive(true);
 
@@ -236,8 +248,11 @@ public class CustomOidcUserService extends OidcUserService {
         log.info("Successfully linked social account {} to user {}", provider, user.getEmail());
     }
 
-    private void updateExistingUser(User user, OidcUser oidcUser) {
+    private void updateExistingUser(User user, OidcUser oidcUser, List<String> keycloakRoles) {
         user.setFullName(oidcUser.getFullName());
+        if (keycloakRoles.contains("ADMIN")) {
+            user.setRole(UserRole.ADMIN);
+        }
         userRepository.save(user);
     }
 

@@ -49,9 +49,16 @@ export const useAuthStore = create<AuthState>()(
 				const expiresAt = get().expiresAt;
 				if (!expiresAt) return true;
 
-				// Consider token expired if within 1 minute of expiry
+				// Consider token expired if within 5 seconds of expiry
 				const now = Date.now();
-				const expireThreshold = expiresAt - 60_000;
+				const expireThreshold = expiresAt - 5000;
+
+				console.log("Token Expiry Check:", {
+					now,
+					expiresAt,
+					timeLeft: (expiresAt - now) / 1000,
+					isExpired: now >= expireThreshold
+				});
 
 				return now >= expireThreshold;
 			},

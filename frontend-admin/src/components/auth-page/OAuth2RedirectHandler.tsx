@@ -14,7 +14,7 @@ function OAuth2RedirectHandler() {
 		console.log("Navigating to /admin in 100ms...");
 		setTimeout(() => {
 			console.log("Executing navigation NOW!");
-			navigate("/admin", { replace: true });
+			navigate("/", { replace: true });
 		}, 100);
 	};
 

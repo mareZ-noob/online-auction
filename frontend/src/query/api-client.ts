@@ -1,9 +1,10 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/auth-store";
 import i18n from "@/config/i18n";
+import env from "@/config/env";
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8088/api/",
+  baseURL: env.API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },

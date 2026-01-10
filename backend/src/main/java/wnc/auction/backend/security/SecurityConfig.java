@@ -60,9 +60,18 @@ public class SecurityConfig {
                                 "/api/products/category/{categoryId}",
                                 "/api/products/top/**",
                                 "/api/categories/**",
+                                "/swagger-ui.html",
                                 "/swagger-ui/**",
+                                "/api/swagger-ui.html",
+                                "/api/swagger-ui/**",
                                 "/api-docs/**",
                                 "/v3/api-docs/**",
+                                "/api/api-docs/**",
+                                "/api/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/api/swagger-resources/**",
+                                "/webjars/**",
+                                "/api/webjars/**",
                                 "/actuator/**")
                         .permitAll()
 

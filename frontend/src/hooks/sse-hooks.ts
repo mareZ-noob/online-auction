@@ -13,8 +13,9 @@ import {
 } from "@/components/custom-ui/toast/toast-ui";
 import { useAuthStore } from "@/store/auth-store";
 import type { MESSAGE_SSE_RESPONSE } from "@/types/Chat";
+import env from "@/config/env";
 
-const BASE_URL = import.meta.env.VITE_API_SSE_BASE_URL;
+const BASE_URL = env.API_SSE_BASE_URL;
 
 const isProductNotificationResponse = (
   data: PRODUCT_NOTIFICATION_RESPONSE | PRODUCT_NOTIFICATION_WINNER_RESPONSE
