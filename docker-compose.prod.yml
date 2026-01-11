@@ -101,7 +101,7 @@ services:
     restart: unless-stopped
     environment:
       - VITE_API_BASE_URL=https://web-hcmus.club/api
-      - VITE_API_SSE_BASE_URL=https://web-hcmus.club/sse
+      - VITE_API_SSE_BASE_URL=https://web-hcmus.club/api
       - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
     networks:
       - online-auction

@@ -94,7 +94,7 @@ services:
     hostname: frontend
     environment:
       - VITE_API_BASE_URL=https://localhost:8443/api
-      - VITE_API_SSE_BASE_URL=https://localhost:8443/sse
+      - VITE_API_SSE_BASE_URL=https://localhost:8443/api
       - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY:-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}
     networks:
       - online-auction
@@ -108,7 +108,7 @@ services:
     hostname: frontend-admin
     environment:
       - VITE_API_BASE_URL=https://localhost:8443/api
-      - VITE_API_SSE_BASE_URL=https://localhost:8443/sse
+      - VITE_API_SSE_BASE_URL=https://localhost:8443/api
     networks:
       - online-auction
 
