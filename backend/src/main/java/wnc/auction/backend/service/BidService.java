@@ -194,6 +194,11 @@ public class BidService {
     }
 
     private void triggerReactiveAutoBid(Product product, Bid incomingBid) {
+        // Fetch list of blocked user IDs for this product
+        List<Long> blockedUserIds = blockedBidderRepository.findByProductId(product.getId()).stream()
+                .map(blocked -> blocked.getBidder().getId())
+                .toList();
+
         // Fetch competitor list (all history with auto-bid enabled)
         List<Bid> allCompetitorBids = bidRepository.findByProductAndUserNotAndIsAutoBidTrue(
                 product.getId(), incomingBid.getUser().getId());
@@ -201,8 +206,14 @@ public class BidService {
         if (allCompetitorBids.isEmpty()) return;
 
         // Filter list: Keep only the LATEST Auto-Bid per user (Fix Zombie Bid issue)
+        // AND exclude blocked users
         Map<Long, Bid> uniqueCompetitors = new HashMap<>();
         for (Bid b : allCompetitorBids) {
+            // Skip blocked users
+            if (blockedUserIds.contains(b.getUser().getId())) {
+                continue;
+            }
+
             // Keep the bid with the latest creation date for each user
             if (!uniqueCompetitors.containsKey(b.getUser().getId())
                     || b.getCreatedAt()
@@ -398,8 +409,11 @@ public class BidService {
                 .map(blocked -> blocked.getBidder().getId())
                 .toList();
 
-        // Get all bids sorted by amount to calculate rank
-        List<Bid> rankedBids = bidRepository.findByProductOrderByAmountDesc(productId);
+        // Get all bids sorted by amount to calculate rank (excluding blocked users)
+        List<Bid> rankedBids = bidRepository.findByProductOrderByAmountDesc(productId).stream()
+                .filter(bid -> !blockedUserIds.contains(bid.getUser().getId()))
+                .toList();
+
         Map<Long, Integer> userRankMap = new HashMap<>();
 
         // Calculate rank for each unique user (based on their highest bid)
@@ -410,18 +424,13 @@ public class BidService {
             }
         }
 
+        // Filter out bids from blocked users completely
         return bids.getContent().stream()
+                .filter(bid -> !blockedUserIds.contains(bid.getUser().getId()))
                 .map(bid -> {
                     BidHistoryDto dto = BidMapper.toHistoryDto(bid);
-
-                    // Check if this bid belongs to a blocked user
-                    if (blockedUserIds.contains(bid.getUser().getId())) {
-                        dto.setBlocked(true);
-                    }
-
                     // Set rank based on user's highest bid
                     dto.setRank(userRankMap.getOrDefault(bid.getUser().getId(), null));
-
                     return dto;
                 })
                 .toList();
@@ -503,28 +512,42 @@ public class BidService {
     }
 
     public PageResponse<BidHistoryDto> getBidRanking(Long productId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        // Fetch list of blocked user IDs for this product
+        List<Long> blockedUserIds = blockedBidderRepository.findByProductId(productId).stream()
+                .map(blocked -> blocked.getBidder().getId())
+                .toList();
 
-        Page<Bid> bidPage = bidRepository.findByProductOrderByAmountDesc(productId, pageable);
+        // Get all bids excluding blocked users
+        List<Bid> allValidBids = bidRepository.findByProductOrderByAmountDesc(productId).stream()
+                .filter(bid -> !blockedUserIds.contains(bid.getUser().getId()))
+                .toList();
+
+        // Manual pagination
+        int start = page * size;
+        int end = Math.min(start + size, allValidBids.size());
+        List<Bid> pagedBids = allValidBids.subList(start, end);
 
         // Calculate rank for each bid
         int startRank = page * size + 1; // Starting rank for this page
         List<BidHistoryDto> content = new ArrayList<>();
 
-        for (int i = 0; i < bidPage.getContent().size(); i++) {
-            Bid bid = bidPage.getContent().get(i);
+        for (int i = 0; i < pagedBids.size(); i++) {
+            Bid bid = pagedBids.get(i);
             BidHistoryDto dto = BidMapper.toHistoryDto(bid);
             dto.setRank(startRank + i); // Assign rank based on position
             content.add(dto);
         }
 
+        int totalElements = allValidBids.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
         return PageResponse.<BidHistoryDto>builder()
                 .content(content)
-                .page(bidPage.getNumber())
-                .size(bidPage.getSize())
-                .totalElements(bidPage.getTotalElements())
-                .totalPages(bidPage.getTotalPages())
-                .last(bidPage.isLast())
+                .page(page)
+                .size(size)
+                .totalElements((long) totalElements)
+                .totalPages(totalPages)
+                .last(page >= totalPages - 1)
                 .build();
     }
 }
