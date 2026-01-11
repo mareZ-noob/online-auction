@@ -51,6 +51,11 @@ services:
       - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
       - KC_HEALTH_ENABLED=true
       - KC_METRICS_ENABLED=true
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      # OAuth2 Client Secrets for realm import
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+      - KEYCLOAK_ADMIN_CLIENT_SECRET=${KEYCLOAK_ADMIN_CLIENT_SECRET}
     volumes:
       - ./deploy/realm-prod.json:/opt/keycloak/data/import/realm-prod.json:ro
     networks:
@@ -152,7 +157,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./quartz/quartz-schema.sql:/docker-entrypoint-initdb.d/quartz-schema.sql
-      - ./deploy/init-keycloak-db.sql:/docker-entrypoint-initdb.d/init-keycloak-db.sql
+      - ./deploy/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
 
   # MinIO
   minio:

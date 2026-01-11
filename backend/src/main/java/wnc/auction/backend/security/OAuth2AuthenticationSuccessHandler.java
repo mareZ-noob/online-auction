@@ -129,13 +129,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         // Build frontend redirect URL with ONLY the code
-        // For admin frontend, include /admin base path
-        boolean isAdminFrontend = "keycloak-admin"
-                .equals(
-                        authentication instanceof OAuth2AuthenticationToken
-                                ? ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()
-                                : "");
-        String redirectPath = isAdminFrontend ? "/admin/oauth2/redirect" : "/oauth2/redirect";
+        // targetFrontendUrl already includes the base path (/admin for admin frontend)
+        // So we just need /oauth2/redirect for both
+        String redirectPath = "/oauth2/redirect";
 
         return UriComponentsBuilder.fromUriString(targetFrontendUrl)
                 .path(redirectPath)

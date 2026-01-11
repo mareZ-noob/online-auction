@@ -1,8 +1,6 @@
 web-hcmus.club {
     # Automatic HTTPS with Let's Encrypt
-    tls {
-        email admin@web-hcmus.club
-    }
+    tls namisme16052004@gmail.com
 
     # Security headers
     header {
@@ -14,7 +12,7 @@ web-hcmus.club {
     }
 
     # Frontend User
-    handle / {
+    handle /* {
         reverse_proxy frontend:80
     }
 
@@ -23,6 +21,14 @@ web-hcmus.club {
         reverse_proxy frontend-admin:80
     }
 
+    # OAuth2 login callback
+    handle /login/* {
+        reverse_proxy backend:8088 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
 
     # Swagger UI (strip /api prefix)
     handle /api/swagger-ui* {
@@ -73,6 +79,12 @@ web-hcmus.club {
             header_up X-Forwarded-For {remote_host}
             header_up X-Forwarded-Proto {scheme}
         }
+    }
+
+    # MinIO (File Storage)
+    handle /files/* {
+        uri strip_prefix /files
+        reverse_proxy minio:9000
     }
 
     # Keycloak

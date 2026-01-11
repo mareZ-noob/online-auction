@@ -76,7 +76,48 @@
             }
         ]
     },
-    "users": [],
+    "users": [
+        {
+            "username": "user",
+            "email": "user@auction.com",
+            "enabled": true,
+            "firstName": "Normal",
+            "lastName": "User",
+            "emailVerified": true,
+            "realmRoles": [
+                "USER",
+                "BIDDER"
+            ],
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "1",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "admin",
+            "email": "admin@auction.com",
+            "enabled": true,
+            "firstName": "Admin",
+            "lastName": "User",
+            "emailVerified": true,
+            "realmRoles": [
+                "USER",
+                "ADMIN",
+                "BIDDER",
+                "SELLER"
+            ],
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "1",
+                    "temporary": false
+                }
+            ]
+        }
+    ],
     "clients": [
         {
             "clientId": "auction-backend",
@@ -91,6 +132,7 @@
             "authorizationServicesEnabled": true,
             "redirectUris": [
                 "https://web-hcmus.club/api/login/oauth2/code/*",
+                "https://web-hcmus.club/login/oauth2/code/*",
                 "https://web-hcmus.club/*",
                 "https://web-hcmus.club/auth/sign-in",
                 "https://web-hcmus.club/auth/sign-in/*"
@@ -128,6 +170,7 @@
             "authorizationServicesEnabled": true,
             "redirectUris": [
                 "https://web-hcmus.club/api/login/oauth2/code/*",
+                "https://web-hcmus.club/login/oauth2/code/*",
                 "https://web-hcmus.club/admin/*",
                 "https://web-hcmus.club/admin/auth/sign-in",
                 "https://web-hcmus.club/admin/auth/sign-in/*"
