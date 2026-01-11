@@ -7,30 +7,30 @@ import { ProtectedRoute } from "./protected-route";
 
 const SignInPage = lazy(() => import("@/components/auth-page/SignInPage"));
 const OAuth2RedirectHandler = lazy(
-	() => import("@/components/auth-page/OAuth2RedirectHandler"),
+  () => import("@/components/auth-page/OAuth2RedirectHandler")
 );
 
 // admin
 const ReportsPage = lazy(
-	() => import("@/components/dashboard/reports/ReportsPage"),
+  () => import("@/components/dashboard/reports/ReportsPage")
 );
 
 const CategoriesPage = lazy(
-	() => import("@/components/categories/CategoriesPage"),
+  () => import("@/components/categories/CategoriesPage")
 );
 const CreateCategoryPage = lazy(
-	() => import("@/components/categories/CreateCategoryPage"),
+  () => import("@/components/categories/CreateCategoryPage")
 );
 const DeleteCategoryPage = lazy(
-	() => import("@/components/categories/DeleteCategoryPage"),
+  () => import("@/components/categories/DeleteCategoryPage")
 );
 const ProductsPage = lazy(() => import("@/components/products/ProductsPage"));
 const AuctionSettingsPage = lazy(
-	() => import("@/components/products/AuctionSettings.tsx"),
+  () => import("@/components/products/AuctionSettings.tsx")
 );
 const UsersPage = lazy(() => import("@/components/users/UsersPage"));
 const UpgradeRequestsPage = lazy(
-	() => import("@/components/users/UpgradeRequestsPage"),
+  () => import("@/components/users/UpgradeRequestsPage")
 );
 
 const router = createBrowserRouter([
@@ -64,7 +64,11 @@ const router = createBrowserRouter([
 	{
 		path: "/",
 		errorElement: <ErrorPage />,
-		element: <Suspense fallback={<LoadingPage />}><CommonLayout /></Suspense>,
+		element: (
+			<Suspense fallback={<LoadingPage />}>
+				<CommonLayout />
+			</Suspense>
+		),
 		children: [
 			{
 				index: true,
