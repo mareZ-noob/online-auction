@@ -33,9 +33,13 @@ import type { CREATE_PRODUCT_PAYLOAD } from "@/types/Seller";
 import type { CATEGORY, SUB_CATEGORY } from "@/types/Product";
 import RichTextEditor from "./PublishNewProductDescription.tsx";
 import PublishNewProductImageUploads from "./PublishNewProductImageUploads";
+import ProductImageManager from "./ProductImageManager";
 import { useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
+
+import type { AxiosError } from "axios";
+import type { ApiResponseError } from "@/types/ApiResponse";
 
 const MIN_IMAGES = 3;
 const blankParagraph = "<p></p>";
@@ -196,10 +200,10 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
   const buildError = (error?: { message?: string }) =>
     error?.message
       ? [
-          {
-            message: t(error.message, { count: MIN_IMAGES }),
-          },
-        ]
+        {
+          message: t(error.message, { count: MIN_IMAGES }),
+        },
+      ]
       : [];
 
   const autoExtendValue = watch("autoExtend");
@@ -276,7 +280,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
         toastSuccess(t("publish.toast.createSuccess"));
         resetFormState();
       },
-      onError: (error) => {
+      onError: (error: AxiosError<ApiResponseError>) => {
         toastError(error);
       },
     });
@@ -297,7 +301,7 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
         onSuccess: () => {
           toastSuccess(t("publish.toast.updateSuccess"));
         },
-        onError: (error) => {
+        onError: (error: AxiosError<ApiResponseError>) => {
           toastError(error);
         },
       }
@@ -489,23 +493,10 @@ function PublishNewProduct({ mode = "create" }: { mode: "create" | "edit" }) {
           )}
 
           {mode === "edit" && currentProduct && (
-            <Field>
-              <FieldLabel>{t("publish.form.fields.images")}</FieldLabel>
-              {currentProduct.images.length !== 0 && (
-                <div className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                  {currentProduct.images.map((imageUrl, index) => (
-                    <img
-                      key={index}
-                      src={imageUrl}
-                      alt={t("publish.images.previewAlt", {
-                        index: index + 1,
-                      })}
-                      className="h-32 w-full rounded object-cover"
-                    />
-                  ))}
-                </div>
-              )}
-            </Field>
+            <ProductImageManager
+              productId={currentProduct.id}
+              images={currentProduct.images}
+            />
           )}
 
           {mode === "edit" && currentProduct && (

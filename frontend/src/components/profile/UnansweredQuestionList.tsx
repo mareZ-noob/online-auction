@@ -16,6 +16,8 @@ import { Eye } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
+import type { UNANSWERED_QUESTIONS } from "@/types/Seller";
+
 function UnansweredQuestionList() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -53,7 +55,7 @@ function UnansweredQuestionList() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {unansweredQuestions?.content.map((question, index) => (
+          {unansweredQuestions?.content.map((question: UNANSWERED_QUESTIONS, index: number) => (
             <TableRow key={question.id}>
               <TableCell className="max-w-sm">
                 <p className="font-light whitespace-normal wrap-break-word text-gray-400">

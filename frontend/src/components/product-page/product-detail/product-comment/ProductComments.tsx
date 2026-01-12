@@ -66,6 +66,10 @@ function CreateComment({
   );
 }
 
+import type { AxiosError } from "axios";
+import type { ApiResponseError } from "@/types/ApiResponse";
+import type { POST_ANSWER_TO_QUESTION_RESPONSE } from "@/types/Seller";
+
 function QuestionComment({ questions }: { questions: USER_QUESTIONS[] }) {
   const isSeller = useUserStore((state) => state.isSeller);
 
@@ -92,13 +96,13 @@ function QuestionComment({ questions }: { questions: USER_QUESTIONS[] }) {
         answer: answerValue,
       },
       {
-        onSuccess: (result) => {
+        onSuccess: (result: POST_ANSWER_TO_QUESTION_RESPONSE) => {
           setAnswerValue("");
           toastSuccess(
             result.message || t("productDetail.comments.answeredSuccess")
           );
         },
-        onError: (error) => {
+        onError: (error: AxiosError<ApiResponseError>) => {
           toastError(error);
         },
       }

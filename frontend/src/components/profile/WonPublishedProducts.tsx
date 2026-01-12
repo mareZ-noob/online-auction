@@ -24,6 +24,10 @@ import NotificationDialog from "../custom-ui/dialog/NotificationDialog";
 import { Input } from "../ui/input";
 import { useTranslation } from "react-i18next";
 
+import type { AxiosError } from "axios";
+import type { ApiResponseError } from "@/types/ApiResponse";
+import type { RATE_A_BIDDER_RESPONSE, SELLER_SALES } from "@/types/Seller";
+
 const rate_a_bidder_schema = z.object({
   comment: z.string().max(500, "profile.validation.commentMax"),
 });
@@ -72,7 +76,7 @@ function WonPublishedProducts() {
         comment: parsed.data.comment,
       },
       {
-        onSuccess: (result) => {
+        onSuccess: (result: RATE_A_BIDDER_RESPONSE) => {
           setComment("");
           toastSuccess(result.message);
 
@@ -81,7 +85,7 @@ function WonPublishedProducts() {
             exact: false,
           });
         },
-        onError: (error) => {
+        onError: (error: AxiosError<ApiResponseError>) => {
           toastError(error);
         },
       }
@@ -108,7 +112,7 @@ function WonPublishedProducts() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {salesData?.content.map((sale, index) => (
+          {salesData?.content.map((sale: SELLER_SALES, index: number) => (
             <TableRow key={sale.id}>
               <TableCell>
                 <p className="font-light">{index + 1}</p>

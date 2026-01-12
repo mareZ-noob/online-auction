@@ -213,12 +213,18 @@
         "publish": "Đăng sản phẩm",
         "publishing": "Đang đăng...",
         "update": "Cập nhật mô tả",
-        "updating": "Đang cập nhật..."
+        "updating": "Đang cập nhật...",
+        "removeImage": "Xóa hình ảnh",
+        "cancelPreview": "Hủy xem trước",
+        "addImage": "Thêm hình ảnh",
+        "uploading": "Đang tải lên..."
       }
     },
     "toast": {
       "createSuccess": "Đăng sản phẩm thành công.",
-      "updateSuccess": "Cập nhật mô tả sản phẩm thành công."
+      "updateSuccess": "Cập nhật mô tả sản phẩm thành công.",
+      "imageAdded": "Hình ảnh đã được thêm thành công.",
+      "imageRemoved": "Hình ảnh đã được xóa thành công."
     },
     "validation": {
       "imageInvalid": "Tệp hình ảnh không hợp lệ.",
@@ -234,10 +240,20 @@
       "imagesMin": "Cần ít nhất {{count}} hình ảnh.",
       "descriptionRequired": "Mô tả sản phẩm là bắt buộc.",
       "buyNowGreater": "Giá mua ngay phải lớn hơn giá khởi điểm.",
-      "categoryOrSubcategory": "Vui lòng chọn ít nhất một danh mục."
+      "categoryOrSubcategory": "Vui lòng chọn ít nhất một danh mục.",
+      "imageTooLarge": "Kích thước hình ảnh phải nhỏ hơn 5MB",
+      "minImagesRequired": "Sản phẩm phải có ít nhất {{count}} hình ảnh"
     },
     "images": {
-      "previewAlt": "Hình ảnh sản phẩm {{index}}"
+      "previewAlt": "Hình ảnh sản phẩm {{index}}",
+      "newPreview": "Hình ảnh sản phẩm mới {{index}}"
+    },
+    "confirm": {
+      "removeImage": "Bạn có chắc chắn muốn xóa hình ảnh này không?"
+    },
+    "info": {
+      "minImages": "Sản phẩm phải có ít nhất {{count}} hình ảnh.",
+      "currentImages": "{{count}} hình ảnh hiện có"
     }
   },
   "productDetail": {

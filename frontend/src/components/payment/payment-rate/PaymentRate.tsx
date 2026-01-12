@@ -15,6 +15,10 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import z from "zod";
 
+import type { AxiosError } from "axios";
+import type { ApiResponseError } from "@/types/ApiResponse";
+import type { RATE_A_USER_RESPONSE } from "@/types/User";
+
 const rate_a_seller_schema = z.object({
   comment: z.string().max(500, "profile.validation.commentMax"),
 });
@@ -60,7 +64,7 @@ function PaymentRate({
         comment: validatedComment,
       },
       {
-        onSuccess: (result) => {
+        onSuccess: (result: RATE_A_USER_RESPONSE) => {
           setComment("");
           toastSuccess(result.message);
           setUpdateRate(true);
@@ -70,7 +74,7 @@ function PaymentRate({
             exact: false,
           });
         },
-        onError: (error) => {
+        onError: (error: AxiosError<ApiResponseError>) => {
           toastError(error);
         },
       }
