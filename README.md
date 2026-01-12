@@ -7,7 +7,6 @@ A comprehensive, enterprise-grade online auction platform built with modern tech
 ## 📋 Table of Contents
 
 - [Overview](#overview)
-- [Architecture](#architecture)
 - [Technology Stack](#technology-stack)
 - [Features](#features)
 - [Project Structure](#project-structure)
@@ -37,51 +36,6 @@ The Online Auction Platform is a full-stack application that enables users to pa
 
 ---
 
-## 🏗️ Architecture
-
-The platform follows a modern three-tier architecture:
-
-```
-┌─────────────────────────────────────────────────────┐
-│                  Frontend Layer                      │
-│  ┌──────────────────┐    ┌──────────────────┐      │
-│  │  User Frontend   │    │  Admin Frontend  │      │
-│  │   (Port 5173)    │    │   (Port 5174)    │      │
-│  └──────────────────┘    └──────────────────┘      │
-└─────────────────────────────────────────────────────┘
-                        ▼
-┌─────────────────────────────────────────────────────┐
-│              Reverse Proxy (Caddy)                   │
-│                HTTPS (Port 8443)                     │
-└─────────────────────────────────────────────────────┘
-                        ▼
-┌─────────────────────────────────────────────────────┐
-│              Backend Layer (Spring Boot)             │
-│                  Port 8088                           │
-└─────────────────────────────────────────────────────┘
-                        ▼
-┌─────────────────────────────────────────────────────┐
-│                Data & Services Layer                 │
-│  ┌──────────┐ ┌──────┐ ┌──────┐ ┌────────┐         │
-│  │PostgreSQL│ │Redis │ │Kafka │ │Keycloak│         │
-│  └──────────┘ └──────┘ └──────┘ └────────┘         │
-│  ┌──────┐ ┌──────────┐                              │
-│  │MinIO │ │ MailHog  │                              │
-│  └──────┘ └──────────┘                              │
-└─────────────────────────────────────────────────────┘
-                        ▼
-┌─────────────────────────────────────────────────────┐
-│           Monitoring & Logging Layer                 │
-│  ┌────────────┐ ┌──────────┐ ┌─────────┐           │
-│  │Elasticsearch││Prometheus││ Grafana │           │
-│  │  Logstash  │ │          │ │         │           │
-│  │   Kibana   │ │          │ │         │           │
-│  └────────────┘ └──────────┘ └─────────┘           │
-└─────────────────────────────────────────────────────┘
-```
-
----
-
 ## 🛠️ Technology Stack
 
 ### Backend
@@ -105,7 +59,7 @@ The platform follows a modern three-tier architecture:
 
 ### Frontend (User)
 
-- **Framework**: React 19.2.0
+- **Framework**: React 19.2.1
 - **Language**: TypeScript 5.9.3
 - **Build Tool**: Vite 7.2.4
 - **UI Library**: Radix UI
@@ -122,7 +76,7 @@ The platform follows a modern three-tier architecture:
 
 ### Frontend (Admin)
 
-- **Framework**: React 19.2.0
+- **Framework**: React 19.2.1
 - **Language**: TypeScript 5.9.3
 - **Build Tool**: Vite 7.2.4
 - **UI Library**: Radix UI
@@ -541,24 +495,47 @@ Admin frontend will be available at: <http://localhost:5174>
 
 Full containerized environment with Caddy reverse proxy and HTTPS.
 
-#### 1. Start the Development Environment
+#### 1. Configure Environment
+
+Ensure you have updated the `.env.dev` file with your development configuration.
+
+#### 2. Start the Development Environment
 
 ```bash
-docker-compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
 ```
 
-#### 2. Access the Application
+#### 3. Access the Application
 
 - **User Frontend**: <https://localhost:8443>
 - **Admin Frontend**: <https://localhost:8443/admin>
 - **Backend API**: <https://localhost:8443/api>
 - **Keycloak**: <https://localhost:8443/keycloak>
-- **Swagger UI**: <https://localhost:8443/api/swagger-ui.html>
+- **Swagger UI**: <https://localhost:8443/api/swagger-ui/index.html>
 
 ### Option 3: Production Environment
 
+#### 1. Configure Environment
+
+Ensure you have updated the `.env.prod` file with your production configuration.
+
+#### 2. DNS Configuration
+
+You need to point your domain to your server's public IP address so that users can access the application via the domain name.
+
+Log in to your DNS provider (e.g., Namecheap, GoDaddy, Cloudflare) and add the following **A Records**:
+
+| Type | Host | Value | TTL |
+|------|------|-------|-----|
+| A | @ | `YOUR_VM_PUBLIC_IP` (e.g., 103.10.10.10) | Automatic |
+| A | www | `YOUR_VM_PUBLIC_IP` (e.g., 103.10.10.10) | Automatic |
+
+> **Note**: Replace `YOUR_VM_PUBLIC_IP` with the actual public IP address of your Virtual Machine or VPS.
+
+#### 3. Start the Production Environment
+
 ```bash
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
 ```
 
 ### Monitoring Stack (Optional)
@@ -654,7 +631,52 @@ The application uses **code-first approach** with Hibernate:
 
 - Database schema is automatically created/updated on application startup
 - Quartz tables are initialized via SQL script (`quartz/quartz-schema.sql`)
-- No manual database setup required
+- No manual database setup required for schema
+
+#### Sample Data Insertion (Optional)
+
+To insert sample data and initialize Quartz tables manually (if needed):
+
+1. **Copy SQL scripts to the container:**
+
+    ```bash
+    docker cp scripts/script.sql postgres:/tmp/script.sql
+    docker cp scripts/import_products.sql postgres:/tmp/import_products.sql
+    docker cp quartz/quartz-schema.sql postgres:/tmp/quartz-schema.sql
+    ```
+
+2. **Execute the scripts:**
+
+    ```bash
+    # Initialize Quartz tables
+    docker exec -it postgres psql -U postgres -d auction_db -f /tmp/quartz-schema.sql
+
+    # Insert sample data
+    docker exec -it postgres psql -U postgres -d auction_db -f /tmp/script.sql
+    docker exec -it postgres psql -U postgres -d auction_db -f /tmp/import_products.sql
+    ```
+
+3. **Verify insertion:**
+
+    ```bash
+    docker exec -it postgres psql -U postgres -d auction_db -c "SELECT COUNT(*) FROM products;"
+    ```
+
+#### Image Migration (Production)
+
+Sample data contains image URLs with `http://`. For production environments (using HTTPS), you need to migrate these to MinIO public URLs with `https`.
+
+1. **Run the migration script:**
+
+    ```bash
+    ./scripts/migrate-images-docker.sh
+    ```
+
+2. **Handle failed migrations (if any):**
+
+    ```bash
+    ./scripts/handle-failed-images-docker.sh
+    ```
 
 ### Ports Reference
 
