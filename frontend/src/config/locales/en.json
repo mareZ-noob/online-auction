@@ -213,12 +213,18 @@
         "publish": "Publish product",
         "publishing": "Publishing...",
         "update": "Update description",
-        "updating": "Updating..."
+        "updating": "Updating...",
+        "removeImage": "Remove image",
+        "cancelPreview": "Cancel preview",
+        "addImage": "Add Image",
+        "uploading": "Uploading..."
       }
     },
     "toast": {
       "createSuccess": "Product published successfully.",
-      "updateSuccess": "Product description updated successfully."
+      "updateSuccess": "Product description updated successfully.",
+      "imageAdded": "Image added successfully",
+      "imageRemoved": "Image removed successfully"
     },
     "validation": {
       "imageInvalid": "Invalid image file.",
@@ -234,10 +240,20 @@
       "imagesMin": "Please upload at least {{count}} images.",
       "descriptionRequired": "Product description is required.",
       "buyNowGreater": "Buy now price must be greater than starting price.",
-      "categoryOrSubcategory": "Please choose at least one category option."
+      "categoryOrSubcategory": "Please choose at least one category option.",
+      "imageTooLarge": "Image size must be less than 5MB",
+      "minImagesRequired": "Product must have at least {{count}} images"
     },
     "images": {
-      "previewAlt": "Product image {{index}}"
+      "previewAlt": "Product image {{index}}",
+      "newPreview": "New image preview"
+    },
+    "confirm": {
+      "removeImage": "Are you sure you want to remove this image?"
+    },
+    "info": {
+      "minImages": "Minimum {{count}} images required",
+      "currentImages": "{{count}} images"
     }
   },
   "productDetail": {

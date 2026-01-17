@@ -125,6 +125,7 @@ function UsersPage() {
 						<TableHead>Name</TableHead>
 						<TableHead>Email</TableHead>
 						<TableHead>Role</TableHead>
+						<TableHead>Login Provider</TableHead>
 						<TableHead>Verified</TableHead>
 						<TableHead>Rating</TableHead>
 						<TableHead>Region</TableHead>
@@ -155,6 +156,22 @@ function UsersPage() {
 										)}
 									>
 										<p className="text-center">{user.role}</p>
+									</div>
+								</TableCell>
+								<TableCell>
+									<div className="flex flex-wrap gap-1">
+										{user.linkedProviders.map((provider) => (
+											<span
+												key={provider}
+												className={cn(
+													"px-2 py-1 rounded-md text-xs font-medium",
+													provider === "LOCAL" && "bg-blue-100 text-blue-800",
+													provider === "KEYCLOAK" && "bg-purple-100 text-purple-800",
+												)}
+											>
+												{provider}
+											</span>
+										))}
 									</div>
 								</TableCell>
 								<TableCell>{user.emailVerified ? "Yes" : "No"}</TableCell>
@@ -239,7 +256,13 @@ function UsersPage() {
 								</TableCell>
 								<TableCell>
 									<div className="flex items-center justify-center">
-										<Button variant="default" size="sm" onClick={() => handleResetPasswordUser(user.id)}>
+										<Button
+											variant="default"
+											size="sm"
+											onClick={() => handleResetPasswordUser(user.id)}
+											disabled={user.linkedProviders.includes("KEYCLOAK")}
+											title={user.linkedProviders.includes("KEYCLOAK") ? "Password managed by Keycloak" : ""}
+										>
 											{resetPasswordUserLoading && resettingUserId === user.id ? "Resetting..." : "Reset"}
 										</Button>
 									</div>

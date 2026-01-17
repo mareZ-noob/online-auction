@@ -16,6 +16,8 @@ import ProfilePage from "./ProfilePage";
 import { formatDateTime } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
+import type { PRODUCTS_BY_SUB_CATEGORY_ID } from "@/types/Product";
+
 function MyPublishedProducts() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -71,7 +73,7 @@ function MyPublishedProducts() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {publishedProducts?.content.map((product, index) => (
+          {publishedProducts?.content.map((product: PRODUCTS_BY_SUB_CATEGORY_ID, index: number) => (
             <TableRow key={product.id}>
               <TableCell className="max-w-sm">
                 <p className="font-light whitespace-normal wrap-break-word text-gray-400">

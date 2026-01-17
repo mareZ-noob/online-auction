@@ -34,115 +34,105 @@ const UpgradeRequestsPage = lazy(
 );
 
 const router = createBrowserRouter([
-  {
-    path: "/auth",
-    errorElement: <ErrorPage />,
-    children: [
-      {
-        index: true,
-        element: <Navigate to="sign-in" replace />,
-      },
-      {
-        path: "sign-in",
-        element: (
-          <Suspense fallback={<LoadingPage />}>
-            <SignInPage />
-          </Suspense>
-        ),
-      },
-    ],
-  },
-  {
-    path: "/oauth2/redirect",
-    element: (
-      <Suspense fallback={<LoadingPage />}>
-        <OAuth2RedirectHandler />
-      </Suspense>
-    ),
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: "/",
-    errorElement: <ErrorPage />,
-    children: [
-      {
-        index: true,
-        element: <Navigate to="admin" replace />,
-      },
-      {
-        path: "/admin",
-        errorElement: <ErrorPage />,
-        element: (
-          <Suspense fallback={<LoadingPage />}>
-            <CommonLayout />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: <Navigate to="dashboard" replace />,
-          },
-          {
-            path: "dashboard",
-            children: [
-              {
-                index: true,
-                element: <Navigate to="reports" replace />,
-              },
-              {
-                path: "reports",
-                element: <ReportsPage />,
-              },
-            ],
-          },
-          {
-            path: "categories",
-            children: [
-              {
-                index: true,
-                element: <CategoriesPage />,
-              },
-              {
-                path: "creation",
-                element: <CreateCategoryPage />,
-              },
-              {
-                path: "deletion",
-                element: <DeleteCategoryPage />,
-              },
-            ],
-          },
-          {
-            path: "products",
-            children: [
-              {
-                index: true,
-                element: <ProductsPage />,
-              },
-              {
-                path: "auction-settings",
-                element: <AuctionSettingsPage />,
-              },
-            ],
-          },
-          {
-            path: "users",
-            children: [
-              {
-                index: true,
-                element: <UsersPage />,
-              },
-              {
-                path: "upgrade-requests",
-                element: <UpgradeRequestsPage />,
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    loader: ProtectedRoute,
-  },
-]);
+	{
+		path: "/auth",
+		errorElement: <ErrorPage />,
+		children: [
+			{
+				index: true,
+				element: <Navigate to="sign-in" replace />,
+			},
+			{
+				path: "sign-in",
+				element: (
+					<Suspense fallback={<LoadingPage />}>
+						<SignInPage />
+					</Suspense>
+				),
+			},
+		],
+	},
+	{
+		path: "/oauth2/redirect",
+		element: (
+			<Suspense fallback={<LoadingPage />}>
+				<OAuth2RedirectHandler />
+			</Suspense>
+		),
+		errorElement: <ErrorPage />,
+	},
+	{
+		path: "/",
+		errorElement: <ErrorPage />,
+		element: (
+			<Suspense fallback={<LoadingPage />}>
+				<CommonLayout />
+			</Suspense>
+		),
+		children: [
+			{
+				index: true,
+				element: <Navigate to="dashboard" replace />,
+			},
+			{
+				path: "dashboard",
+				children: [
+					{
+						index: true,
+						element: <Navigate to="reports" replace />,
+					},
+					{
+						path: "reports",
+						element: <ReportsPage />
+					},
+				],
+			},
+			{
+				path: "categories",
+				children: [
+					{
+						index: true,
+						element: <CategoriesPage />,
+					},
+					{
+						path: "creation",
+						element: <CreateCategoryPage />,
+					},
+					{
+						path: "deletion",
+						element: <DeleteCategoryPage />,
+					}
+				],
+			},
+			{
+				path: "products",
+				children: [
+					{
+						index: true,
+						element: <ProductsPage />,
+					},
+					{
+						path: "auction-settings",
+						element: <AuctionSettingsPage />,
+					},
+				],
+			},
+			{
+				path: "users",
+				children: [
+					{
+						index: true,
+						element: <UsersPage />,
+					},
+					{
+						path: "upgrade-requests",
+						element: <UpgradeRequestsPage />,
+					},
+				],
+			},
+		],
+		loader: ProtectedRoute,
+	},
+], { basename: "/admin/" });
 
 export default router;

@@ -19,8 +19,15 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
+# Create logs and uploads directories
+RUN mkdir -p /app/logs /app/uploads
+
 # Create non-root user
 RUN addgroup -S spring && adduser -S spring -G spring
+
+# Change ownership of directories
+RUN chown -R spring:spring /app/logs /app/uploads
+
 USER spring:spring
 
 # Copy JAR from builder stage

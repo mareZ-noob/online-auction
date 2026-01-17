@@ -41,19 +41,17 @@ export function createSSE<T>({
         return;
       }
 
-      // Parse only JSON payloads
-      // try {
-      //   const parsed = JSON.parse(event.data);
-      //   console.log(parsed);
-
-      //   onMessage(parsed as T, event);
-      //   console.log("siuu");
-      // } catch (err) {
-      //   console.warn("Non-JSON SSE message:", event.data);
-      // }
-
-      const parsed = JSON.parse(event.data);
-      onMessage(parsed as T, event);
+      // Parse only JSON payloads, ignore keep-alive and other non-JSON messages
+      try {
+        const parsed = JSON.parse(event.data);
+        onMessage(parsed as T, event);
+      } catch (err) {
+        // Silently ignore non-JSON messages (like "keep-alive")
+        // These are used to keep the connection alive
+        if (event.data !== "keep-alive") {
+          console.warn("Non-JSON SSE message:", event.data);
+        }
+      }
     },
 
     onerror(err) {

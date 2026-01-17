@@ -24,10 +24,12 @@ public class MinioFileStorageService implements FileStorageService {
     private final MinioClient minioClient;
     private final String bucketName;
     private final String minioUrl;
+    private final String minioPublicUrl;
     private final List<String> allowedExtensions;
 
     public MinioFileStorageService(
             @Value("${app.file.minio.url}") String url,
+            @Value("${app.file.minio.public-url}") String publicUrl,
             @Value("${app.file.minio.access-key}") String accessKey,
             @Value("${app.file.minio.secret-key}") String secretKey,
             @Value("${app.file.minio.bucket}") String bucketName,
@@ -39,6 +41,7 @@ public class MinioFileStorageService implements FileStorageService {
                 .build();
         this.bucketName = bucketName;
         this.minioUrl = url;
+        this.minioPublicUrl = publicUrl;
         this.allowedExtensions = Arrays.asList(allowedExtensions);
     }
 
@@ -65,8 +68,8 @@ public class MinioFileStorageService implements FileStorageService {
                             .contentType(contentType)
                             .build());
 
-            // Construct public URL (Assuming bucket is public or handled via Nginx)
-            return minioUrl + "/" + bucketName + "/" + fileName;
+            // Return public URL accessible through Caddy reverse proxy
+            return minioPublicUrl + "/" + bucketName + "/" + fileName;
 
         } catch (Exception e) {
             throw new FileStorageException("Failed to upload file to MinIO", e);

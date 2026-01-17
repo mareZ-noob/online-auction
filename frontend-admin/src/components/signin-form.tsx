@@ -2,19 +2,19 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
 	Field,
-	FieldDescription,
 	FieldGroup,
 	FieldLabel,
 	FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStatus, useLogin } from "@/hooks/auth-hooks.ts";
 import { toastError, toastSuccess } from "./custom-ui/toast/toast-ui";
+import env from "@/config/env";
 
 const signin_schema = z.object({
 	email: z.email({ message: "Invalid email address" }),
@@ -57,7 +57,7 @@ export function SigninForm({
 
 	useEffect(() => {
 		if (isAuthenticated) {
-			navigate("/admin");
+			navigate("/");
 		}
 	}, [isAuthenticated, navigate]);
 
@@ -78,11 +78,7 @@ export function SigninForm({
 	}, [searchParams, setSearchParams]);
 
 	const handleSocialLogin = () => {
-		const baseURL =
-			import.meta.env.VITE_API_BASE_URL || "http://localhost:8088/api";
-
-		// Full URL: http://localhost:8088/api/auth/oauth2/authorize/keycloak-admin
-		window.location.href = `${baseURL}/auth/oauth2/authorize/keycloak-admin`;
+		window.location.href = `${env.API_BASE_URL}/auth/oauth2/authorize/keycloak-admin`;
 	};
 
 	return (

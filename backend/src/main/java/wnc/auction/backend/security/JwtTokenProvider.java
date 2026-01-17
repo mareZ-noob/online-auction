@@ -5,11 +5,13 @@ import io.jsonwebtoken.security.Keys;
 import java.time.LocalDateTime;
 import java.util.*;
 import javax.crypto.SecretKey;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class JwtTokenProvider {
 
     @Value("${app.jwt.secret}")
@@ -68,6 +70,7 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException ex) {
+            log.error("JWT Validation Failed: {}", ex.getMessage());
             return false;
         }
     }

@@ -43,7 +43,7 @@ const data = {
 			items: [
 				{
 					title: "Reports",
-					url: "/admin/dashboard/reports",
+					url: "/dashboard/reports",
 				},
 			],
 		},
@@ -54,15 +54,15 @@ const data = {
 			items: [
 				{
 					title: "List of Categories",
-					url: "/admin/categories",
+					url: "/categories",
 				},
 				{
 					title: "Create categories",
-					url: "/admin/categories/creation",
+					url: "/categories/creation",
 				},
 				{
 					title: "Delete categories",
-					url: "/admin/categories/deletion",
+					url: "/categories/deletion",
 				},
 			],
 		},
@@ -72,11 +72,11 @@ const data = {
 			items: [
 				{
 					title: "List of Products",
-					url: "/admin/products",
+					url: "/products",
 				},
 				{
 					title: "Aunction Settings",
-					url: "/admin/products/auction-settings",
+					url: "/products/auction-settings",
 				}
 			],
 		},
@@ -86,11 +86,11 @@ const data = {
 			items: [
 				{
 					title: "List of Users",
-					url: "/admin/users",
+					url: "/users",
 				},
 				{
 					title: "Upgrade Requests",
-					url: "/admin/users/upgrade-requests",
+					url: "/users/upgrade-requests",
 				},
 			],
 		},

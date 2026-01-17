@@ -22,6 +22,10 @@ import { useEffect } from "react";
 import type { BID_HISTORY_OF_A_PRODUCT_RESPONSE } from "@/types/Bid";
 import type { LEADERBOARD } from "@/types/SSE";
 
+import type { AxiosError } from "axios";
+import type { ApiResponseError } from "@/types/ApiResponse";
+import type { BLOCK_A_BIDDER_FROM_A_PRODUCT_RESPONSE } from "@/types/Seller";
+
 function ProductBidHistory({
   isMine,
   productId,
@@ -41,10 +45,10 @@ function ProductBidHistory({
     blockABidderMutate(
       { productId, bidderId },
       {
-        onSuccess: (result) => {
+        onSuccess: (result: BLOCK_A_BIDDER_FROM_A_PRODUCT_RESPONSE) => {
           toastSuccess(result.message);
         },
-        onError: (error) => {
+        onError: (error: AxiosError<ApiResponseError>) => {
           toastError(error);
         },
       }

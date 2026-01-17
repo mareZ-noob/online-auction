@@ -443,6 +443,11 @@ public class ProductService {
             throw new ForbiddenException("You can only update your own products");
         }
 
+        // Check if product has at least 3 images
+        if (product.getImages().size() <= 3) {
+            throw new BadRequestException("Product must have at least 3 images. Cannot remove more images.");
+        }
+
         if (product.getImages().contains(imageUrl)) {
             product.getImages().remove(imageUrl);
 

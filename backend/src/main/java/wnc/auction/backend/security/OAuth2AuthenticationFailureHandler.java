@@ -25,8 +25,8 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
     @Value("${app.frontend.admin-url}")
     private String adminFrontendURL;
 
-    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
-    private String keycloakIssuerUri;
+    @Value("${app.keycloak.public-url}")
+    private String keycloakPublicUrl;
 
     @Override
     public void onAuthenticationFailure(
@@ -47,14 +47,17 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
             String targetFrontendUrl = isFromAdminFrontend ? adminFrontendURL : frontendURL;
 
             // Build post-logout redirect URI (clean URL without params)
-            String postLogoutRedirectUri = targetFrontendUrl + "/auth/sign-in";
+            // For admin frontend, include /admin base path
+            String postLogoutRedirectUri = isFromAdminFrontend
+                    ? targetFrontendUrl + "/admin/auth/sign-in"
+                    : targetFrontendUrl + "/auth/sign-in";
 
             String errorMessage = exception.getMessage() != null ? exception.getMessage() : "Access denied";
 
             // Build Keycloak logout URL with id_token_hint and state
             // Use state param to pass the error message
-            String logoutUrl = UriComponentsBuilder.fromUriString(keycloakIssuerUri)
-                    .path("/protocol/openid-connect/logout")
+            String logoutUrl = UriComponentsBuilder.fromUriString(keycloakPublicUrl)
+                    .path("/realms/auction-realm/protocol/openid-connect/logout")
                     .queryParam("id_token_hint", idToken)
                     .queryParam("post_logout_redirect_uri", postLogoutRedirectUri)
                     .queryParam("state", errorMessage)
@@ -79,8 +82,10 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
                 exception.getMessage() != null ? exception.getMessage() : "Authentication failed. Please try again.";
 
         // Build redirect URL - always redirect back to the same frontend
+        // For admin frontend, include /admin base path
+        String authPath = isFromAdminFrontend ? "/admin/auth/sign-in" : "/auth/sign-in";
         String targetUrl = UriComponentsBuilder.fromUriString(targetFrontendUrl)
-                .path("/auth/sign-in")
+                .path(authPath)
                 .queryParam("error", URLEncoder.encode(errorMessage, StandardCharsets.UTF_8))
                 .build()
                 .toUriString();

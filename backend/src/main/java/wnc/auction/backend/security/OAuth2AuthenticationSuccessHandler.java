@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -112,11 +113,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String targetFrontendUrl = frontendURL; // Default to regular frontend
 
         // Check if this is an OAuth2 authentication
-        if (authentication
-                instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
-            org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauth2Token =
-                    (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken)
-                            authentication;
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) authentication;
             String registrationId = oauth2Token.getAuthorizedClientRegistrationId();
 
             log.info("OAuth2 client registration ID: {}", registrationId);
@@ -131,8 +129,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         // Build frontend redirect URL with ONLY the code
+        // targetFrontendUrl already includes the base path (/admin for admin frontend)
+        // So we just need /oauth2/redirect for both
+        String redirectPath = "/oauth2/redirect";
+
         return UriComponentsBuilder.fromUriString(targetFrontendUrl)
-                .path("/oauth2/redirect")
+                .path(redirectPath)
                 .queryParam("code", code)
                 .build()
                 .toUriString();

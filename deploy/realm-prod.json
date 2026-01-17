@@ -1,0 +1,199 @@
+{
+    "realm": "auction-realm",
+    "enabled": true,
+    "registrationAllowed": true,
+    "registrationEmailAsUsername": true,
+    "verifyEmail": true,
+    "resetPasswordAllowed": true,
+    "loginWithEmailAllowed": true,
+    "duplicateEmailsAllowed": false,
+    "otpPolicyType": "totp",
+    "otpPolicyAlgorithm": "HmacSHA1",
+    "otpPolicyInitialCounter": 0,
+    "otpPolicyDigits": 6,
+    "otpPolicyLookAheadWindow": 1,
+    "otpPolicyPeriod": 30,
+    "otpSupportedApplications": [
+        "FreeOTP",
+        "Google Authenticator"
+    ],
+    "sslRequired": "external",
+    "requiredActions": [
+        {
+            "alias": "VERIFY_EMAIL",
+            "name": "Verify Email",
+            "providerId": "VERIFY_EMAIL",
+            "enabled": true,
+            "defaultAction": true,
+            "priority": 50,
+            "config": {}
+        },
+        {
+            "alias": "CONFIGURE_TOTP",
+            "name": "Configure OTP",
+            "providerId": "CONFIGURE_TOTP",
+            "enabled": true,
+            "defaultAction": true,
+            "priority": 10,
+            "config": {}
+        },
+        {
+            "alias": "TERMS_AND_CONDITIONS",
+            "name": "Terms and Conditions",
+            "providerId": "TERMS_AND_CONDITIONS",
+            "enabled": true,
+            "defaultAction": true,
+            "priority": 10,
+            "config": {}
+        }
+    ],
+    "smtpServer": {
+        "host": "smtp.gmail.com",
+        "port": "587",
+        "from": "noreply@web-hcmus.club",
+        "auth": "true",
+        "starttls": "true",
+        "user": "${SMTP_USER}",
+        "password": "${SMTP_PASSWORD}"
+    },
+    "roles": {
+        "realm": [
+            {
+                "name": "USER",
+                "description": "Regular user role"
+            },
+            {
+                "name": "ADMIN",
+                "description": "Administrator role with full access"
+            },
+            {
+                "name": "BIDDER",
+                "description": "User who can bid on auctions"
+            },
+            {
+                "name": "SELLER",
+                "description": "User who can create auctions"
+            }
+        ]
+    },
+    "users": [
+        {
+            "username": "user",
+            "email": "user@auction.com",
+            "enabled": true,
+            "firstName": "Normal",
+            "lastName": "User",
+            "emailVerified": true,
+            "realmRoles": [
+                "USER",
+                "BIDDER"
+            ],
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "1",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "admin",
+            "email": "admin@auction.com",
+            "enabled": true,
+            "firstName": "Admin",
+            "lastName": "User",
+            "emailVerified": true,
+            "realmRoles": [
+                "USER",
+                "ADMIN",
+                "BIDDER",
+                "SELLER"
+            ],
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "1",
+                    "temporary": false
+                }
+            ]
+        }
+    ],
+    "clients": [
+        {
+            "clientId": "auction-backend",
+            "name": "Auction Backend Service",
+            "protocol": "openid-connect",
+            "publicClient": false,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "${KEYCLOAK_CLIENT_SECRET}",
+            "standardFlowEnabled": true,
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "authorizationServicesEnabled": true,
+            "redirectUris": [
+                "https://web-hcmus.club/api/login/oauth2/code/*",
+                "https://web-hcmus.club/login/oauth2/code/*",
+                "https://web-hcmus.club/*",
+                "https://web-hcmus.club/auth/sign-in",
+                "https://web-hcmus.club/auth/sign-in/*"
+            ],
+            "webOrigins": [
+                "https://web-hcmus.club"
+            ],
+            "protocolMappers": [
+                {
+                    "name": "realm-roles",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-realm-role-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "realm_access.roles",
+                        "jsonType.label": "String",
+                        "multivalued": "true",
+                        "userinfo.token.claim": "true",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true"
+                    }
+                }
+            ]
+        },
+        {
+            "clientId": "auction-admin-backend",
+            "name": "Auction Admin Backend Service",
+            "protocol": "openid-connect",
+            "publicClient": false,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "${KEYCLOAK_ADMIN_CLIENT_SECRET}",
+            "standardFlowEnabled": true,
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "authorizationServicesEnabled": true,
+            "redirectUris": [
+                "https://web-hcmus.club/api/login/oauth2/code/*",
+                "https://web-hcmus.club/login/oauth2/code/*",
+                "https://web-hcmus.club/admin/*",
+                "https://web-hcmus.club/admin/auth/sign-in",
+                "https://web-hcmus.club/admin/auth/sign-in/*"
+            ],
+            "webOrigins": [
+                "https://web-hcmus.club"
+            ],
+            "protocolMappers": [
+                {
+                    "name": "realm-roles",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-realm-role-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "realm_access.roles",
+                        "jsonType.label": "String",
+                        "multivalued": "true",
+                        "userinfo.token.claim": "true",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true"
+                    }
+                }
+            ]
+        }
+    ]
+}

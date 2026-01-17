@@ -92,6 +92,10 @@ export const API_ENDPOINTS = {
   RATE_A_BIDDER: "/seller/ratings",
   CHECK_RATED_BIDDER_ON_A_PRODUCT: (productId: string | number) =>
     `/seller/ratings/check/${productId}`,
+  ADD_PRODUCT_IMAGE: (productId: string | number) =>
+    `/seller/products/${productId}/images`,
+  REMOVE_PRODUCT_IMAGE: (productId: string | number) =>
+    `/seller/products/${productId}/images`,
 
   // SSE
   PRODUCT_NOTIFICATION_SSE: (productId: string | number) =>

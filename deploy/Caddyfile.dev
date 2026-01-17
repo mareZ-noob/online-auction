@@ -1,0 +1,46 @@
+localhost:443 {
+    tls internal
+
+    # OAuth2 login callback (must be before /api/*)
+    reverse_proxy /login/* backend:8088
+
+    # Swagger UI (strip /api prefix)
+    handle /api/swagger-ui* {
+        uri strip_prefix /api
+        reverse_proxy backend:8088
+    }
+    handle /api/api-docs* {
+        uri strip_prefix /api
+        reverse_proxy backend:8088
+    }
+    handle /api/v3/api-docs* {
+        uri strip_prefix /api
+        reverse_proxy backend:8088
+    }
+    handle /api/swagger-resources* {
+        uri strip_prefix /api
+        reverse_proxy backend:8088
+    }
+    handle /api/webjars* {
+        uri strip_prefix /api
+        reverse_proxy backend:8088
+    }
+
+    # Backend API
+    reverse_proxy /api/* backend:8088
+
+    # SSE endpoint
+    reverse_proxy /sse/* backend:8088
+
+    # Keycloak
+    reverse_proxy /keycloak* keycloak:8080
+
+    # Frontend Admin
+    reverse_proxy /admin* frontend-admin:80
+
+    # Health check
+    respond /health "OK" 200
+
+    # Frontend User (default, must be last)
+    reverse_proxy frontend:80
+}

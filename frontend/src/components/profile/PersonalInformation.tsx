@@ -63,8 +63,15 @@ function PersonalInformation() {
   const { t } = useTranslation();
 
   const id = useUserStore((state) => state.id);
-  const isSeller = useUserStore((state) => state.isSeller);
+  const setIsSeller = useUserStore((state) => state.setIsSeller);
   const { data } = useFetchUser(id);
+
+  // Sync store with fresh API data
+  useEffect(() => {
+    if (data?.role) {
+      setIsSeller(data.role === "SELLER");
+    }
+  }, [data?.role, setIsSeller]);
 
   const {
     register,
@@ -105,11 +112,11 @@ function PersonalInformation() {
           address: data.address ?? "",
           dateOfBirth: data.dateOfBirth
             ? new Date(
-                new Date(data.dateOfBirth).getTime() -
-                  new Date(data.dateOfBirth).getTimezoneOffset() * 60000
-              )
-                .toISOString()
-                .slice(0, 16)
+              new Date(data.dateOfBirth).getTime() -
+              new Date(data.dateOfBirth).getTimezoneOffset() * 60000
+            )
+              .toISOString()
+              .slice(0, 16)
             : "",
           oldPassword: "",
           newPassword: "",
@@ -337,7 +344,7 @@ function PersonalInformation() {
             </form>
           </CardContent>
         </Card>
-        {isSeller === false && (
+        {data?.role === "BIDDER" && (
           <Card className="w-1/2">
             <CardHeader>
               <CardTitle>
@@ -428,7 +435,7 @@ function PersonalInformation() {
             </CardContent>
           </Card>
         )}
-        {isSeller && (
+        {data?.role === "SELLER" && (
           <Card className="w-1/2">
             <CardHeader>
               <CardTitle>

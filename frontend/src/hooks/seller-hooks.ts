@@ -245,3 +245,63 @@ export const useCheckARatedProductOfSeller = (
     enabled: !!productId && isSeller,
   });
 };
+
+export const useAddProductImage = (productId: number) => {
+  return useMutation<
+    UPDATE_PRODUCT_DESCRIPTION_RESPONSE,
+    AxiosError<ApiResponseError>,
+    File
+  >({
+    mutationKey: ["add-product-image", productId],
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const { data } = await apiClient.post<UPDATE_PRODUCT_DESCRIPTION_RESPONSE>(
+        API_ENDPOINTS.ADD_PRODUCT_IMAGE(productId),
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["product_details", productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["my-published-products"],
+      });
+    },
+  });
+};
+
+export const useRemoveProductImage = (productId: number) => {
+  return useMutation<
+    UPDATE_PRODUCT_DESCRIPTION_RESPONSE,
+    AxiosError<ApiResponseError>,
+    string
+  >({
+    mutationKey: ["remove-product-image", productId],
+    mutationFn: async (imageUrl: string) => {
+      const { data } = await apiClient.delete<UPDATE_PRODUCT_DESCRIPTION_RESPONSE>(
+        API_ENDPOINTS.REMOVE_PRODUCT_IMAGE(productId),
+        {
+          data: { imageUrl },
+        }
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["product_details", productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["my-published-products"],
+      });
+    },
+  });
+};
