@@ -185,6 +185,7 @@
         "startingPrice": "Starting Price",
         "stepPrice": "Step Price",
         "buyNowPrice": "Buy Now Price",
+        "parentCategory": "Parent Category",
         "category": "Category",
         "subcategory": "Subcategory",
         "endTime": "End Time",
@@ -198,7 +199,9 @@
         "name": "Enter product name",
         "startingPrice": "Enter starting price",
         "stepPrice": "Enter step price",
-        "buyNowPrice": "Enter buy now price"
+        "buyNowPrice": "Enter buy now price",
+        "parentCategory": "Select parent category",
+        "category": "Select category"
       },
       "loadingCategories": "Loading categories...",
       "categoryPlaceholder": "Select a category",
@@ -249,7 +252,12 @@
       "newPreview": "New image preview"
     },
     "confirm": {
-      "removeImage": "Are you sure you want to remove this image?"
+      "removeImage": {
+        "title": "Remove Image",
+        "description": "Are you sure you want to remove this image? This action cannot be undone.",
+        "confirm": "Yes, Remove",
+        "cancel": "Cancel"
+      }
     },
     "info": {
       "minImages": "Minimum {{count}} images required",

@@ -14,6 +14,8 @@ import type {
   SELLER_SALES_RESPONSE,
   UPDATE_PRODUCT_DESCRIPTION_PAYLOAD,
   UPDATE_PRODUCT_DESCRIPTION_RESPONSE,
+  UPDATE_PRODUCT_PAYLOAD,
+  UPDATE_PRODUCT_RESPONSE,
   SELLER_SALES,
   CHECK_A_RATED_BIDDER_ON_A_PRODUCT_RESPONSE,
 } from "@/types/Seller";
@@ -92,6 +94,31 @@ export const useUpdateProductDescription = (id: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["product_details", id],
+      });
+    },
+  });
+};
+
+export const useUpdateProduct = (id: number) => {
+  return useMutation<
+    UPDATE_PRODUCT_RESPONSE,
+    AxiosError<ApiResponseError>,
+    UPDATE_PRODUCT_PAYLOAD
+  >({
+    mutationKey: ["update-product", id],
+    mutationFn: async (payload: UPDATE_PRODUCT_PAYLOAD) => {
+      const { data } = await apiClient.put<UPDATE_PRODUCT_RESPONSE>(
+        API_ENDPOINTS.UPDATE_PRODUCT(id),
+        payload
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["product_details", id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["my-published-products"],
       });
     },
   });
