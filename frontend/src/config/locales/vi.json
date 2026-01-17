@@ -185,6 +185,7 @@
         "startingPrice": "Giá khởi điểm",
         "stepPrice": "Bước giá",
         "buyNowPrice": "Giá mua ngay",
+        "parentCategory": "Danh mục cha",
         "category": "Danh mục",
         "subcategory": "Danh mục con",
         "endTime": "Thời gian kết thúc",
@@ -198,7 +199,9 @@
         "name": "Nhập tên sản phẩm",
         "startingPrice": "Nhập giá khởi điểm",
         "stepPrice": "Nhập bước giá",
-        "buyNowPrice": "Nhập giá mua ngay"
+        "buyNowPrice": "Nhập giá mua ngay",
+        "parentCategory": "Chọn danh mục cha",
+        "category": "Chọn danh mục"
       },
       "loadingCategories": "Đang tải danh mục...",
       "categoryPlaceholder": "Chọn danh mục",
@@ -249,7 +252,12 @@
       "newPreview": "Hình ảnh sản phẩm mới {{index}}"
     },
     "confirm": {
-      "removeImage": "Bạn có chắc chắn muốn xóa hình ảnh này không?"
+      "removeImage": {
+        "title": "Xóa hình ảnh",
+        "description": "Bạn có chắc chắn muốn xóa hình ảnh này không? Hành động này không thể hoàn tác.",
+        "confirm": "Xác nhận xóa",
+        "cancel": "Hủy bỏ"
+      }
     },
     "info": {
       "minImages": "Sản phẩm phải có ít nhất {{count}} hình ảnh.",

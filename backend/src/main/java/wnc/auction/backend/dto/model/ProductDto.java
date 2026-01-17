@@ -23,6 +23,8 @@ public class ProductDto {
     private BigDecimal buyNowPrice;
     private Long categoryId;
     private String categoryName;
+    private Long parentCategoryId;
+    private String parentCategoryName;
     private Long sellerId;
     private String sellerName;
     private Double sellerRating;

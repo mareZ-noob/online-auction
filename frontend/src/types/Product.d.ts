@@ -75,6 +75,8 @@ export type PRODUCT_DETAILS = {
   buyNowPrice: number;
   categoryId: number;
   categoryName: string;
+  parentCategoryId: number | null;
+  parentCategoryName: string | null;
   sellerId: number;
   sellerName: string;
   sellerRating: number;

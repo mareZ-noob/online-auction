@@ -79,6 +79,7 @@ export const API_ENDPOINTS = {
     `/seller/products?page=${page}&size=${size}`,
   UPDATE_PRODUCT_DESCRIPTION: (id: string | number) =>
     `/seller/products/${id}/description`,
+  UPDATE_PRODUCT: (id: string | number) => `/seller/products/${id}`,
   ANSWER_A_QUESTION_ON_PRODUCT: (questionId: string | number) =>
     `/seller/questions/${questionId}/answer`,
   BLOCK_A_BIDDER_FROM_A_PRODUCT: (

@@ -68,6 +68,14 @@ public class SellerController {
         return ResponseEntity.ok(ApiResponse.success("Description updated", product));
     }
 
+    @PutMapping("/products/{id}")
+    @Operation(summary = "Update product (category and description)")
+    public ResponseEntity<ApiResponse<ProductDto>> updateProduct(
+            @PathVariable Long id, @Valid @RequestBody UpdateProductRequest request) {
+        ProductDto product = productService.updateProduct(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Product updated", product));
+    }
+
     @DeleteMapping("/products/{id}")
     @Operation(summary = "Delete a product")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {

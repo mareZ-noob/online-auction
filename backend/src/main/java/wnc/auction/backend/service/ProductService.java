@@ -20,6 +20,7 @@ import wnc.auction.backend.dto.model.ProductListDto;
 import wnc.auction.backend.dto.request.CreateProductRequest;
 import wnc.auction.backend.dto.request.SearchRequest;
 import wnc.auction.backend.dto.request.UpdateProductDescriptionRequest;
+import wnc.auction.backend.dto.request.UpdateProductRequest;
 import wnc.auction.backend.dto.response.PageResponse;
 import wnc.auction.backend.exception.BadRequestException;
 import wnc.auction.backend.exception.ForbiddenException;
@@ -119,7 +120,7 @@ public class ProductService {
         auctionSchedulerService.scheduleAuctionClose(product.getId(), product.getEndTime());
 
         log.info("Product created: {} by seller: {}", product.getId(), sellerId);
-        return ProductMapper.toDto(product, sellerId, false, null);
+        return ProductMapper.toDto(product, sellerId, false, null, false);
     }
 
     public ProductDto getProductById(Long id) {
@@ -129,11 +130,13 @@ public class ProductService {
 
         // Check if the current user is blocked from this product
         boolean isBlocked = false;
+        boolean isWatched = false;
         if (currentUserId != null) {
             isBlocked = blockedBidderRepository.existsByProductIdAndBidderId(id, currentUserId);
+            isWatched = watchListRepository.existsByUserIdAndProductId(currentUserId, id);
         }
 
-        return ProductMapper.toDto(product, currentUserId, isBlocked, calculateUserRank(id, currentUserId));
+        return ProductMapper.toDto(product, currentUserId, isBlocked, calculateUserRank(id, currentUserId), isWatched);
     }
 
     public ProductDto updateProductDescription(Long id, UpdateProductDescriptionRequest request) {
@@ -160,7 +163,54 @@ public class ProductService {
         notifyBiddersAboutProductUpdate(product, request.getAdditionalDescription());
 
         log.info("Product description updated: {}", id);
-        return ProductMapper.toDto(product, sellerId, false, null);
+        return ProductMapper.toDto(product, sellerId, false, null, false);
+    }
+
+    public ProductDto updateProduct(Long id, UpdateProductRequest request) {
+        Long sellerId = CurrentUser.getUserId();
+        Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found"));
+
+        if (!product.getSeller().getId().equals(sellerId)) {
+            throw new ForbiddenException("You can only update your own products");
+        }
+
+        // Check if product has bids - if so, only allow description updates
+        if (product.getBidCount() > 0) {
+            throw new BadRequestException("Cannot update category for products with existing bids");
+        }
+
+        // Update category
+        Category category = categoryRepository
+                .findById(request.getCategoryId())
+                .orElseThrow(() -> new NotFoundException("Category not found"));
+        product.setCategory(category);
+
+        // Update name if provided
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            product.setName(request.getName().trim());
+        }
+
+        // Update description if provided
+        if (request.getAdditionalDescription() != null
+                && !request.getAdditionalDescription().trim().isEmpty()) {
+            // Append to description history
+            DescriptionUpdate update = new DescriptionUpdate(request.getAdditionalDescription(), LocalDateTime.now());
+            product.getDescriptionHistory().add(update);
+
+            // Append to main description
+            String updatedDescription = product.getDescription() + "\n\n✏️ "
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n\n- "
+                    + request.getAdditionalDescription();
+            product.setDescription(updatedDescription);
+
+            // Notify all bidders about the product update
+            notifyBiddersAboutProductUpdate(product, request.getAdditionalDescription());
+        }
+
+        product = productRepository.save(product);
+
+        log.info("Product updated: {}", id);
+        return ProductMapper.toDto(product, sellerId, false, null, false);
     }
 
     private void notifyBiddersAboutProductUpdate(Product product, String updateDescription) {
@@ -430,7 +480,7 @@ public class ProductService {
         productRepository.save(product);
 
         log.info("Image added to product {}: {}", productId, imageUrl);
-        return ProductMapper.toDto(product, sellerId, false, null);
+        return ProductMapper.toDto(product, sellerId, false, null, false);
     }
 
     public ProductDto removeProductImage(Long productId, String imageUrl) {
@@ -460,6 +510,6 @@ public class ProductService {
         }
 
         log.info("Image removed from product {}: {}", productId, imageUrl);
-        return ProductMapper.toDto(product, sellerId, false, null);
+        return ProductMapper.toDto(product, sellerId, false, null, false);
     }
 }

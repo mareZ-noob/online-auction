@@ -45,6 +45,9 @@ import { CheckSellerRole } from "@/routes/protected-route.ts";
 const PublishNewProduct = lazy(
   () => import("@/components/publish-new-product/PublishNewProduct.tsx")
 );
+const EditProduct = lazy(
+  () => import("@/components/publish-new-product/EditProduct.tsx")
+);
 const MyPublishedProducts = lazy(
   () => import("@/components/profile/MyPublishedProducts.tsx")
 );
@@ -237,17 +240,19 @@ const router = createBrowserRouter([
         path: "publish",
         element: (
           <Suspense fallback={<LoadingPage />}>
-            <PublishNewProduct mode="create" />
+            <PublishNewProduct />
           </Suspense>
         ),
+        loader: CheckSellerRole,
       },
       {
         path: ":id/edit",
         element: (
           <Suspense fallback={<LoadingPage />}>
-            <PublishNewProduct mode="edit" />
+            <EditProduct />
           </Suspense>
         ),
+        loader: CheckSellerRole,
       },
       {
         path: ":id",
