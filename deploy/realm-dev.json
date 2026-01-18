@@ -1,199 +1,197 @@
 {
-    "realm": "auction-realm",
-    "enabled": true,
-    "registrationAllowed": true,
-    "registrationEmailAsUsername": true,
-    "verifyEmail": true,
-    "resetPasswordAllowed": true,
-    "loginWithEmailAllowed": true,
-    "duplicateEmailsAllowed": false,
-    "otpPolicyType": "totp",
-    "otpPolicyAlgorithm": "HmacSHA1",
-    "otpPolicyInitialCounter": 0,
-    "otpPolicyDigits": 6,
-    "otpPolicyLookAheadWindow": 1,
-    "otpPolicyPeriod": 30,
-    "otpSupportedApplications": [
-        "FreeOTP",
-        "Google Authenticator"
-    ],
-    "sslRequired": "external",
-    "requiredActions": [
-        {
-            "alias": "VERIFY_EMAIL",
-            "name": "Verify Email",
-            "providerId": "VERIFY_EMAIL",
-            "enabled": true,
-            "defaultAction": true,
-            "priority": 50,
-            "config": {}
-        },
-        {
-            "alias": "CONFIGURE_TOTP",
-            "name": "Configure OTP",
-            "providerId": "CONFIGURE_TOTP",
-            "enabled": true,
-            "defaultAction": true,
-            "priority": 10,
-            "config": {}
-        },
-        {
-            "alias": "TERMS_AND_CONDITIONS",
-            "name": "Terms and Conditions",
-            "providerId": "TERMS_AND_CONDITIONS",
-            "enabled": true,
-            "defaultAction": true,
-            "priority": 10,
-            "config": {}
-        }
-    ],
-    "smtpServer": {
-        "host": "mailhog",
-        "port": "1025",
-        "from": "noreply@online-auction.com",
-        "auth": "false",
-        "starttls": "false",
-        "user": "",
-        "password": ""
+  "realm": "auction-realm",
+  "enabled": true,
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "verifyEmail": true,
+  "resetPasswordAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyInitialCounter": 0,
+  "otpPolicyDigits": 6,
+  "otpPolicyLookAheadWindow": 1,
+  "otpPolicyPeriod": 30,
+  "otpSupportedApplications": [
+    "FreeOTP",
+    "Google Authenticator"
+  ],
+  "sslRequired": "external",
+  "requiredActions": [
+    {
+      "alias": "VERIFY_EMAIL",
+      "name": "Verify Email",
+      "providerId": "VERIFY_EMAIL",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 50,
+      "config": {}
     },
-    "roles": {
-        "realm": [
-            {
-                "name": "USER",
-                "description": "Regular user role"
-            },
-            {
-                "name": "ADMIN",
-                "description": "Administrator role with full access"
-            },
-            {
-                "name": "BIDDER",
-                "description": "User who can bid on auctions"
-            },
-            {
-                "name": "SELLER",
-                "description": "User who can create auctions"
-            }
-        ]
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 10,
+      "config": {}
     },
-    "users": [
-        {
-            "username": "user",
-            "email": "user@auction.com",
-            "enabled": true,
-            "firstName": "Normal",
-            "lastName": "User",
-            "emailVerified": true,
-            "realmRoles": [
-                "USER",
-                "BIDDER"
-            ],
-            "credentials": [
-                {
-                    "type": "password",
-                    "value": "1",
-                    "temporary": false
-                }
-            ]
-        },
-        {
-            "username": "admin",
-            "email": "admin@auction.com",
-            "enabled": true,
-            "firstName": "Admin",
-            "lastName": "User",
-            "emailVerified": true,
-            "realmRoles": [
-                "USER",
-                "ADMIN",
-                "BIDDER",
-                "SELLER"
-            ],
-            "credentials": [
-                {
-                    "type": "password",
-                    "value": "1",
-                    "temporary": false
-                }
-            ]
-        }
-    ],
-    "clients": [
-        {
-            "clientId": "auction-backend",
-            "name": "Auction Backend Service",
-            "protocol": "openid-connect",
-            "publicClient": false,
-            "clientAuthenticatorType": "client-secret",
-            "secret": "auction-client-secret",
-            "standardFlowEnabled": true,
-            "directAccessGrantsEnabled": true,
-            "serviceAccountsEnabled": true,
-            "authorizationServicesEnabled": true,
-            "redirectUris": [
-                "https://localhost:8443/login/oauth2/code/*",
-                "https://localhost:8443/api/login/oauth2/code/*",
-                "https://localhost:8443/*",
-                "https://localhost:8443/auth/sign-in",
-                "https://localhost:8443/auth/sign-in/*"
-            ],
-            "webOrigins": [
-                "https://localhost:8443"
-            ],
-            "protocolMappers": [
-                {
-                    "name": "realm-roles",
-                    "protocol": "openid-connect",
-                    "protocolMapper": "oidc-usermodel-realm-role-mapper",
-                    "consentRequired": false,
-                    "config": {
-                        "claim.name": "realm_access.roles",
-                        "jsonType.label": "String",
-                        "multivalued": "true",
-                        "userinfo.token.claim": "true",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true"
-                    }
-                }
-            ]
-        },
-        {
-            "clientId": "auction-admin-backend",
-            "name": "Auction Admin Backend Service",
-            "protocol": "openid-connect",
-            "publicClient": false,
-            "clientAuthenticatorType": "client-secret",
-            "secret": "auction-admin-client-secret",
-            "standardFlowEnabled": true,
-            "directAccessGrantsEnabled": true,
-            "serviceAccountsEnabled": true,
-            "authorizationServicesEnabled": true,
-            "redirectUris": [
-                "https://localhost:8443/login/oauth2/code/*",
-                "https://localhost:8443/api/login/oauth2/code/*",
-                "https://localhost:8443/admin/*",
-                "https://localhost:8443/admin/auth/sign-in",
-                "https://localhost:8443/admin/auth/sign-in/*"
-            ],
-            "webOrigins": [
-                "https://localhost:8443"
-            ],
-            "protocolMappers": [
-                {
-                    "name": "realm-roles",
-                    "protocol": "openid-connect",
-                    "protocolMapper": "oidc-usermodel-realm-role-mapper",
-                    "consentRequired": false,
-                    "config": {
-                        "claim.name": "realm_access.roles",
-                        "jsonType.label": "String",
-                        "multivalued": "true",
-                        "userinfo.token.claim": "true",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true"
-                    }
-                }
-            ]
-        }
+    {
+      "alias": "TERMS_AND_CONDITIONS",
+      "name": "Terms and Conditions",
+      "providerId": "TERMS_AND_CONDITIONS",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 10,
+      "config": {}
+    }
+  ],
+  "smtpServer": {
+    "host": "mailhog",
+    "port": "1025",
+    "from": "noreply@online-auction.com",
+    "auth": "false",
+    "starttls": "false",
+    "user": "",
+    "password": ""
+  },
+  "roles": {
+    "realm": [
+      {
+        "name": "USER",
+        "description": "Regular user role"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrator role with full access"
+      },
+      {
+        "name": "BIDDER",
+        "description": "User who can bid on auctions"
+      },
+      {
+        "name": "SELLER",
+        "description": "User who can create auctions"
+      }
     ]
+  },
+  "users": [
+    {
+      "username": "user",
+      "email": "user@auction.com",
+      "enabled": true,
+      "firstName": "Normal",
+      "lastName": "User",
+      "emailVerified": true,
+      "realmRoles": [
+        "USER",
+        "BIDDER"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "1",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "admin",
+      "email": "admin@auction.com",
+      "enabled": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "emailVerified": true,
+      "realmRoles": [
+        "USER",
+        "ADMIN",
+        "BIDDER",
+        "SELLER"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "1",
+          "temporary": false
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "auction-backend",
+      "name": "Auction Backend Service",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "auction-client-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "redirectUris": [
+        "https://localhost:8443/login/oauth2/code/keycloak"
+      ],
+      "webOrigins": [
+        "https://localhost:8443"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "https://localhost:8443/auth/sign-in"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "auction-admin-backend",
+      "name": "Auction Admin Backend Service",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "auction-admin-client-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "redirectUris": [
+        "https://localhost:8443/login/oauth2/code/keycloak-admin"
+      ],
+      "webOrigins": [
+        "https://localhost:8443"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "https://localhost:8443/admin/auth/sign-in"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ]
 }

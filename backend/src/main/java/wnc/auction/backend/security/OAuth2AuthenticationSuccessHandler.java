@@ -131,10 +131,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         // Build frontend redirect URL with ONLY the code
         // targetFrontendUrl already includes the base path (/admin for admin frontend)
         // So we just need /oauth2/redirect for both
-        String redirectPath = "/oauth2/redirect";
-
         return UriComponentsBuilder.fromUriString(targetFrontendUrl)
-                .path(redirectPath)
+                .path("/oauth2/redirect")
                 .queryParam("code", code)
                 .build()
                 .toUriString();
