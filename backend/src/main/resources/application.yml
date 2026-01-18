@@ -144,7 +144,7 @@ app:
     expiration-minutes: 5
   frontend:
     url: ${FRONTEND_URL:http://localhost:5173}
-    admin-url: ${FRONTEND_ADMIN_URL:http://localhost:5174}
+    admin-url: ${FRONTEND_ADMIN_URL:http://localhost:5174/admin}
   kafka:
     topic:
       audit-log: audit-log
@@ -193,7 +193,6 @@ management:
       access: read_only
     prometheus:
       access: read_only
-  
   prometheus:
     metrics:
       export:
