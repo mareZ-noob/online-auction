@@ -35,6 +35,9 @@ localhost:443 {
     # Keycloak
     reverse_proxy /keycloak* keycloak:8080
 
+    # Kafka-UI
+    reverse_proxy /kafka-ui* kafka-ui:8080
+
     # Frontend Admin
     reverse_proxy /admin* frontend-admin:80
 

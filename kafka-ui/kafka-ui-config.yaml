@@ -1,0 +1,16 @@
+auth:
+  type: OAUTH2
+  oauth2:
+    client:
+      keycloak:
+        provider: keycloak
+        client-name: Keycloak
+        clientId: auction-kafka-ui
+        clientSecret: auction-kafka-ui-client-secret
+        authorization-grant-type: authorization_code
+        scope: openid
+        user-name-attribute: preferred_username
+        redirect-uri: "https://localhost:8443/kafka-ui/login/oauth2/code/keycloak"
+        authorization-uri: https://localhost:8443/keycloak/realms/auction-realm/protocol/openid-connect/auth
+        token-uri: http://keycloak:8080/keycloak/realms/auction-realm/protocol/openid-connect/token
+        jwk-set-uri: http://keycloak:8080/keycloak/realms/auction-realm/protocol/openid-connect/certs

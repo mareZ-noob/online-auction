@@ -49,6 +49,7 @@ services:
       - KC_CACHE_METRICS_HISTOGRAMS_ENABLED=true
       - KC_HOSTNAME_URL=https://localhost:8443/keycloak
       - KC_HOSTNAME_ADMIN_URL=https://localhost:8443/keycloak
+      - KC_HOSTNAME_STRICT_BACKCHANNEL=false
     volumes:
       - ./deploy/realm-dev.json:/opt/keycloak/data/import/realm-dev.json:ro
     networks:
@@ -166,7 +167,7 @@ services:
   #   depends_on:
   #     postgres:
   #       condition: service_healthy
-  
+
   # MinIO
   minio:
     image: quay.io/minio/minio:RELEASE.2025-03-12T18-04-18Z
@@ -259,16 +260,24 @@ services:
     image: provectuslabs/kafka-ui:latest
     hostname: kafka-ui
     container_name: kafka-ui
-    ports:
-      - "8081:8080"
     environment:
+      SERVER_SERVLET_CONTEXT_PATH: /kafka-ui
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
+      SPRING_WEBFLUX_SESSION_COOKIE_PATH: /
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9091
       DYNAMIC_CONFIG_ENABLED: true
+      SPRING_CONFIG_ADDITIONAL-LOCATION: /config.yaml
+      LOGGING_LEVEL_ROOT: INFO
+      LOGGING_LEVEL_IO_KAFBAT_UI: INFO
+    volumes:
+      - ./kafka-ui/kafka-ui-config.yaml:/config.yaml:ro
     networks:
       - online-auction
     depends_on:
       kafka:
+        condition: service_healthy
+      keycloak:
         condition: service_healthy
 
   # Confluent Control Center
